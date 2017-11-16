@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{96B3811C-7F33-4E01-96D7-59A7BF54CEC2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FORCEBuild</RootNamespace>
+    <AssemblyName>FORCEBuild</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.1.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.1.0\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.2.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Windsor.4.1.0\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
+    <Reference Include="ParallelExtensionsExtras, Version=1.2.3.0, Culture=neutral, PublicKeyToken=665f4d61f853b5a9, processorArchitecture=MSIL">
+      <HintPath>..\packages\ParallelExtensionsExtras.1.2.0.0\lib\net40\ParallelExtensionsExtras.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Input.Manipulations" />
+    <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Expression.Blend.Sdk.WPF.1.0.1\lib\net45\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Presentation" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.1\lib\net35\xunit.abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.2.0\lib\netstandard1.1\xunit.assert.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.2.0\lib\netstandard1.1\xunit.core.dll</HintPath>
+    </Reference>
+    <Reference Include="xunit.execution.dotnet, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.2.0\lib\netstandard1.1\xunit.execution.dotnet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Concurrency\ConcurrentIndexQueue.cs" />
+    <Compile Include="Core\FactoryComponent.cs" />
+    <Compile Include="Core\GenerateEventArgs.cs" />
+    <Compile Include="Core\ImplementComponent.cs" />
+    <Compile Include="Crosscutting\IAfterReturningAdvice.cs" />
+    <Compile Include="Crosscutting\Log\DebugExtension.cs" />
+    <Compile Include="Crosscutting\Log\ILog.cs" />
+    <Compile Include="Crosscutting\IMethodBeforeAdvice.cs" />
+    <Compile Include="Crosscutting\Log\DebugLog.cs" />
+    <Compile Include="Crosscutting\Log\TextLog.cs" />
+    <Compile Include="Crosscutting\PropertyChangedNotifyComponent.cs" />
+    <Compile Include="Crosscutting\Validation\FileNameCheckAttribute.cs" />
+    <Compile Include="Crosscutting\Validation\MultiStringNullCheck.cs" />
+    <Compile Include="Crosscutting\Validation\XValidaterAttribute.cs" />
+    <Compile Include="Crosscutting\Validation\LengthAdmitAttribute.cs" />
+    <Compile Include="Crosscutting\Validation\NotNullAttribute.cs" />
+    <Compile Include="Concurrency\Actor.cs" />
+    <Compile Include="Concurrency\ActorContext.cs" />
+    <Compile Include="Concurrency\ActorDispatcher.cs" />
+    <Compile Include="Concurrency\IActor.cs" />
+    <Compile Include="Concurrency\LockCollection.cs" />
+    <Compile Include="Concurrency\ResourcesManager.cs" />
+    <Compile Include="Concurrency\SynchronizationHelper.cs" />
+    <Compile Include="Concurrency\ThreadControl.cs" />
+    <Compile Include="Concurrency\LightThreadPool.cs" />
+    <Compile Include="Concurrency\ThreadTask.cs" />
+    <Compile Include="Configuration\IMapProfile.cs" />
+    <Compile Include="Configuration\AutoMapperInstaller.cs" />
+    <Compile Include="Concurrency\ResourcesManagerClarifyByGuid.cs" />
+    <Compile Include="Crosscutting\BeforeInvokeInterceptor.cs" />
+    <Compile Include="Crosscutting\AfterInvokeInterceptor.cs" />
+    <Compile Include="Crosscutting\ValidateInterceptor.cs" />
+    <Compile Include="Concurrency\ObservableConcurrentBag.cs" />
+    <Compile Include="Concurrency\ObservableConcurrentList.cs" />
+    <Compile Include="Core\ForceBuildFactory.cs" />
+    <Compile Include="Crosscutting\NotifyBase.cs" />
+    <Compile Include="Helper\Encryption.cs" />
+    <Compile Include="Helper\Extension.cs" />
+    <Compile Include="Helper\SoftwareRegister.cs" />
+    <Compile Include="Helper\UpdateMapper.cs" />
+    <Compile Include="Helper\UpdateAttribute.cs" />
+    <Compile Include="Helper\UpdateRule.cs" />
+    <Compile Include="IO\Compression\GZipFile.cs" />
+    <Compile Include="Net\Base\SocketPool.cs" />
+    <Compile Include="Net\Service\ITcpServiceCustomer.cs" />
+    <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Net\Service\IServiceProvider.cs" />
+    <Compile Include="Net\Service\ITcpServiceProvider.cs" />
+    <Compile Include="UI\WPF\BindableSelectedItemListBoxBehavior.cs" />
+    <Compile Include="UI\WPF\BindableSelectedItemTreeViewBehavior.cs" />
+    <Compile Include="UI\WPF\IntervalProducing.cs" />
+    <Compile Include="UI\WPF\StreamRichTextBox.cs" />
+    <Compile Include="UI\WPF\WaterMarkBehavior.cs" />
+    <Compile Include="Windows\CIM\CIM_LogicalDevice.cs" />
+    <Compile Include="Windows\CIM\CIM_LogicalElement.cs" />
+    <Compile Include="Windows\CIM\CIM_ManagedElement.cs" />
+    <Compile Include="Windows\CIM\CIM_ManagedSystemElement.cs" />
+    <Compile Include="Windows\CIM\CIM_PhysicalElement.cs" />
+    <Compile Include="Windows\CIM\CIM_PhysicalMemory.cs" />
+    <Compile Include="Windows\CIM\CIM_Processor.cs" />
+    <Compile Include="Windows\CIM\CIM_Product.cs" />
+    <Compile Include="Windows\CIM\IElement.cs" />
+    <Compile Include="Windows\CIM\Win32_ComputerSystemProduct.cs" />
+    <Compile Include="Windows\CIM\Win32_DiskDrive.cs" />
+    <Compile Include="Windows\CIM\Win32_MemoryDevice.cs" />
+    <Compile Include="Windows\CIM\Win32_NetworkAdapterConfiguration.cs" />
+    <Compile Include="Windows\CIM\Win32_PhysicalMemory.cs" />
+    <Compile Include="Windows\CIM\Win32_Processor.cs" />
+    <Compile Include="Windows\CIM\Win32_Type.cs" />
+    <Compile Include="Windows\Hardware\DiskInfo.cs" />
+    <Compile Include="Windows\Hardware\InformationMapper.cs" />
+    <Compile Include="Windows\PInvoke\AllocationTypes.cs" />
+    <Compile Include="Windows\PInvoke\CPUID.cs" />
+    <Compile Include="Windows\PInvoke\CpuInfo.cs" />
+    <Compile Include="Windows\PInvoke\FreeTypes.cs" />
+    <Compile Include="Windows\PInvoke\MemoryProtections.cs" />
+    <Compile Include="Windows\WMI\ManagementClassCollector.cs" />
+    <Compile Include="Windows\Stream\BufferManagerBufferPool.cs" />
+    <Compile Include="Windows\Stream\IBufferPool.cs" />
+    <Compile Include="Windows\Hardware\Win32Provider.cs" />
+    <Compile Include="Windows\Hardware\WmiSearcher.cs" />
+    <Compile Include="Net\Service\ServiceInfo.cs" />
+    <None Include="app.config" />
+    <Compile Include="Windows\Hardware\CpuInfo.cs" />
+    <Compile Include="Windows\Hardware\INetworkInfoGet.cs" />
+    <Compile Include="Windows\Hardware\ISystemInfoGet.cs" />
+    <Compile Include="Windows\Hardware\NetworkInfo.cs" />
+    <Compile Include="Net\Base\ProtocolExtension.cs" />
+    <Compile Include="Windows\Hardware\SystemInfo.cs" />
+    <Compile Include="UI\Winform\Feature\ControlMoveable.cs" />
+    <Compile Include="UI\WPF\AnotherCommandImplementation.cs" />
+    <Compile Include="UI\Winform\Feature\ControlSizer.cs" />
+    <Compile Include="UI\Winform\Feature\FormFeature.cs" />
+    <Compile Include="UI\WPF\EnumBindingSourceExtension .cs" />
+    <Compile Include="Crosscutting\PropertyNotifyInterceptor.cs" />
+    <Compile Include="Net\Base\FtpFileType.cs" />
+    <Compile Include="Net\Base\FtpItem.cs" />
+    <Compile Include="UI\WPF\ObjectPool.cs" />
+    <Compile Include="Persistence\Serialization\IXFormatter.cs" />
+    <Compile Include="Persistence\Serialization\XBinaryElementAttribute.cs" />
+    <Compile Include="Persistence\Serialization\XBinaryFormatter.cs" />
+    <Compile Include="Persistence\Serialization\XBinaryRootAttribute.cs" />
+    <Compile Include="Persistence\Serialization\XBinarySerializePair.cs" />
+    <Compile Include="Persistence\Serialization\XBinarySerializeRoot.cs" />
+    <None Include="FORCEBuild.nuspec" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Persistence\Serialization\XBinarySerializer.cs" />
+    <Compile Include="Persistence\Serialization\XSoapElementAttribute.cs" />
+    <Compile Include="Persistence\Serialization\XSoapRootAttribute.cs" />
+    <Compile Include="Persistence\Serialization\XStructSerializer.cs" />
+    <Compile Include="Persistence\Serialization\XSoapSerializeItem.cs" />
+    <Compile Include="Persistence\Serialization\XSoapSerializeRoot.cs" />
+    <Compile Include="PInvoke\Library.cs" />
+    <Compile Include="PInvoke\Win32GDI.cs" />
+    <Compile Include="PInvoke\Win32Handle.cs" />
+    <Compile Include="PInvoke\Win32GDIWindow.cs" />
+    <Compile Include="PInvoke\WindowInfo.cs" />
+    <Compile Include="PInvoke\WinMsg.cs" />
+    <Compile Include="Net\Service\ServiceDefine.cs" />
+    <Compile Include="Net\Service\ServiceListener.cs" />
+    <Compile Include="Net\Service\ServiceBroadcaster.cs" />
+    <Compile Include="UnitTest\TestClass.cs" />
+    <Compile Include="UI\WPF\ImageExtend.cs" />
+    <Compile Include="Windows\KeyBoardHook.cs" />
+    <Compile Include="Windows\Hardware\Performance.cs" />
+    <Compile Include="Windows\WindowOperate.cs" />
+    <Compile Include="UI\Winform\Cluster\Block.cs" />
+    <Compile Include="UI\Winform\Cluster\BlockCollection.cs" />
+    <Compile Include="UI\Winform\Cluster\ColorButtonCollection.cs" />
+    <Compile Include="UI\Winform\Cluster\CustomBannerController.cs" />
+    <Compile Include="UI\Winform\Cluster\CustomButtonCollection.cs" />
+    <Compile Include="UI\Winform\Cluster\CustomRadioButtonGroup.cs" />
+    <Compile Include="UI\Winform\Feature\AreoExtend.cs" />
+    <Compile Include="UI\Winform\Feature\GuiExtend.cs" />
+    <Compile Include="UI\Winform\Cluster\LinearBannnerController.cs" />
+    <Compile Include="UI\Winform\Feature\FormMoveEnable.cs" />
+    <Compile Include="UI\Winform\Feature\StateMachine.cs" />
+    <Compile Include="UI\Winform\Feature\StateMachinePlus.cs" />
+    <Compile Include="UI\Winform\Render\ShadowCreater.cs" />
+    <Compile Include="UI\Winform\Feature\SizeChangeble.cs" />
+    <Compile Include="IO\Compression\ProgressArgs.cs" />
+    <Compile Include="Net\Base\FtpGroup.cs" />
+    <Compile Include="Net\Base\INet.cs" />
+    <Compile Include="Net\Base\NetHelper.cs" />
+    <Compile Include="Net\Base\TcpGroup.cs" />
+    <Compile Include="Net\Base\TcpSendCluster.cs" />
+    <Compile Include="Persistence\Relativization\WorkUnit.cs" />
+    <Compile Include="Persistence\Serialization\XSoapSerializer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Net\Base\TcpListenCluster.cs" />
+    <Compile Include="Net\Base\UdpGroup.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="UI\Winform\Component\" />
+    <Folder Include="UI\Winform\Interactive\" />
+    <Folder Include="UI\Winform\UserControl\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

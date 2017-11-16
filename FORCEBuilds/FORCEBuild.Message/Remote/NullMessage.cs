@@ -1,0 +1,14 @@
+using System;
+using FORCEBuild.Message.Base;
+
+namespace FORCEBuild.Message.Remote
+{
+    /// <summary>
+    /// ø’œ˚œ¢
+    /// </summary>
+    [Serializable]
+    public class NullMessage:IMessage   
+    {
+        public NetErrorCode ErrorCode { get; set; }
+    }
+}
