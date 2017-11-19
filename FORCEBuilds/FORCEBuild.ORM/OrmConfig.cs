@@ -153,7 +153,7 @@ namespace FORCEBuild.ORM
             var field = new Field
             {
                 Accessor = accessor,
-                Scheduler = accessorScheduler
+                Dispatcher = accessorScheduler
             };
                 
             return field;
@@ -177,7 +177,7 @@ namespace FORCEBuild.ORM
 
             var field = new Field {
                 Accessor = accessor,
-                Scheduler = updateScheduler
+                Dispatcher = updateScheduler
             };
 
             return field;

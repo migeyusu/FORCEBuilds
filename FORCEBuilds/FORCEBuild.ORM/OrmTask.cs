@@ -6,7 +6,7 @@ namespace FORCEBuild.ORM
     internal class OrmTask:IDisposable
     {
         /// <summary>
-        /// 根据不同类型决定同步异步
+        /// 根据不同类型决定是否异步
         /// </summary>
         public OrmTaskType TaskType { get; set; }
 

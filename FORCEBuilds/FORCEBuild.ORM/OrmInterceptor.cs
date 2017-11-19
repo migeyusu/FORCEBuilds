@@ -13,14 +13,12 @@ namespace FORCEBuild.ORM
 
         internal AccessorDispatcher Dispatcher { get; set; }
         /// <summary>
-        /// 是否允许记录属性的更改
+        /// 是否允许记录属性更改
         /// </summary>
         public bool IsRecordable { get; set; }
-        /// <summary>
-        /// 全生命周期
-        /// 注：在orm1.0阶段（2016中-2017上旬），该值类型为int
-        /// 来自数据库自动生成，为了保持前向兼容，保留该属性
-        /// </summary>
+
+        /*全生命周期；在orm1.0阶段（2016中-2017上旬），该值类型为int，来自数据库自动生成，为了保持前向兼容，保留该属性*/
+
         public Guid ORMID { get; set; }
 
         //经过selector选择过滤
@@ -34,7 +32,7 @@ namespace FORCEBuild.ORM
                     if (IsRecordable)
                         property.IsChanged = true;
                     if (!ORMID.IsEmpty())
-                        Dispatcher.Enqueue(invocation.Proxy as IOrmModel);
+                        Dispatcher.Update(invocation.Proxy as IOrmModel);
                     if (property.PropertyElement.RelationType == RelationType.OneToMany ||
                         property.PropertyElement.RelationType == RelationType.ManyToMany) {
                         var val = property.PropertyElement.PropertyInfo.GetValue(invocation.Proxy);
@@ -45,7 +43,7 @@ namespace FORCEBuild.ORM
                                      property.OperatersList.Add(e);
                                 }
                                 if (!ORMID.IsEmpty())
-                                    Dispatcher.Enqueue(invocation.Proxy as IOrmModel);
+                                    Dispatcher.Update(invocation.Proxy as IOrmModel);
                             };
                         }
                     }

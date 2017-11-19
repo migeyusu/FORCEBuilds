@@ -13,15 +13,15 @@ namespace FORCEBuild.ORM
     * 以INotify接口为核心，更新交由更新线程自动化完成
     * （由于只负责读取值同步到数据库，不需要额外的锁）
     * 2017.3
-    * 分离写读，写操作分配到一个队列延时完成，或在一个读请求来之前立即完成
-    * 对于对象的更新记录，会在对象本身的notifyproperties属性里标记，同时推送
-    * 到调度器，对同一个对象的多次变化，调度器只应该保持最后一次推送
-    * 为了防止可能的锁，使用actor模型，依据.net的不同版本：
-    * 2.0-4.0： 原子锁
-    * 4.5+：并行集合
-    * 调度器使用了actor模型，这里有必要说下：actor模型的原始运行方式是给对象设置一个邮箱
-    * 然后对象内部不断地从邮箱取消息—— actor模型的邮箱可以使用线程安全的队列实现，
-    * 但更契合消费者-生产者模型
+    * 区分读写方式：更改操作会发射到一个队列异步完成，或在接下来的读请求执行之前完成
+    * 对象的更新记录会在它的notifyproperties里标记，同时发射到调度器，
+    * 对同一个对象的多次变化，调度器只应该标记到最后一次变化
+    * 为了尽可能提高性能，使用actor模型；
+    * 依据.net的不同版本，对消息并发的资源竞争方式：
+    * 2.0-4.0： 原子标记/自旋锁/系统锁
+    * 4.5+：并发集合/直接消费者生产者模型
+    * 调度器使用了actor模型：对象拥有一个线程安全的邮箱，接受外部消息的投递，
+    * 然后对象内部不断地从邮箱取消息执行
     */
     /// <summary>
     /// 调度器
@@ -29,8 +29,8 @@ namespace FORCEBuild.ORM
     [Serializable]  
     internal class AccessorDispatcher
     {
-        private bool _working;
-        //初始间隔
+        private volatile bool _working;
+        //刷新间隔
         //private readonly int _interval = 3000; 
 
         internal Accessor Accessor { get; set; }
@@ -51,18 +51,18 @@ namespace FORCEBuild.ORM
             _tasksQueue = new BlockingCollection<OrmTask>();
         }
 
-        public void Enqueue(OrmTask task)
+        public void Send(OrmTask task)
         {
             _tasksQueue.Add(task);
         }
 
-        public void Enqueue(IOrmModel iOrmModel)
+        public void Update(IOrmModel model)
         {
-            var ormtask = new OrmTask {
+            var taskmaster = new OrmTask {
                 TaskType = OrmTaskType.Update,
-                MethodDelegate = () => Accessor.Update(iOrmModel)
+                MethodDelegate = () => Accessor.Update(model)
             };
-            _tasksQueue.Add(ormtask);
+            _tasksQueue.Add(taskmaster);
         }
 
         public void Start() {
@@ -87,38 +87,6 @@ namespace FORCEBuild.ORM
                 Accessor.Close();
             });
         }
-
-        //public void ProduceLoop()
-        //{
-        //    while (true)
-        //    {
-        //        //按序执行
-        //        lock (_queuelocker)
-        //        {
-        //            OrmMix cell;
-
-        //            if (_ormTasks.Count>0)
-        //            {
-        //                cell = _ormTasks[0];
-        //                _ormTasks.RemoveAt(0);
-        //            }
-        //            else
-        //            {
-        //                return;
-        //            }
-        //            try
-        //            {
-        //                Accessor.Update(cell);
-        //                cell.IsInTask = false;
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                _streamWriter?.WriteLine(
-        //                    $"[{DateTime.Now}] 异常类型：{ex.GetType()}\r\n异常消息：{ex.Message}\r\n异常信息：{ex.StackTrace} \r\n ");
-        //            }
-        //        }
-        //    }
-        //}
 
         public void End()
         {

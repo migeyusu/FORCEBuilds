@@ -14,18 +14,18 @@ namespace FORCEBuild.ORM
     {
         private readonly Type _parentType = typeof(IOrmModel);
 
-        //策略模式，作为ORM的Context保持对accessor的引用
+        //策略上下文
         internal Accessor Accessor { get; set; }
         /* 取得和插入成功后对象都将被放入集合中,key为id
         三种策略：数据库自动生成、程序生成guid、从数据库获取的键表再累加
         插入前判定是否新对象使用containsvalue,删除成功后从dictionary删除
         更新基于containskey，取得对象基于key */
 
-        internal AccessorDispatcher Scheduler { get; set; }
+        internal AccessorDispatcher Dispatcher { get; set; }
 
         public ILog Log
         {
-            set => this.Scheduler.SqlLog = value;
+            set => this.Dispatcher.SqlLog = value;
         }
 
         internal Field() { }
@@ -42,7 +42,7 @@ namespace FORCEBuild.ORM
 
         public void Start()
         {
-            Scheduler.Start();
+            Dispatcher.Start();
         }
 
         public void Insert(object model) //入口函数
@@ -54,7 +54,7 @@ namespace FORCEBuild.ORM
                 MethodDelegate = new Action(() => Accessor.Insert(model as IOrmModel)),
                 TaskType = OrmTaskType.Create
             };
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
 
         }
 
@@ -70,7 +70,7 @@ namespace FORCEBuild.ORM
                 }),
                 TaskType = OrmTaskType.Update
             };
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
         }
 
         public void Delete(object t)
@@ -85,7 +85,7 @@ namespace FORCEBuild.ORM
                 })),
                 TaskType = OrmTaskType.Delete
             };
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
         }
 
         public T[] Select<T>(string sql)
@@ -99,7 +99,7 @@ namespace FORCEBuild.ORM
             {
                 task.ReturnValue = Accessor.Select<T>(sql);
             }));
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
             task.AutoResetEvent.WaitOne();
             return task.ReturnValue;
         }
@@ -115,7 +115,7 @@ namespace FORCEBuild.ORM
             {
                 task.ReturnValue = Accessor.GetByProperty<T>(attributies, parameters);
             }));
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
             task.AutoResetEvent.WaitOne();
             return task.ReturnValue;
 
@@ -133,7 +133,7 @@ namespace FORCEBuild.ORM
                     Accessor.Delete((IOrmModel) model, property);
                 }))
             };
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
         }
 
         public T[] LoadAll<T>()
@@ -147,7 +147,7 @@ namespace FORCEBuild.ORM
             {
                 task.ReturnValue = Accessor.LoadAll<T>();
             }));
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
             task.AutoResetEvent.WaitOne();
             return task.ReturnValue;
 
@@ -164,13 +164,13 @@ namespace FORCEBuild.ORM
                     Accessor.ClearTable(type);
                 })
             };
-            Scheduler.Enqueue(task);
+            Dispatcher.Send(task);
 
         }
 
         public void Close()
         {
-            Scheduler.End();
+            Dispatcher.End();
         }
     }
 
