@@ -8,7 +8,7 @@
     <owners>$author$</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>new edition,this edition now only contains base libaray.</releaseNotes>
+    <releaseNotes>new edition,this edition only contains base libaray now.</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>helper,extensions</tags>
   </metadata>
