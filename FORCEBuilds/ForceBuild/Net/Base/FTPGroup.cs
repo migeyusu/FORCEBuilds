@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using Castle.DynamicProxy;
-using Xunit;
+
 
 namespace FORCEBuild.Net.Base
 {
@@ -670,14 +670,5 @@ namespace FORCEBuild.Net.Base
         }
 
         #endregion
-
-        [Fact]
-        public void FactMethodName()
-        {
-            const string str2 = "ftp://192.168.0.114/c#/";
-            str2.Replace("#", Uri.HexEscape('#'));
-            var uri = new Uri(str2);
-            Assert.Equal("`", uri.ToString());
-        }
     }
 }

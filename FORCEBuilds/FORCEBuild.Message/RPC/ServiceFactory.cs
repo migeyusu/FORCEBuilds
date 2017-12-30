@@ -63,7 +63,6 @@ namespace FORCEBuild.Message.RPC
             field.SetValue(serviceInvoker, new Object());
 
 #endif
-
             return (T) serviceInvoker;
         }
 

@@ -98,6 +98,7 @@
     <None Include="ClassX.xml">
       <SubType>Designer</SubType>
     </None>
+    <None Include="update.ps1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FORCEBuild.ORM.nuspec" />

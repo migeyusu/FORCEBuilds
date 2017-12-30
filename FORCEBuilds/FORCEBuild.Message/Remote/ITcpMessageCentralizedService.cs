@@ -17,8 +17,8 @@ namespace FORCEBuild.Message.Remote
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="x"></param>
-        /// <param name="name">邮箱名</param>
-        void SendMessage<T>(T x,string name) where T : IMessage;
+        /// <param name="topic">邮箱名</param>
+        void SendMessage<T>(T x,string topic) where T : IMessage;
 
         /// <summary>
         /// 注册邮箱，可重复注册。重复注册会修改<param name="messageRouteStrategy" />,但不会修改<param name="consumerStrategy" />

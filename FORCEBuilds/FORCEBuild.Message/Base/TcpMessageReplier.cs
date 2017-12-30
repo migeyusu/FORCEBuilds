@@ -9,17 +9,23 @@ using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Message.Remote;
 using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Service;
 using FORCEBuild.Persistence.Serialization;
 
 namespace FORCEBuild.Message.Base
 {
-    public class TcpMessageReplier:IDisposable,IMessageReplier
+    /// <summary>
+    /// 消息回复服务
+    /// </summary>
+    public class TcpMessageReplier: IMessageReplier,ITcpServiceProvider
     {
-        public IPEndPoint EndPoint { get; set; }
+        public IPEndPoint ServiceEndPoint { get; set; }
 
         public IFormatter Formatter { get; set; }
 
         public ILog Log { get; set; }
+
+        public Guid ServiceGuid { get; set; }
 
         public bool Working { get; private set; }
 
@@ -37,12 +43,12 @@ namespace FORCEBuild.Message.Base
             if (Working) {
                 return;
             }
-            if (EndPoint == null) {
-                throw new Exception($"null reference to {EndPoint}");
+            if (ServiceEndPoint == null) {
+                throw new Exception($"null reference to {ServiceEndPoint}");
             }
             Working = true;
             _work = true;
-            var listener = new TcpListener(EndPoint);
+            var listener = new TcpListener(ServiceEndPoint);
             try {
                 listener.Start();
             }
@@ -130,5 +136,6 @@ namespace FORCEBuild.Message.Base
             _work = false;
             ProducePipe?.Dispose();
         }
+        
     }   
 }

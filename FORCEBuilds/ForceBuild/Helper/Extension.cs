@@ -207,5 +207,6 @@ namespace FORCEBuild.Helper
             if (badCharsRegex.IsMatch(testName))
                 throw new ArgumentException($"文件路径不能包含{badChars}等字符");
         }
+
     }
 }

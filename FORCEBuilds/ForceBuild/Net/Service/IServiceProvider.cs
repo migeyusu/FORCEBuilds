@@ -11,7 +11,7 @@ namespace FORCEBuild.Net.Service
         ILog Log { get; set; }
 
         /// <summary>
-        /// 服务标识,依赖生命周期
+        /// 服务标识,随生命周期更新
         /// </summary>
         Guid ServiceGuid { get; set; }
         /// <summary>

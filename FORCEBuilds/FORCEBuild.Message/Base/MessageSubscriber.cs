@@ -13,9 +13,9 @@ namespace FORCEBuild.Message.Base
 
         public virtual void OnNext(T x) => _action?.Invoke(x);
 
-        public static IMessageSubscriber<T> Create<T>(Action<T> action) where T : IMessage
-        {
-            return new MessageSubscriber<T>(action);
-        }
+        //public static IMessageSubscriber<T> Create<T>(Action<T> action) where T : IMessage
+        //{
+        //    return new MessageSubscriber<T>(action);
+        //}
     }
 }

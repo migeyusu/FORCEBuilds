@@ -14,7 +14,7 @@ namespace FORCEBuild.Message.Local
         public virtual void Subscribe<T>(IMessageSubscriber<T> subscriber) where T : IMessage
         {
             _messageSubscribers.AddOrUpdate(typeof(T),
-                type => new List<IMessageSubscriber<IMessage>> { (IMessageSubscriber<IMessage>)subscriber }
+                type => new List<IMessageSubscriber<IMessage>>() { (IMessageSubscriber<IMessage>)subscriber }
                 , (type, list) =>
                 {
                     list.Add((IMessageSubscriber<IMessage>)subscriber);

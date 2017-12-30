@@ -45,19 +45,19 @@ namespace FORCEBuild.Net.Service
 
         public void Start(int port = BroadcastPort)
         {
-            Debug.WriteLine($"entry method");
+            //Debug.WriteLine($"entry method");
             if (port < 1 || port > 65535) throw new Exception("端口数值错误");
             if (Working)
                 return;
             _broadcast = true;
             Task.Run(() => {
                 Working = true;
-                Debug.WriteLine($"broadcast start running");
+                //Debug.WriteLine($"broadcast start running");
                 UdpClient udp = null;
                 try {
                     udp = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
                     var target = new IPEndPoint(IPAddress.Broadcast, port);
-                    Debug.WriteLine($"broadcast target:{target}");
+                    //Debug.WriteLine($"broadcast target:{target}");
                     while (_broadcast)
                     {
                         if (ServiceProvider.Working)
@@ -66,13 +66,13 @@ namespace FORCEBuild.Net.Service
                                 ServiceProvider.ServiceGuid, Filter);
                             var datas = info.ToBytes();
                             udp.Send(datas, datas.Length, target);
-                            Debug.WriteLine($"broadcast sended");
+                            //Debug.WriteLine($"broadcast sended");
                         }
                         Thread.Sleep(150);
                     }
                 }
                 finally {
-                    Debug.WriteLine($"broadcast closed at {port}");
+                    //Debug.WriteLine($"broadcast closed at {port}");
                     udp?.Close();
                     Working = false;
                 }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Management;
 using FORCEBuild.Windows.CIM;
-using Xunit;
+
 
 namespace FORCEBuild.Windows.WMI
 {
@@ -53,14 +53,6 @@ namespace FORCEBuild.Windows.WMI
             var managementClass = new ManagementClass(type.Name);
             var collection = managementClass.GetInstances();
             return collection.Count == 0 ? null : (from ManagementBaseObject mo in collection select mo.Properties[propertyName].Value).FirstOrDefault();
-        }
-
-
-        [Fact]
-        public void FactMethodName()
-        {
-            var list = GetWin32Infos<Win32_Processor>();
-            Assert.Equal(list.Count(), 0);
         }
     }
 }

@@ -4,7 +4,7 @@ using FORCEBuild.Message.Remote.DataTransferObject;
 
 namespace FORCEBuild.Message.Remote.Buffer
 {
-    public class EventMessageMail:IMessageMail<IMessage>
+    internal class EventMessageMail:IMessageMail<IMessage>
     {
         public MessageRouteStrategy MailStrategy { get; set; }
 

@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Soap;
 using System.IO;
 using System.Collections;
 using System.Runtime.Serialization.Formatters.Binary;
-using Xunit;
+
 
 namespace FORCEBuild.Persistence.Serialization
 {

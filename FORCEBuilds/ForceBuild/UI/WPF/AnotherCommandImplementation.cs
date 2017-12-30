@@ -3,9 +3,7 @@ using System.Windows.Input;
 
 namespace FORCEBuild.UI.WPF
 {
-    /// <summary>
-    /// No WPF project is complete without it's own version of this.
-    /// </summary>
+
     public class AnotherCommandImplementation : ICommand
     {
         private readonly Action<object> _execute;
@@ -16,7 +14,7 @@ namespace FORCEBuild.UI.WPF
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute ?? (x => true);
         }
-
+       
         public bool CanExecute(object parameter)
         {
             return _canExecute(parameter);

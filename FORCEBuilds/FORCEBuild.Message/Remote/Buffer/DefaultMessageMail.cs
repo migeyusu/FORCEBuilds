@@ -12,7 +12,7 @@ namespace FORCEBuild.Message.Remote.Buffer
     /// <summary>
     /// 默认消息邮箱，使用队列储存，支持并发
     /// </summary>
-    public class DefaultMessageMail: IMessageMail<IMessage>
+    internal class DefaultMessageMail: IMessageMail<IMessage>
     {
         /// <summary>
         /// 邮箱名

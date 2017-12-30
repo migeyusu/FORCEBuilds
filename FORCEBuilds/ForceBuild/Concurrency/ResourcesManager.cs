@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,20 +9,19 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using FORCEBuild.Helper;
 using FORCEBuild.Properties;
-using Xunit;
+
 
 namespace FORCEBuild.Concurrency
 {
-    /* 2017.7.2 线程安全 */
-
+    
     /// <summary>
     /// 资源管理器，以名称区分，在指定文件夹存放
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ResourcesManager<T> : IDisposable where T : class
+    public class ResourcesManager<T> : IDisposable,IDictionary<string,T> where T : class
     {
         public string Folder { get; protected set; }
-
+        
         public List<string> Filters { get; protected set; }
 
         protected bool IsLazy;
@@ -45,8 +45,7 @@ namespace FORCEBuild.Concurrency
         /// 对象键集合
         /// </summary>
         public ObservableCollection<string> NamesCollection { get; set; }
-
-
+        
         protected ResourcesManager()
         {
             _resourcesDictionary = new ConcurrentDictionary<string, T>();
@@ -181,11 +180,10 @@ namespace FORCEBuild.Concurrency
                     File.Delete(newPath);
                 throw;
             }
-
         }
 
         /// <summary>
-        /// 更新资源
+        /// 更新资源到本地
         /// </summary>
         public virtual void FlushResource(string name)
         {
@@ -207,6 +205,46 @@ namespace FORCEBuild.Concurrency
             }
         }
 
+        public bool ContainsKey(string key)
+        {
+            return _resourcesDictionary.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// 同AddOrUpdate作用相同
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void Add(string key, T value)
+        {
+            AddOrUpdate(value, key);
+        }
+
+        bool IDictionary<string, T>.Remove(string key)
+        {
+            try {
+                Remove(key);
+                return true;
+            }
+            catch (Exception) {
+                return false;
+            }
+        }
+
+        public bool TryGetValue(string key, out T value)
+        {
+            return _resourcesDictionary.TryGetValue(key, out value);
+        }
+
+        public T this[string key] {
+            get => _resourcesDictionary.TryGetValue(key, out var value) ? value : default(T);
+            set => AddOrUpdate(value,key);
+        }
+
+        public ICollection<string> Keys => _resourcesDictionary.Keys;
+
+        public ICollection<T> Values => _resourcesDictionary.Values;
+
         public virtual void Remove(string name)
         {
             if (_resourcesDictionary.ContainsKey(name)) {
@@ -220,7 +258,6 @@ namespace FORCEBuild.Concurrency
             else {
                 throw new ArgumentException("当前资源中不包含该文件");
             }
-
         }
 
         public virtual void Remove(T x)
@@ -293,27 +330,51 @@ namespace FORCEBuild.Concurrency
                 }
             }
         }
-    }
 
-    public class UnitTestClass
-    {
-        [Fact]
-        public void FactMethodName()
+        public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
         {
-            var str = @"‪C:\Users\98197\Source\Repos\TeachManagement\TeachManagement\bin\Debug\railway\0.jpg";
-            var value = str.Substring(str.LastIndexOf('\\') + 1);
-            Assert.Equal(value, "0.jpg");
+            return _resourcesDictionary.GetEnumerator();
         }
 
-        [Fact]
-        public void FactMethodName2()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            var s = "dasdfsd.x";
-            var m = ".x";
-           var lSubstring=  s.Substring(0, s.LastIndexOf(m, StringComparison.Ordinal));
-
-            Assert.Equal(lSubstring, "dasdfsd");
-
+            return GetEnumerator();
         }
+
+        public void Add(KeyValuePair<string, T> item)
+        {
+            AddOrUpdate(item.Value,item.Key);
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(KeyValuePair<string, T> item)
+        {
+            return ContainsName(item.Key);
+        }
+
+        public void CopyTo(KeyValuePair<string, T>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(KeyValuePair<string, T> item)
+        {
+            try {
+                Remove(item.Key);
+                return true;
+            }
+            catch (Exception) {
+                return false;
+            }
+        }
+
+        public int Count => _resourcesDictionary.Count;
+
+        public bool IsReadOnly => false;
     }
+
 }

@@ -139,7 +139,7 @@ namespace FORCEBuild.ORM
             #endregion
             //创建访问类
             var accessor = CreateAccessor(accessorName);
-            accessor.ClassModels = dryClasses.ToConcurrencyDictionary(kv => kv.Value.ClassType, kv => kv.Value);
+            accessor.ClassDefines = dryClasses.ToConcurrencyDictionary(kv => kv.Value.ClassType, kv => kv.Value);
             accessor.ConnectionString =
                 $"Data Source={load.GetElementsByTagName("Instance")[0].InnerText};AttachDbFilename=" +
                 $"{AppDomain.CurrentDomain.BaseDirectory + load.GetElementsByTagName("Path")[0].InnerText};" +
@@ -163,7 +163,7 @@ namespace FORCEBuild.ORM
         {
             var accessor = CreateAccessor(register.AccessorType.ToString());
             accessor.ConnectionString = register.ConnectionString;
-            accessor.ClassModels = register.ClassDefines;
+            accessor.ClassDefines = register.ClassDefines;
             accessor.IsLinked = register.IsLinked;
             if (accessor.IsLinked)
             {

@@ -12,39 +12,23 @@ namespace FORCEBuild.Message.RPC
 {
 
     /// <summary>
-    /// 不为容器内的类对象提供线程安全
+    /// 过程调用服务
     /// </summary>
-    public class ProduceCallService:ITcpServiceProvider
+    public class ProcedureCallService
     {
-        public ILog Log { get; set; }
-        /// <summary>
-        /// 生命周期为单次服务
-        /// </summary>
-        public Guid ServiceGuid { get; set; }
+        private readonly Actuator _actuator = new Actuator();
 
-        public IPEndPoint ServiceEndPoint {
-            get => _netMessageListener.EndPoint;
-            set => _netMessageListener.EndPoint = value;
-        }
-
-        /// <summary>
-        /// 运行状态
-        /// </summary>
-        public bool Working => _netMessageListener.Working;
-
-        private readonly TcpMessageReplier _netMessageListener;
-
-        private readonly Actuator _actuator;
-
-        public ProduceCallService()
+        public ProcedureCallService(IMessageReplier netMessageListener)
         {
-            _actuator = new Actuator();
             var callProducePipeline = new CallProducePipe {
                 Actuator = _actuator
             };
-            _netMessageListener = new TcpMessageReplier {
-                ProducePipe = callProducePipeline,
-            };
+            if (netMessageListener.ProducePipe == null) {
+                netMessageListener.ProducePipe = callProducePipeline;
+            }
+            else {
+                netMessageListener.ProducePipe.Append(callProducePipeline);
+            }
         }
 
         /// <summary>
@@ -78,32 +62,6 @@ namespace FORCEBuild.Message.RPC
             _actuator.Container = container;
         }
 
-        public void Start()
-        {
-            //实际运行时再创建endpoint
-            Start(NetHelper.InstanceEndPoint);
-        }
-
-        public void Start(IPEndPoint endPoint)
-        {
-            if (Working) {
-                return;
-            }
-            ServiceEndPoint = endPoint;
-            ServiceGuid = Guid.NewGuid();
-            _netMessageListener.Start();
-        }
-
-        public void End()
-        {
-            _netMessageListener.End();
-        }
-
-        public void Dispose()
-        {
-            this.End();
-            _netMessageListener?.Dispose();
-        }
     }
 
     

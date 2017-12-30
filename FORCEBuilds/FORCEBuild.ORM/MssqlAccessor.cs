@@ -123,7 +123,7 @@ namespace FORCEBuild.ORM
         {
             var connection = GetConnection;
             var command = CreateCommand(baseCommand, connection);
-            var sqlTransaction = connection.BeginTransaction("FORCEBuild_ORM");
+            var sqlTransaction = connection.BeginTransaction(Guid.NewGuid().ToString());
             command.Connection = connection;
             command.Transaction = sqlTransaction;
             try
@@ -147,7 +147,7 @@ namespace FORCEBuild.ORM
         {
             int guid;
             var connection = GetConnection;
-            var sqlTransaction = connection.BeginTransaction("XORM");
+            var sqlTransaction = connection.BeginTransaction(Guid.NewGuid().ToString());
             var command = CreateCommand(insert, connection);
             command.CommandText += "; SELECT @@IDENTITY as '" + insert.IdColumn + "'";
             command.Connection = connection;

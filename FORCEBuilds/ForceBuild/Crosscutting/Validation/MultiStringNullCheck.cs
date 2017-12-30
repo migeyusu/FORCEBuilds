@@ -2,7 +2,7 @@
 
 namespace FORCEBuild.Crosscutting.Validation
 {
-    public class StringCheck
+    public static class StringCheck
     {
         public static bool IsNullOrEmpty(params string[] strings)
         {

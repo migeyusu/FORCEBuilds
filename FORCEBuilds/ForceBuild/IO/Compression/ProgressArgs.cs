@@ -1,6 +1,8 @@
-﻿namespace FORCEBuild.IO.Compression
+﻿using System;
+
+namespace FORCEBuild.IO.Compression
 {
-    public class ProgressArgs
+    public class ProgressArgs:EventArgs
     {
         public long Total { get; set; }
         public long Position { get; set; }

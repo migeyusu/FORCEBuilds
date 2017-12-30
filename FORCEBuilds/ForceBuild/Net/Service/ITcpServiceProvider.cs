@@ -7,11 +7,9 @@ namespace FORCEBuild.Net.Service
     /// </summary>
     public interface ITcpServiceProvider:IServiceProvider
     {
-
         /// <summary>
         /// 服务终结点
         /// </summary>  
         IPEndPoint ServiceEndPoint { get; set; }
-
     }
 }

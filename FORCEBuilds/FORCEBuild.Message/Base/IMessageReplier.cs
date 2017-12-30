@@ -1,10 +1,12 @@
-﻿namespace FORCEBuild.Message.Base
+﻿using FORCEBuild.Net.Service;
+
+namespace FORCEBuild.Message.Base
 {
+    /// <summary>
+    /// 消息应答器
+    /// </summary>
     public interface IMessageReplier
     {
-        bool Working { get; }
-        void Start();
-        void End();
         MessagePipe<IMessage,IMessage> ProducePipe { get; set; }
     }
 }

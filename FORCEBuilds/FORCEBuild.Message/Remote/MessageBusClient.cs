@@ -179,7 +179,7 @@ namespace FORCEBuild.Message.Remote
         }
 
         /// <summary>
-        /// 本地消息邮箱
+        /// 本地消息邮箱,调用IDisposable后关闭本地消息接收
         /// </summary>
         public class LocalMessageMail:IDisposable
         {
@@ -205,6 +205,9 @@ namespace FORCEBuild.Message.Remote
                 }
             }
 
+            /// <summary>
+            /// 停止订阅
+            /// </summary>
             public void Dispose()
             {
                 _messageBusClient.CloseMail(this);

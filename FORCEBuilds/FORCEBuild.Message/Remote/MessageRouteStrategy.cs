@@ -21,6 +21,13 @@ namespace FORCEBuild.Message.Remote
         /// <returns></returns>
         public abstract bool IsMatch(string topic);
 
+        /// <summary>
+        /// 创建消息路由策略
+        /// </summary>
+        /// <param name="routedType">路由类型</param>
+        /// <param name="filter">过滤字符串</param>
+        /// <param name="func">过滤委托，当routedtype为func时需要</param>
+        /// <returns></returns>
         public static MessageRouteStrategy Create(MailRoutedType routedType,
             string filter = null, Func<string, bool> func = null)
         {
