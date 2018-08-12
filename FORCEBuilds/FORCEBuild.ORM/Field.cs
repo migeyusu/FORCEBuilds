@@ -18,7 +18,7 @@ namespace FORCEBuild.ORM
     */
 
     /// <summary>
-    /// 访问入口，可以作为工作单元
+    /// 访问入口
     /// </summary>
     public class Field
     {
@@ -50,136 +50,64 @@ namespace FORCEBuild.ORM
             this.Accessor.ProxyFactory = forceBuildFactory;
         }
 
-        public void Start()
+        public void Insert(object model)
         {
-            Dispatcher.Start();
+            Dispatcher.RegisterUpdate(model,ModelStatus.New);
         }
 
-        public void Insert(object model) //入口函数
+        public void Update(object model)
         {
-            var type = model.GetType();
-            if (!_parentType.IsAssignableFrom(type))
-                throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                MethodDelegate = () => Accessor.Insert(model as IOrmModel),
-                TaskType = OrmTaskType.Create
-            };
-            Dispatcher.Send(task);
-
+            Dispatcher.RegisterUpdate(model,ModelStatus.Modify);
         }
 
-        public void Update(object oc)
+        public void Delete(object model)
         {
-            var type = oc.GetType();
-            if (!_parentType.IsAssignableFrom(type))
-                throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                MethodDelegate = () =>
-                {
-                    Accessor.Update(oc as IOrmModel);
-                },
-                TaskType = OrmTaskType.Update
-            };
-            Dispatcher.Send(task);
+            Dispatcher.RegisterUpdate(model,ModelStatus.Delete);
         }
 
-        public void Delete(object t)
-        {
-            var type = t.GetType();
-            if (!_parentType.IsAssignableFrom(type))
-                throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                MethodDelegate = (() =>
-                {
-                    Accessor.Delete(t as IOrmModel);
-                }),
-                TaskType = OrmTaskType.Delete
-            };
-            Dispatcher.Send(task);
-        }
 
         public T[] Select<T>(string sql)
         {
             if (!Accessor.ObjectCache.ContainsKey(typeof(T)))
                 throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                TaskType = OrmTaskType.Read
-            };
-            task.MethodDelegate = (() =>
-            {
-                task.ReturnValue = Accessor.Select<T>(sql);
-            });
-            Dispatcher.Send(task);
-            task.AutoResetEvent.WaitOne();
-            return task.ReturnValue;
+            return Accessor.Select<T>(sql);
         }
 
         public T[] Get<T>(string[] attributies, object[] parameters)
         {
             if (!Accessor.ObjectCache.ContainsKey(typeof(T)))
                 throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                TaskType = OrmTaskType.Read,
-            };
-            task.MethodDelegate = () =>
-            {
-                task.ReturnValue = Accessor.GetByProperty<T>(attributies, parameters);
-            };
-            Dispatcher.Send(task);
-            task.AutoResetEvent.WaitOne();
-            return task.ReturnValue;
-
+            return Accessor.GetByProperty<T>(attributies, parameters);
         }
 
-        public void Delete(object model, string property)
-        {
-            var type = model.GetType();
-            if (!Accessor.ObjectCache.ContainsKey(type))
-                throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                TaskType = OrmTaskType.Delete,
-                MethodDelegate = (() =>
-                {
-                    Accessor.Delete((IOrmModel) model, property);
-                })
-            };
-            Dispatcher.Send(task);
-        }
+        //public void Delete(object model, string property)
+        //{
+        //    var type = model.GetType();
+        //    if (!Accessor.ObjectCache.ContainsKey(type))
+        //        throw new ArgumentException("未定义的类");
+        //    Accessor.Delete((IOrmModel)model, property);
+        //}
 
         public T[] LoadAll<T>()
         {
             if (!Accessor.ObjectCache.ContainsKey(typeof(T)))
                 throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                TaskType = OrmTaskType.Read,
-            };
-            task.MethodDelegate = () =>
-            {
-                task.ReturnValue = Accessor.LoadAll<T>();
-            };
-            Dispatcher.Send(task);
-            task.AutoResetEvent.WaitOne();
-            return task.ReturnValue;
+            return Accessor.LoadAll<T>();
         }
 
-        public void ClearTable(Type type)
-        {
-            if (!Accessor.ObjectCache.ContainsKey(type))
-                throw new ArgumentException("未定义的类");
-            var task = new OrmTask {
-                TaskType = OrmTaskType.Delete,
-                MethodDelegate = () =>
-                {
-                    Accessor.ClearTable(type);
-                }
-            };
-            Dispatcher.Send(task);
-        }
-
-        public void Close()
-        {
-            Dispatcher.End();
-        }
+        //public void ClearTable(Type type)
+        //{
+        //    if (!Accessor.ObjectCache.ContainsKey(type))
+        //        throw new ArgumentException("未定义的类");
+        //    var task = new OrmTask {
+        //        TaskType = OrmTaskType.Delete,
+        //        MethodDelegate = () =>
+        //        {
+        //            Accessor.ClearTable(type);
+        //        }
+        //    };
+        //    Dispatcher.EnqueueTask(task);
+        //}
     }
 
 }

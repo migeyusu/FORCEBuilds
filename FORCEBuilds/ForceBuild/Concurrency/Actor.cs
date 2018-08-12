@@ -27,12 +27,12 @@ namespace FORCEBuild.Concurrency
 
         protected Actor()
         {
-            this.m_context = new ActorContext(this);
+            this._mContext = new ActorContext(this);
         }
         
-        private readonly ActorContext m_context;
+        private readonly ActorContext _mContext;
 
-        ActorContext IActor.Context => this.m_context;
+        ActorContext IActor.Context => this._mContext;
 
         public bool Existed => this.m_exited;
 

@@ -9,9 +9,7 @@ namespace FORCEBuild.ORM
     [Serializable]
     public class OrmInterceptor : IInterceptor
     {
-        internal ConcurrentDictionary<string, NotifyProperty> NotifyProperites { get; set; }
-
-        internal AccessorDispatcher Dispatcher { get; set; }
+        internal ConcurrentDictionary<string, NotifyProperty> NotifyProperties { get; set; }
         /// <summary>
         /// 是否允许记录属性更改
         /// </summary>
@@ -27,12 +25,10 @@ namespace FORCEBuild.ORM
             invocation.Proceed();
             if (invocation.Method.Name.StartsWith("set_")) {
                 var methodName = invocation.Method.Name.Substring(4);
-                if (NotifyProperites.ContainsKey(methodName)) {
-                    var property = NotifyProperites[methodName];
+                if (NotifyProperties.ContainsKey(methodName)) {
+                    var property = NotifyProperties[methodName];
                     if (IsRecordable)
                         property.IsChanged = true;
-                    if (!ORMID.IsEmpty())
-                        Dispatcher.Update(invocation.Proxy as IOrmModel);
                     if (property.PropertyElement.RelationType == RelationType.OneToMany ||
                         property.PropertyElement.RelationType == RelationType.ManyToMany) {
                         var val = property.PropertyElement.PropertyInfo.GetValue(invocation.Proxy);
@@ -42,8 +38,6 @@ namespace FORCEBuild.ORM
                                     if (e.Action == NotifyCollectionChangedAction.Move) return;
                                      property.OperatersList.Add(e);
                                 }
-                                if (!ORMID.IsEmpty())
-                                    Dispatcher.Update(invocation.Proxy as IOrmModel);
                             };
                         }
                     }

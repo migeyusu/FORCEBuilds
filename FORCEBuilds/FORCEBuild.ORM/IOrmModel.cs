@@ -13,6 +13,8 @@ namespace FORCEBuild.ORM
         /// </summary>
          bool IsInTask { get; set; }
 
+         ModelStatus ModelStatus { get; set; }
+
          OrmInterceptor OrmInterceptor { get; set; }
     }
 }

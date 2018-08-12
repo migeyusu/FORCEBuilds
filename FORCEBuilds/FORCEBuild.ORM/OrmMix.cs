@@ -13,12 +13,15 @@ namespace FORCEBuild.ORM
         /// </summary>
         public bool IsInTask { get; set; }
 
+        public ModelStatus ModelStatus { get; set; }
+
         public OrmInterceptor OrmInterceptor { get; set; }
 
         public OrmMix(OrmInterceptor interceptor,ClassDefine classDefine)
         {
             this.ClassDefine = classDefine;
             this.OrmInterceptor = interceptor;
+            ModelStatus = ModelStatus.Default;
         }
     }
 }
