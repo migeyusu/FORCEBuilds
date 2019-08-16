@@ -91,16 +91,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Concurrency\ConcurrentIndexQueue.cs" />
-    <Compile Include="Core\FactoryComponent.cs" />
-    <Compile Include="Core\GenerateEventArgs.cs" />
-    <Compile Include="Core\ImplementComponent.cs" />
+    <Compile Include="Core\DecoratorFunction.cs" />
+    <Compile Include="Core\IFactoryProxyPreparation.cs" />
+    <Compile Include="Core\PreProxyEventArgs.cs" />
+    <Compile Include="Crosscutting\ImplementPreparation.cs" />
     <Compile Include="Crosscutting\IAfterReturningAdvice.cs" />
     <Compile Include="Crosscutting\Log\DebugExtension.cs" />
     <Compile Include="Crosscutting\Log\ILog.cs" />
     <Compile Include="Crosscutting\IMethodBeforeAdvice.cs" />
     <Compile Include="Crosscutting\Log\DebugLog.cs" />
     <Compile Include="Crosscutting\Log\TextLog.cs" />
-    <Compile Include="Crosscutting\PropertyChangedNotifyComponent.cs" />
+    <Compile Include="Crosscutting\PropertyChangedNotifyPreparation.cs" />
+    <Compile Include="Crosscutting\ValidatePreparation.cs" />
     <Compile Include="Crosscutting\Validation\FileNameCheckAttribute.cs" />
     <Compile Include="Crosscutting\Validation\MultiStringNullCheck.cs" />
     <Compile Include="Crosscutting\Validation\XValidaterAttribute.cs" />
@@ -124,7 +126,7 @@
     <Compile Include="Crosscutting\ValidateInterceptor.cs" />
     <Compile Include="Concurrency\ObservableConcurrentBag.cs" />
     <Compile Include="Concurrency\ObservableConcurrentList.cs" />
-    <Compile Include="Core\ForceBuildFactory.cs" />
+    <Compile Include="Core\ProxyFactory.cs" />
     <Compile Include="Crosscutting\NotifyBase.cs" />
     <Compile Include="Helper\Encryption.cs" />
     <Compile Include="Helper\Extension.cs" />

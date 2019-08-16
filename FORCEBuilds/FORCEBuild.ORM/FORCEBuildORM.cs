@@ -1,27 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Xml;
 using FORCEBuild.Core;
-using FORCEBuild.Helper;
-using FORCEBuild.ORM.Register;
-using Xunit;
+using FORCEBuild.ORM.Configuration;
 
 namespace FORCEBuild.ORM
 {
     /// <summary>
-    /// 访问的入口
+    /// 起始类
     /// </summary>
-    public static class OrmConfig
+    public static class FORCEBuildORM
     {
-        //todo:修改
-        /// <summary>
-        /// 利用配置文件加载数据库关系（已过时）
-        /// </summary>
-        /// <param name="config">配置xml文件</param>
+        //todo:XML config
         //public static Field GeField(string config)
         //{
         //    var document = new XmlDocument();
@@ -155,37 +143,60 @@ namespace FORCEBuild.ORM
         //        Accessor = accessor,
         //        Dispatcher = dispatcher
         //    };
-                
+
         //    return field;
         //}
 
-        public static Field GetField(OrmRegister register)
+        /// <summary>
+        /// 通过配置文件获取访问域
+        /// </summary>
+        /// <param name="register"></param>
+        public static Field OpenField(OrmConfig register)
         {
-            var accessor = CreateAccessor(register.AccessorType.ToString());
-            accessor.ConnectionString = register.ConnectionString;
-            accessor.ClassDefines = register.ClassDefines;
-            accessor.IsLinked = register.IsLinked;
-            if (accessor.IsLinked)
-            {
-                foreach (var define in register.ClassDefines.Values)
-                {
-                    define.IdPropertyInfo = define.ClassType.GetProperty(register.SpecificProperty);
+            if (register.ConnectionStringBuilder == null) {
+                throw new NullReferenceException("Connectionstring is null!");
+            }
+
+            if (register.IsLinked && string.IsNullOrEmpty(register.LinkedIdName)) {
+                throw new ArgumentNullException("LinkedIdName is null!");
+            }
+
+            if (register.AccessorType == default(AccessorType)) {
+                throw new ArgumentNullException("AccessorType is null!");
+            }
+
+            if (register.Logger == null) {
+                throw new NullReferenceException("Log is null!");
+            }
+
+            
+            
+             register.Function.HasFlag(DecoratorFunction.PropertyChangedNotify)
+             {
+                 
+             }   
+
+
+            var accessor = CreateAccessor(register.AccessorType);
+            accessor.Config = register;
+            if (accessor.IsLinked) {
+                foreach (var define in register.ClassDefines.Values) {
+                    define.IdPropertyInfo = define.ClassType.GetProperty(register.LinkedIdName);
                 }
             }
-            var dispatcher = new AccessorDispatcher {Accessor = accessor};
+
             var field = new Field {
                 Accessor = accessor,
-                Dispatcher = dispatcher
             };
 
             return field;
         }
 
-        private static Accessor CreateAccessor(string type)
+        private static Accessor CreateAccessor(AccessorType accessorType)
         {
             var space = typeof(Accessor).Namespace;
-            return (Accessor)Activator.CreateInstance(Type.GetType(typeName: $"{space}.{type}Accessor"));
+            return (Accessor) Activator.CreateInstance(
+                Type.GetType(typeName: $"{space}.{accessorType.ToString()}Accessor"));
         }
     }
 }
-                                                                                                                                                                                                       

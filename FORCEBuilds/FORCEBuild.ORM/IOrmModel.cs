@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FORCEBuild.ORM
+﻿namespace FORCEBuild.ORM
 {
     public interface IOrmModel
     {

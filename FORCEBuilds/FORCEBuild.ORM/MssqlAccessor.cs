@@ -1,20 +1,18 @@
 ﻿#define output
 
-using System;
 using System.Data;
-using System.Data.Common;
+using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Linq;
-using FORCEBuild.Windows.CIM;
 
 
 namespace FORCEBuild.ORM
 {
     internal class MssqlAccessor : Accessor
     {
-        private SqlConnection _connection;
+        private string connectionstring;
 
-        private IDbTransaction _transaction;
+        private SqlConnection _connection;
 
         private SqlCommand CreateCommand(DataBaseCommand baseCommand, SqlConnection connection)
         {
@@ -156,12 +154,14 @@ namespace FORCEBuild.ORM
             return table;
         }
 
-        private SqlConnection GetConnection
-        {
-            get
-            {
+        private SqlConnection GetConnection {
+            get {
+                if (connectionstring == null) {
+                    connectionstring = ConnectionStringBuilder.ConnectionString;
+                }
+
                 if (_connection == null)
-                    _connection = new SqlConnection(ConnectionString);
+                    _connection = new SqlConnection(connectionstring);
                 if (_connection.State != ConnectionState.Open)
                     _connection.Open();
                 return _connection;
@@ -176,8 +176,8 @@ namespace FORCEBuild.ORM
                 _connection.Close();
                 _connection.Dispose();
             }
-            _connection = null;
 
+            _connection = null;
         }
     }
 }

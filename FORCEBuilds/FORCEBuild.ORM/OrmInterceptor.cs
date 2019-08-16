@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using Castle.DynamicProxy;
-using FORCEBuild.Helper;
 
 namespace FORCEBuild.ORM
 {

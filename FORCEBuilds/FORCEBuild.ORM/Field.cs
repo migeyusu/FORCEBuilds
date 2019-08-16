@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using Castle.DynamicProxy;
-using FORCEBuild.Crosscutting;
+using System.Collections.ObjectModel;
 using FORCEBuild.Core;
 using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Helper;
 
 namespace FORCEBuild.ORM
 {
@@ -18,14 +12,19 @@ namespace FORCEBuild.ORM
     */
 
     /// <summary>
-    /// 访问入口
+    /// Unit Of Work
     /// </summary>
-    public class Field
+    public class Field:IDisposable
     {
         private readonly Type _parentType = typeof(IOrmModel);
 
-        //策略上下文
+        /// <summary>
+        /// 待处理的模型
+        /// </summary>
+        private Collection<IOrmModel> PendingModels { get; set; }
+
         internal Accessor Accessor { get; set; }
+
         /* 取得和插入成功后对象都将被放入集合中,key为id
         三种策略：数据库自动生成、程序生成guid、从数据库获取的键表再累加
         插入前判定是否新对象使用containsvalue,删除成功后从dictionary删除
@@ -33,38 +32,35 @@ namespace FORCEBuild.ORM
 
         internal AccessorDispatcher Dispatcher { get; set; }
 
-        public ILog Log
+        internal Field()
         {
-            set => this.Dispatcher.SqlLog = value;
+            PendingModels = new Collection<IOrmModel>();
         }
-
-        internal Field() { }
 
         /// <summary>
         /// 使用工厂
         /// </summary>
         /// <param name="forceBuildFactory"></param>
-        public void AttachFactory(ForceBuildFactory forceBuildFactory)
+        public void AttachFactory(ProxyFactory forceBuildFactory)
         {
-            forceBuildFactory.Append(Accessor.ForceBuildFactory_AgentPreparation);
+            forceBuildFactory.UseComponent(Accessor);
             this.Accessor.ProxyFactory = forceBuildFactory;
         }
 
         public void Insert(object model)
         {
-            Dispatcher.RegisterUpdate(model,ModelStatus.New);
+            this.RegisterUpdate(model,ModelStatus.New);
         }
 
         public void Update(object model)
         {
-            Dispatcher.RegisterUpdate(model,ModelStatus.Modify);
+            this.RegisterUpdate(model,ModelStatus.Modify);
         }
 
         public void Delete(object model)
         {
-            Dispatcher.RegisterUpdate(model,ModelStatus.Delete);
+            this.RegisterUpdate(model,ModelStatus.Delete);
         }
-
 
         public T[] Select<T>(string sql)
         {
@@ -73,11 +69,11 @@ namespace FORCEBuild.ORM
             return Accessor.Select<T>(sql);
         }
 
-        public T[] Get<T>(string[] attributies, object[] parameters)
+        public T[] Get<T>(string[] attributes, object[] parameters)
         {
             if (!Accessor.ObjectCache.ContainsKey(typeof(T)))
                 throw new ArgumentException("未定义的类");
-            return Accessor.GetByProperty<T>(attributies, parameters);
+            return Accessor.GetByProperty<T>(attributes, parameters);
         }
 
         //public void Delete(object model, string property)
@@ -108,6 +104,53 @@ namespace FORCEBuild.ORM
         //    };
         //    Dispatcher.EnqueueTask(task);
         //}
+        
+        internal void RegisterUpdate(object model,ModelStatus status)
+        {
+            if (!(model is IOrmModel)) {
+                throw new ArgumentException("未定义的类");
+            }
+            var ormModel = (IOrmModel)model;
+            ormModel.ModelStatus = ModelStatus.Modify;
+            PendingModels.Add(ormModel);
+        }
+
+        /// <summary>
+        /// 在一个事务中提交所有更新
+        /// </summary>
+        public void Commit()
+        {
+            using (var transaction = Accessor.BeginTransaction()) {
+                try {
+                    foreach (var model in PendingModels) {
+                        switch (model.ModelStatus) {
+                            case ModelStatus.New:
+                                Accessor.Insert(model);
+                                break;
+                            case ModelStatus.Modify:
+                                Accessor.Update(model);
+                                break;
+                            case ModelStatus.Delete:
+                                Accessor.Delete(model);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+                    }
+
+                    transaction.Commit();
+                }
+                catch (Exception) {
+                    transaction.Rollback();
+                    throw;
+                }
+                finally {
+                    Accessor.Close();
+                }
+            }
+        }
+
+        public void Dispose() { }
     }
 
 }

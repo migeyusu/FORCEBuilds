@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.ORM.Register
+namespace FORCEBuild.ORM.Configuration
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class OrmAttribute:global::System.Attribute

@@ -4,7 +4,7 @@ using Castle.DynamicProxy;
 
 namespace FORCEBuild.Core
 {
-    public class GenerateEventArgs:EventArgs
+    public class PreProxyEventArgs:EventArgs
     {
         public Type ToProxyType { get; set; }
 

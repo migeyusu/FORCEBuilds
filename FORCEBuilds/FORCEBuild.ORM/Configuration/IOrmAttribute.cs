@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.ORM.Register
+﻿namespace FORCEBuild.ORM.Configuration
 {
     public interface IOrmAttribute
     {

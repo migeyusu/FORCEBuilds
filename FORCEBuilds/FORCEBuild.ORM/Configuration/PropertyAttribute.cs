@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace FORCEBuild.ORM.Register
+namespace FORCEBuild.ORM.Configuration
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public class PropertyAttribute:global::System.Attribute
+    public class PropertyAttribute:Attribute
     {
         public string Column { get; set; }
 

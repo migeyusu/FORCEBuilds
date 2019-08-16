@@ -1,78 +1,42 @@
-﻿#define singledb
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data.Common;
 using System.Reflection;
-using Xunit;
+using FORCEBuild.Core;
+using FORCEBuild.Crosscutting.Log;
 
-namespace FORCEBuild.ORM.Register
+namespace FORCEBuild.ORM.Configuration
 {
     /// <summary>
     /// 注册器
     /// </summary>
-    public abstract class OrmRegister
+    public abstract class OrmConfig
     {
+        internal ConcurrentDictionary<Type, ClassDefine> ClassDefines { get; set; }
 
-        public string ConnectionString
-        {
-            get
-            {
-#if singledb
-                return new SqlConnectionStringBuilder
-                {
-                    DataSource = InstanceLocalString,
-                    IntegratedSecurity = true,
-                    // UserInstance = true,
-                    ConnectTimeout = 10,
-                    AttachDBFilename = Path,
+        public DbConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
-                }.ConnectionString;
-#else
-                return $@"server=.\{InstanceName};AttachDbFilename={Path};Integrated Security=True;Connect Timeout=5;";
-#endif
-            }
-        }
+        public DecoratorFunction Function { get; set; }
+
         /// <summary>
-        /// 是否绑定superlayer class的id
+        /// 是否绑定 super layer class的id
         /// </summary>
         public bool IsLinked { get; set; }
 
         /// <summary>
         /// super-layer class propertyname
         /// </summary>
-        public string SpecificProperty { get; set; }
+        public string LinkedIdName { get; set; }
 
-        private const string InstanceLocalString = "(local)";
-
-        public string InstanceName { get; set; }
-
-        /// <summary>
-        /// 全路径
-        /// </summary>
-        public string Path { get; set; }
-
-        //public bool EmptyId { get; set; }
-
-        //public int DefaultId { get; set; }
-
-        public ConcurrentDictionary<Type, ClassDefine> ClassDefines { get; set; }
+        public ILog Logger { get; set; }
 
         public AccessorType AccessorType { get; set; }
 
-        public OrmRegister()
+        protected OrmConfig()
         {
             ClassDefines = new ConcurrentDictionary<Type, ClassDefine>();
-            Install();
+            InstallAll();
         }
-
-        //public void Check()
-        //{
-        //    if (ConnectionString == null)
-        //    {
-        //        throw new Exception("不完整的连接定义");
-        //    }
-        //}
 
         private void Register(Type type)
         {
@@ -210,9 +174,7 @@ namespace FORCEBuild.ORM.Register
             }
         }
 
-
-        protected abstract void Install();
-
+        protected abstract void InstallAll();
 
     }
 }

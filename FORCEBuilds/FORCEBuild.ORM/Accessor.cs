@@ -1,19 +1,15 @@
-﻿using Castle.DynamicProxy;
-using FORCEBuild.Core;
+﻿using FORCEBuild.Core;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Data;
-using System.Diagnostics;
+using System.Data.Common;
 using System.Linq;
-using System.Reflection;
-using FORCEBuild.Crosscutting;
 using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Crosscutting.Validation;
 using FORCEBuild.Helper;
+using FORCEBuild.ORM.Configuration;
 
 namespace FORCEBuild.ORM
 {
@@ -59,12 +55,21 @@ namespace FORCEBuild.ORM
     /// <summary>
     /// 连接数据库并执行sql，实现类将对应不同的数据库
     /// </summary>
-    internal abstract class Accessor
+    internal abstract class Accessor:IFactoryProxyPreparation
     {
         /// <summary>
         /// 对应数据库中的id列名，用于跟踪对象
         /// </summary>
         public const string IdColumnName = "guid";
+
+        public OrmConfig Config {
+            set {
+                IsLinked = value.IsLinked;
+                ClassDefines = value.ClassDefines;
+                ConnectionStringBuilder = value.ConnectionStringBuilder;
+                Log = value.Logger;
+            }
+        }
 
         /// <summary>
         /// 是否绑定model的id。如果绑定则更新
@@ -73,11 +78,7 @@ namespace FORCEBuild.ORM
 
         public ILog Log { get; set; }
 
-        protected abstract void ExecuteSql(DataBaseCommand ac);
-        public abstract IDbTransaction BeginTransaction();
-        protected abstract DataTable Read(SelectCommand ac);
-        protected abstract DataTable Read(string sql);
-        public string ConnectionString { get; set; }
+        public DbConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
         private ConcurrentDictionary<Type, ClassDefine> _classDefines;
 
@@ -99,7 +100,15 @@ namespace FORCEBuild.ORM
         //保持已插入和取出对象的引用
         public ConcurrentDictionary<Type, Dictionary<Guid, object>> ObjectCache { get; set; }
 
-        public ForceBuildFactory ProxyFactory { private get; set; }
+        public ProxyFactory ProxyFactory { private get; set; }
+
+        protected abstract void ExecuteSql(DataBaseCommand ac);
+        
+        public abstract IDbTransaction BeginTransaction();
+        
+        protected abstract DataTable Read(SelectCommand ac);
+        
+        protected abstract DataTable Read(string sql);
 
         public virtual void Insert(IOrmModel model)
         {
@@ -108,7 +117,6 @@ namespace FORCEBuild.ORM
             if (interceptor.ORMID != Guid.Empty)
                 return;
             var classModel = model.ClassDefine;
-            Guid primaryKey;
 
             var cmd = new InsertCommand();
 
@@ -173,53 +181,53 @@ namespace FORCEBuild.ORM
 
             #region 完成写入
 
-            var guid = Guid.NewGuid();
+            var primaryKey = Guid.NewGuid();
             cmd.InsertPairs.Add(new ColumnValuePair {
                 Column = IdColumnName,
-                Value = guid
+                Value = primaryKey
             });
             cmd.TableName = classModel.Table;
             ExecuteSql(cmd);
             if (IsLinked) {
-                classModel.IdPropertyInfo.SetValue(model, guid);
+                classModel.IdPropertyInfo.SetValue(model, primaryKey);
             }
 
-            interceptor.ORMID = guid;
-            primaryKey = guid;
-            ObjectCache[type].Add(guid, model);
+            interceptor.ORMID = primaryKey;
+            
+            ObjectCache[type].Add(primaryKey, model);
 
             #endregion
 
             #region 多对多
 
-            foreach (var manytoMany in classModel.ManyToMany.Values) {
-                var value = manytoMany.PropertyInfo.GetValue(model);
+            foreach (var manyToMany in classModel.ManyToMany.Values) {
+                var value = manyToMany.PropertyInfo.GetValue(model);
                 if (value == null)
                     continue;
-                if (manytoMany.IsNeedUpdate)
-                    InsertAllManyToMany(manytoMany, (IEnumerable) value, primaryKey);
+                if (manyToMany.IsNeedUpdate)
+                    InsertAllManyToMany(manyToMany, (IEnumerable) value, primaryKey);
             }
 
             #endregion
 
             #region 一对一主键
 
-            foreach (var onetoOne in classModel.OneToOne.Values) {
-                var value = onetoOne.PropertyInfo.GetValue(model);
+            foreach (var oneToOne in classModel.OneToOne.Values) {
+                var value = oneToOne.PropertyInfo.GetValue(model);
                 if (value == null)
                     continue;
-                if (onetoOne.IsNeedUpdate)
-                    InsertOneToOne(onetoOne, primaryKey, value);
+                if (oneToOne.IsNeedUpdate)
+                    InsertOneToOne(oneToOne, primaryKey, value);
             }
 
             #endregion
 
             #region 一对多
 
-            foreach (var onetoMany in classModel.OneToMany.Values) {
-                var value = (IEnumerable) onetoMany.PropertyInfo.GetValue(model);
-                if (onetoMany.IsNeedUpdate)
-                    InsertAllOneToMany(onetoMany, value, primaryKey);
+            foreach (var oneToMany in classModel.OneToMany.Values) {
+                var value = (IEnumerable) oneToMany.PropertyInfo.GetValue(model);
+                if (oneToMany.IsNeedUpdate)
+                    InsertAllOneToMany(oneToMany, value, primaryKey);
             }
 
             #endregion
@@ -239,8 +247,8 @@ namespace FORCEBuild.ORM
             if (ObjectCache[type].ContainsKey(mainId))
                 return ObjectCache[type][mainId];
             //生成不记录更改的对象
-            var instance = ProxyFactory.Get(type, false);
-            var interceptor = ForceBuildFactory.GetInterceptor<OrmInterceptor>(instance);
+            var instance = ProxyFactory.CreateProxyClass(type, false);
+            var interceptor = ProxyFactory.GetInterceptor<OrmInterceptor>(instance);
             interceptor.IsRecordable = false;
             if (IsLinked)
                 mainClassDefine.IdPropertyInfo.SetValue(instance, mainId);
@@ -377,14 +385,13 @@ namespace FORCEBuild.ORM
             #endregion
 
             //允许记录更改
-
             interceptor.IsRecordable = true;
             //允许发射更改
             ((IOrmModel) instance).OrmInterceptor.ORMID = mainId;
             return instance;
         }
 
-        public void ForceBuildFactory_AgentPreparation(GenerateEventArgs args)
+        public void GeneratePreparation(PreProxyEventArgs args)
         {
             if (!ClassDefines.ContainsKey(args.ToProxyType)) {
                 throw new ArgumentException("未定义的类，无法创建实例");
@@ -401,19 +408,6 @@ namespace FORCEBuild.ORM
             args.Interceptors.Add(interceptor);
             args.GenerationOptions.AddMixinInstance(mix);
         }
-
-        //private OrmInterceptor GetOrmInterceptor(Type type)
-        //{
-        //    var define = ClassDefines[type];
-        //    var list = define.AllProperties.ToConcurrencyDictionary(property => property.Key,
-        //        property => new NotifyProperty {PropertyElement = property.Value});
-        //    var interceptor = new OrmInterceptor {
-        //        NotifyProperties = list,
-        //        Dispatcher = Dispatcher,
-        //        IsRecordable = true
-        //    };
-        //    return interceptor;
-        //}
 
         public virtual object Get(Guid ormid, Type type)
         {

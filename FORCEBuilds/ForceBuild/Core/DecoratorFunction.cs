@@ -6,7 +6,7 @@ namespace FORCEBuild.Core
     /// 包含了预定义的功能，可以attach添加功能
     /// </summary>
     [Flags]
-    public enum ForceBuildFunction
+    public enum DecoratorFunction
     {
         /// <summary>
         /// 赋值检查
@@ -15,7 +15,7 @@ namespace FORCEBuild.Core
         /// <summary>
         /// 对象映射信息元
         /// </summary>
-     //   MapInfo = 2,
+        //   MapInfo = 2,
         /// <summary>
         /// 属性变化通知
         /// </summary>
@@ -23,7 +23,7 @@ namespace FORCEBuild.Core
         /// <summary>
         /// 远程调用代理
         /// </summary>
-    //    RemoteProxy = 8,
+        //    RemoteProxy = 8,
         /// <summary>
         /// 前置拦截
         /// </summary>
