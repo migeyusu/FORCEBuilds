@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<orm-configuration>
-  <DBType>MSSQL</DBType>
-  <Connectionstring></Connectionstring>
-  <Mapping></Mapping>
-  <EmptyID></EmptyID>
-  <DefaultID></DefaultID>
-  <IDType></IDType>
-</orm-configuration>

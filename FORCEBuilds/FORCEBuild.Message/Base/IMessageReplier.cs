@@ -1,6 +1,4 @@
-﻿using FORCEBuild.Net.Service;
-
-namespace FORCEBuild.Message.Base
+﻿namespace FORCEBuild.Net.Base
 {
     /// <summary>
     /// 消息应答器

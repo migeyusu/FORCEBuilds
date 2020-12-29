@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.ORM.Configuration
+﻿namespace FORCEBuild.Persistence.Configuration
 {
     public interface IOrmAttribute
     {

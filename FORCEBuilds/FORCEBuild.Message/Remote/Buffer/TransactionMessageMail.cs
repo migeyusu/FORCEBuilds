@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Remote.Buffer
+﻿namespace FORCEBuild.Net.Remote.Buffer
 {
     internal class TransactionMessageMail
     {

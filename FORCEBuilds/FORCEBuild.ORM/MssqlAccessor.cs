@@ -1,12 +1,10 @@
 ﻿#define output
 
 using System.Data;
-using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Linq;
 
-
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     internal class MssqlAccessor : Accessor
     {

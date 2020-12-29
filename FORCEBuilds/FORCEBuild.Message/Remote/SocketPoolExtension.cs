@@ -1,8 +1,7 @@
 ﻿using System.Net;
-using FORCEBuild.Message.Base;
 using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     public static class SocketPoolExtension
     {

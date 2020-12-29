@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Base
+﻿namespace FORCEBuild.Net.Base
 {
     /* 消息总线使用单独接口，.net中也有相应的接口实现Observer pattern（IObservable）
      * 但较为简单（没有取消订阅，非中心化）

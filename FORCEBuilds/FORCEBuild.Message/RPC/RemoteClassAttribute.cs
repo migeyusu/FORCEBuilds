@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
     /// <summary>
     /// 标记拥有远程方法的类

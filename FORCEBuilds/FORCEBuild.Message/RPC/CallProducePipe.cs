@@ -1,7 +1,7 @@
 ﻿using System;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
 
     public class CallProducePipe: MessagePipe<IMessage,IMessage>

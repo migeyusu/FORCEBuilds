@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.RPC
+﻿namespace FORCEBuild.Net.RPC
 {
     public enum CallType : byte
     {

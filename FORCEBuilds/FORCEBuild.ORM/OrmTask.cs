@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     internal class OrmTask:IDisposable
     {

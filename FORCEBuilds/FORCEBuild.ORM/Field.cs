@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using FORCEBuild.Core;
-using FORCEBuild.Crosscutting.Log;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     /*1 accessor use actor module but not support message command,
       so it can wrapper invoke as command send to dispatcher.

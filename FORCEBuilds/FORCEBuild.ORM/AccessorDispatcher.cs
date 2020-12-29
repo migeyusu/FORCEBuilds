@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using FORCEBuild.Crosscutting.Log;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     /* 2017.2:
     * 以INotify接口为核心，更新交由更新线程自动化完成

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.DataTransferObject;
+﻿using System.Collections.Concurrent;
+using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote.DataTransferObject;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// 消息总线:获取和发布消息处理过程

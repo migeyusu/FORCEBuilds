@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Concurrent;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.Buffer;
-using FORCEBuild.Message.Remote.DataTransferObject;
-using FORCEBuild.Message.RPC;
 using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote.DataTransferObject;
+using FORCEBuild.Net.RPC;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// a centralized local  message-bus mails

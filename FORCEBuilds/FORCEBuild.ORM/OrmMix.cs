@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.ORM
+﻿namespace FORCEBuild.Persistence
 {
     public class OrmMix:IOrmModel
     {

@@ -1,16 +1,11 @@
 ﻿#define factorymethod
 using System;
-using System.Net;
 using System.Reflection;
 using Castle.DynamicProxy;
-using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote;
-using FORCEBuild.Message.RPC.Interface;
-using FORCEBuild.Net.Service;
-using Xunit;
+using FORCEBuild.Net.Base;
+using FORCEBuild.Net.RPC.Interface;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
 
     /* 2017.5 不使用修改后的castle，从而取消领域对象序列化传输，因为一方面不兼容wcf，

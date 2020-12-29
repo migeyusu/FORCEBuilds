@@ -5,7 +5,7 @@ using System.Reflection;
 using FORCEBuild.Core;
 using FORCEBuild.Crosscutting.Log;
 
-namespace FORCEBuild.ORM.Configuration
+namespace FORCEBuild.Persistence.Configuration
 {
     /// <summary>
     /// 注册器

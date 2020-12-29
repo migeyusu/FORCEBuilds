@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     /// <summary>
     /// 表示描述一对数据库列名和值的对,以后启用更多描述字段优化性能

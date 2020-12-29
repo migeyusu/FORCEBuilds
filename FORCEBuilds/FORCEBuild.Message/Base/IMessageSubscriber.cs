@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Base
+﻿namespace FORCEBuild.Net.Base
 {
     /// <summary>
     /// 实现该接口即可完成消息的订阅和处理

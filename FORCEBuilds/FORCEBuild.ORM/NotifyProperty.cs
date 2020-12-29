@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     public class NotifyProperty
     {

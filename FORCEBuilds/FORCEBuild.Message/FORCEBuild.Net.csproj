@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>FORCEBuild.Net</RootNamespace>
+    <AssemblyName>FORCEBuild.Net</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">
+    </ProjectReference>
+  </ItemGroup>
+</Project>

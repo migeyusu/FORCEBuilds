@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.DataTransferObject;
+using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote.DataTransferObject;
 
-namespace FORCEBuild.Message.Remote.Buffer
+namespace FORCEBuild.Net.Remote.Buffer
 {
     internal class EventMessageMail:IMessageMail<IMessage>
     {

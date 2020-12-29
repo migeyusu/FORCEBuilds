@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FORCEBuild.Message.Base
+﻿namespace FORCEBuild.Net.Base
 {
     /// <summary>
     /// 表示消息体继承层次结构的根，无实际功能

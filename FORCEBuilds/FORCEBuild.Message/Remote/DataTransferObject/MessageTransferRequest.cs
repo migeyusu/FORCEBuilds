@@ -1,7 +1,7 @@
 ﻿using System;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.Remote.DataTransferObject
+namespace FORCEBuild.Net.Remote.DataTransferObject
 {
     /// <summary>
     /// 消息传输请求

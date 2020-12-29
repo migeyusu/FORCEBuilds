@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     public class MessageSubscriber<T>:IMessageSubscriber<T> where T:IMessage
     {

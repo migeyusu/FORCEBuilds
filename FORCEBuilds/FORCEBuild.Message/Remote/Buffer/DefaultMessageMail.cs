@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.DataTransferObject;
+using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote.DataTransferObject;
 
-namespace FORCEBuild.Message.Remote.Buffer
+namespace FORCEBuild.Net.Remote.Buffer
 {
     /* 邮箱，即消息缓冲区决定了对消息的处理策略，例如是否支持持久化等
      * 邮箱支持多个用户基于指针的读写，指针使用long，long=-1表示最后一个

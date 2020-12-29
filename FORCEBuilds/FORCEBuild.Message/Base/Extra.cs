@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Base
+﻿namespace FORCEBuild.Net.Base
 {
     public static class Extra
     {

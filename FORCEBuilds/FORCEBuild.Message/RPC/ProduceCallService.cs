@@ -1,14 +1,8 @@
-﻿using System;
-using System.Net;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote;
 using FORCEBuild.Net.Base;
-using FORCEBuild.Net.Service;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
 
     /// <summary>

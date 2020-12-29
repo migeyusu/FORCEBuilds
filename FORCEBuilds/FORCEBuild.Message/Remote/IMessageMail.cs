@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.DataTransferObject;
+using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote.DataTransferObject;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// 消息邮箱，在服务端作为消息Consumer的代理

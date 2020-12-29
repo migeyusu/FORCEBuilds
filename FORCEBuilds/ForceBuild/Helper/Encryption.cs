@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -10,6 +11,9 @@ namespace FORCEBuild.Helper
     /// </summary>
     public class Encryption
     {
+
+        public const string EncryptionFilter = ".key";
+
         /// <summary>
         /// 创建公私钥对
         /// </summary>
@@ -17,10 +21,10 @@ namespace FORCEBuild.Helper
         /// <param name="publickeypath"></param>
         public static void CreateRSAFile(string privatekeypath, string publickeypath)
         {
-            if (!privatekeypath.EndsWith(SoftwareRegister.EncryptionFilter)) {
+            if (!privatekeypath.EndsWith(Encryption.EncryptionFilter)) {
                 throw new Exception("目标文件类型错误");
             }
-            if (!publickeypath.EndsWith(SoftwareRegister.EncryptionFilter)) {
+            if (!publickeypath.EndsWith(Encryption.EncryptionFilter)) {
                 throw new Exception("目标文件类型错误");
             }
             //密钥长度越长，加密强度越大，但加密速度也越慢，但是必须增加密钥长度，因为最大加密大小受限于key大小

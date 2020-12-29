@@ -1,8 +1,8 @@
 ﻿using System;
 using FORCEBuild.Core;
-using FORCEBuild.ORM.Configuration;
+using FORCEBuild.Persistence.Configuration;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     /// <summary>
     /// 起始类

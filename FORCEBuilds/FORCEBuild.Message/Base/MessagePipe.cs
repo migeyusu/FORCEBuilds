@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     public class MessagePipe<TInput,TOutput>:IDisposable
     {

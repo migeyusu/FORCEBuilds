@@ -1,9 +1,9 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.Remote.DataTransferObject {
+namespace FORCEBuild.Net.Remote.DataTransferObject {
     /// <summary>
     /// 表示消息响应出错
     /// </summary>

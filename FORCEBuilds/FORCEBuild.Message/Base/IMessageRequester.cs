@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     public interface IMessageRequester
     {

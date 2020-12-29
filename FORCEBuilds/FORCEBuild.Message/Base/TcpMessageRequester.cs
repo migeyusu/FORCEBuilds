@@ -6,13 +6,12 @@ using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Remote;
-using FORCEBuild.Message.Remote.DataTransferObject;
-using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote;
+using FORCEBuild.Net.Remote.DataTransferObject;
 using FORCEBuild.Net.Service;
 using FORCEBuild.Persistence.Serialization;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     public class TcpMessageRequester:IMessageRequester,ITcpServiceCustomer
     {

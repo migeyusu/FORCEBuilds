@@ -1,8 +1,7 @@
 ﻿using System;
 using Castle.DynamicProxy;
-using FORCEBuild.Message.RPC.Interface;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
     public class CallInterceptor : IInterceptor
     {

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <IsPackable>true</IsPackable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Version>1.0.0</Version>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FORCEBuild.Windows\FORCEBuild.Windows.csproj" />
+    <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj" />
+  </ItemGroup>
+
+</Project>

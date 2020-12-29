@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Castle.Core.Internal;
-using Xunit;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
 
     /// <summary>

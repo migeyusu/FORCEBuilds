@@ -1,5 +1,4 @@
-﻿using FORCEBuild.Core;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,11 +6,12 @@ using System.Collections.Specialized;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using FORCEBuild.Core;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Helper;
-using FORCEBuild.ORM.Configuration;
+using FORCEBuild.Persistence.Configuration;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     /* 部分属性更新为空时，使用dbnull。（相应的数据库更新规则）
      * 为了防止重复更新，需检测可能的反向引用，考虑三种方法：

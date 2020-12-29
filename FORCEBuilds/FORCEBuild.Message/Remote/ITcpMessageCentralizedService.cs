@@ -1,10 +1,7 @@
-﻿using System;
-using System.Net;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.RPC;
-using FORCEBuild.Net.Service;
+﻿using FORCEBuild.Net.Base;
+using FORCEBuild.Net.RPC;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// 作为messagebusservice的contract

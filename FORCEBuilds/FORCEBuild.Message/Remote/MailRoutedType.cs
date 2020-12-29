@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Remote
+﻿namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// 消息路由规则

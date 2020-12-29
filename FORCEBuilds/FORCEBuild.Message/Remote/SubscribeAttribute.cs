@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     public class SubscribeAttribute:Attribute
     {

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using Xunit;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /// <summary>
     /// 消息消费策略

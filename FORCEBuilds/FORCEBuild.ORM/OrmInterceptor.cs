@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using Castle.DynamicProxy;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     [Serializable]
     public class OrmInterceptor : IInterceptor

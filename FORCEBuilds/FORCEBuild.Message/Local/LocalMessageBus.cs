@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.Local
+namespace FORCEBuild.Net.Local
 {
     public class LocalMessageBus:IMessageBus
     {

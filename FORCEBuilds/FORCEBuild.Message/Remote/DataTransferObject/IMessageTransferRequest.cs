@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.Remote.DataTransferObject
+﻿namespace FORCEBuild.Net.Remote.DataTransferObject
 {
     public interface IMessageTransferRequest
     {

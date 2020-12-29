@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Castle.Components.DictionaryAdapter;
 
-namespace FORCEBuild.ORM
+namespace FORCEBuild.Persistence
 {
     public abstract class DataBaseCommand
     {

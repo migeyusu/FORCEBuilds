@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.Remote.DataTransferObject
+namespace FORCEBuild.Net.Remote.DataTransferObject
 {
     /// <summary>
     /// 消息响应，负责运输消息

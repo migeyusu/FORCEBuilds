@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.ORM.Configuration
+namespace FORCEBuild.Persistence.Configuration
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ForeignOneAttribute:global::System.Attribute

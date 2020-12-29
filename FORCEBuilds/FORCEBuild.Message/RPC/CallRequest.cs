@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
-using FORCEBuild.Message.Base;
+using FORCEBuild.Net.Base;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
 
     /// <summary>

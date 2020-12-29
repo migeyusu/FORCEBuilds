@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Castle.Windsor;
 
-namespace FORCEBuild.Message.RPC
+namespace FORCEBuild.Net.RPC
 {
     /// <summary>
     /// 基于消息的执行器

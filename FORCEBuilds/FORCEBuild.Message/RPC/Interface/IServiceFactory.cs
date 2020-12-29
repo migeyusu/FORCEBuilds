@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Message.RPC.Interface
+﻿namespace FORCEBuild.Net.RPC.Interface
 {
     /// <summary>
     /// 服务工厂，远程客户端调用以创建服务

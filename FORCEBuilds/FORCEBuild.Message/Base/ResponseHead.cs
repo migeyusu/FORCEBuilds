@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ResponseHead

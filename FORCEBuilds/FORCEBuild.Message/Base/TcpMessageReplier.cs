@@ -7,12 +7,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Remote;
-using FORCEBuild.Net.Base;
+using FORCEBuild.Net.Remote;
 using FORCEBuild.Net.Service;
 using FORCEBuild.Persistence.Serialization;
 
-namespace FORCEBuild.Message.Base
+namespace FORCEBuild.Net.Base
 {
     /// <summary>
     /// 消息回复服务

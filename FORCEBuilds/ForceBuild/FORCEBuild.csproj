@@ -2,8 +2,28 @@
   <PropertyGroup>
     <RootNamespace>FORCEBuild</RootNamespace>
     <AssemblyName>FORCEBuild</AssemblyName>
+    <Version>3.0.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    <Description>.Net enterprise lib</Description>
+    <Copyright>2021</Copyright>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageIcon>socialism_186.png</PackageIcon>
+    <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
+    <RepositoryType></RepositoryType>
+    <PackageTags>Enterprise</PackageTags>
+    <PackageReleaseNotes>removed unused icon</PackageReleaseNotes>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="Castle.Windsor" Version="5.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\socialism_186.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

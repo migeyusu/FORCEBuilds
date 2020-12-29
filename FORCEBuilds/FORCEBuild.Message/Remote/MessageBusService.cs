@@ -1,25 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Castle.MicroKernel.Registration;
-using FORCEBuild.Crosscutting.Log;
-using FORCEBuild.Message.Base;
-using FORCEBuild.Message.Remote.Buffer;
-using FORCEBuild.Message.RPC;
-using FORCEBuild.Net;
 using FORCEBuild.Net.Base;
-using FORCEBuild.Net.Service;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Net.Remote.Buffer;
+using FORCEBuild.Net.RPC;
 
-namespace FORCEBuild.Message.Remote
+namespace FORCEBuild.Net.Remote
 {
     /* 消息总线服务端分为路由（Routed，类似RabbitMQ的Exchange）和消息策略两大部分
      * 路由机制是类似频道或正则字符串实现的发送频道规则
