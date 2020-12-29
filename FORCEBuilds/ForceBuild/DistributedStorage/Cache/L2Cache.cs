@@ -10,8 +10,6 @@ namespace FORCEBuild.DistributedStorage.Cache
 
         public ConcurrentDictionary<int,IDistributedData> AllDatas { get; set; }
 
-        
-
         private bool work, working;
 
         public L2Cache()

@@ -1,3 +1,4 @@
+#support raw nuget
 $call="C:\nuget.exe"
 #& $call setApiKey 02881b7b-d6c4-44c1-9d58-4e7f9a96f80f
 $path=dir *.csproj  -name

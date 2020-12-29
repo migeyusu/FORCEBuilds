@@ -1,15 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FORCEBuild", "ForceBuild\FORCEBuild.csproj", "{96B3811C-7F33-4E01-96D7-59A7BF54CEC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FORCEBuild.Message", "FORCEBuild.Message\FORCEBuild.Message.csproj", "{A10C74FC-4375-456F-9EB3-30C4101F8CF4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FORCEBuild.ORM", "FORCEBuild.ORM\FORCEBuild.ORM.csproj", "{C745CD20-7410-4CFB-8A61-BF6474791E10}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{73635D09-769A-4B76-9D46-5304072E86B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{C745CD20-7410-4CFB-8A61-BF6474791E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C745CD20-7410-4CFB-8A61-BF6474791E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C745CD20-7410-4CFB-8A61-BF6474791E10}.Release|Any CPU.Build.0 = Release|Any CPU
-		{73635D09-769A-4B76-9D46-5304072E86B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{73635D09-769A-4B76-9D46-5304072E86B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{73635D09-769A-4B76-9D46-5304072E86B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{73635D09-769A-4B76-9D46-5304072E86B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
