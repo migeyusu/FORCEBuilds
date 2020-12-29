@@ -10,7 +10,7 @@ using FORCEBuild.Net.RPC;
 namespace FORCEBuild.Net.Remote
 {
     /// <summary>
-    /// a centralized local  message-bus mails
+    /// a centralized local message-bus mails
     /// </summary>
     public class MessageBusClient:IDisposable
     {

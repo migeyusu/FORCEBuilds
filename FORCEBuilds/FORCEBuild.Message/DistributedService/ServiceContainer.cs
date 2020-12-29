@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.DynamicProxy;
+using Castle.Windsor;
 using FORCEBuild.Net.Base;
 
 namespace FORCEBuild.Net.DistributedService
@@ -95,7 +97,7 @@ namespace FORCEBuild.Net.DistributedService
         {
             _servicesPool = new Dictionary<string, object>();
             ServiceEndPoint = new IPEndPoint(NetHelper.InstanceIpv4,
-                NetHelper.AviliblePort);
+                NetHelper.AvailablePort);
 
             ObjectContainer = new WindsorContainer();
             InterfaceList = new List<Type>();
@@ -223,16 +225,6 @@ namespace FORCEBuild.Net.DistributedService
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        [Fact]
-        public void FactMethodName()
-        {
-            var windsor = new WindsorContainer();
-            windsor.Register(Castle.MicroKernel.Registration.Component.For<WindosorInterceptor>());
-            windsor.Register(Castle.MicroKernel.Registration.Component.For<WindsorAOP>()
-                .Interceptors(typeof(WindosorInterceptor)));
-            var aop = windsor.Resolve<WindsorAOP>();
-            aop.I = 1;
-        }
     }
 
     public class WindsorAOP

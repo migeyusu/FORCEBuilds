@@ -4,11 +4,11 @@ using FORCEBuild.Configuration;
 
 namespace FORCEBuild.Windows.Hardware
 {
-    public class InformationMapper:IMapProfile
+    public class InformationMapper: Profile
     {
-        public void Profile(IMapperConfigurationExpression expression)
+        public InformationMapper()
         {
-            expression.CreateMap<NetworkInterface, NetworkInfo>();
+            CreateMap<NetworkInterface, NetworkInfo>();
         }
     }
 }

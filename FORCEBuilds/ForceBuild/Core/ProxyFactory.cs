@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Documents;
 using Castle.Core.Internal;
 using Castle.DynamicProxy;
 using Castle.MicroKernel.ModelBuilder.Descriptors;

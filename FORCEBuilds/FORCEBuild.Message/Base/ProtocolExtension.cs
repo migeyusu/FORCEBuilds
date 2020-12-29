@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Net.DistributedService;
+using FORCEBuild.Serialization;
 
 
 namespace FORCEBuild.Net.Base
@@ -20,23 +21,26 @@ namespace FORCEBuild.Net.Base
         }
 
 
-        //public static void SendResponse(this Socket socket, bool issuccess,
-        //    byte[] datas)
-        //{
-        //    var response = new ResponseHead(issuccess, datas.Length);
-        //    socket.Send(response.ToBytes());
-        //    if (datas.Length!=0) {
-        //        socket.Send(datas);
-        //    }
-        //}
+        public static void SendResponse(this Socket socket, bool issuccess,
+            byte[] datas)
+        {
+            //todo:implement
+            throw new NotImplementedException();
+            /*var response = new ResponseHead(issuccess, datas.Length);
+            socket.Send(response.ToBytes());
+            if (datas.Length!=0) {
+                socket.Send(datas);
+            }*/
+        }
 
-        //public static void SendRequest(this Socket socket, CallType callType,
-        //    byte[] datas)
-        //{
-        //    var requestHead = new RequestHead(callType, datas.Length);
-        //    socket.Send(requestHead.ToBytes());
-        //    socket.Send(datas);
-        //}
+        public static void SendRequest(this Socket socket, CallType callType,
+            byte[] datas)
+        {
+            throw new NotImplementedException();
+            /*var requestHead = new RequestHead(callType, datas.Length);
+            socket.Send(requestHead.ToBytes());
+            socket.Send(datas);*/
+        }
 
         public static MemoryStream GetSpecificLenStream(this Socket socket, int count)
         {

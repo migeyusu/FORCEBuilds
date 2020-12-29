@@ -7,9 +7,10 @@ using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Net.Base;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.DistributedService
 {
@@ -29,7 +30,7 @@ namespace FORCEBuild.Net.DistributedService
     {
         private bool broadcast, broadcasting, work, working;
 
-        private const int buffersize= 4096;
+        private const int buffersize = 4096;
 
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<Guid, ServiceNode>> serviceNodes;
 
@@ -51,33 +52,39 @@ namespace FORCEBuild.Net.DistributedService
         /// 生命周期标识
         /// </summary>
         public Guid RegistryGuid { get; set; }
+
         /// <summary>
         /// 服务中心标识
         /// </summary>
         public Guid Filter { get; set; }
 
         public int BroadcastPort { get; set; }
+        private IMapper _mapper;
 
         public ServiceCenter()
         {
             serviceNodes = new ConcurrentDictionary<string, ConcurrentDictionary<Guid, ServiceNode>>();
             allServiceNodes = new ConcurrentDictionary<Guid, ServiceNode>();
             formatter = new BinaryFormatter();
-           // waitNotifyEndPoints = new SynchronizedCollection<IPEndPoint>();
-            Mapper.Initialize(expression => expression.CreateMap<ServiceNodeInfo, ServiceNode>());
+            // waitNotifyEndPoints = new SynchronizedCollection<IPEndPoint>();
+            var mapperConfiguration =
+                new MapperConfiguration(expression => expression.CreateMap<ServiceNodeInfo, ServiceNode>());
+            _mapper = mapperConfiguration.CreateMapper();
         }
 
         public void Start(int broadcastport = 9290)
         {
-            if (working) {
+            if (working)
+            {
                 return;
             }
+
             BroadcastPort = broadcastport;
-            work = true; 
+            work = true;
             RegistryGuid = Guid.NewGuid();
             var ipa = NetHelper.InstanceIpv4;
-            RequestEndPoint = new IPEndPoint(ipa, NetHelper.AviliblePort);
-            ServiceListenEndPoint = new IPEndPoint(ipa, NetHelper.AviliblePort);
+            RequestEndPoint = new IPEndPoint(ipa, NetHelper.AvailablePort);
+            ServiceListenEndPoint = new IPEndPoint(ipa, NetHelper.AvailablePort);
             Task.Run(new Action(ListenService));
             Task.Run(new Action(ForwardRequest));
             Task.Run(new Action(Broadcast));
@@ -88,41 +95,47 @@ namespace FORCEBuild.Net.DistributedService
         /// </summary>
         private void Broadcast()
         {
-         //   broadcasting = true;
+            //   broadcasting = true;
             working = true;
             var client = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
             var target = new IPEndPoint(IPAddress.Broadcast, BroadcastPort);
             var time = DateTime.Now.ToBinary();
             var registryBytes =
                 new RegistryInfo(RequestEndPoint, ServiceListenEndPoint, RegistryGuid, time, Filter).ToBytes();
-            while (work) {
+            while (work)
+            {
                 client.Send(registryBytes, registryBytes.Length, target);
                 Thread.Sleep(200);
             }
+
             client.Close();
             working = false;
             // broadcasting = false;
         }
 
-      
 
         private void ListenService()
         {
             working = true;
             var listener = new TcpListener(ServiceListenEndPoint);
             listener.Start();
-            while (work) {
-                if (listener.Pending()) {
+            while (work)
+            {
+                if (listener.Pending())
+                {
                     var socket = listener.AcceptSocket();
-                    Task.Run(() => {ServiceAcquire(socket);});
+                    Task.Run(() => { ServiceAcquire(socket); });
                 }
-                else {
+                else
+                {
                     Thread.Sleep(200);
                 }
             }
+
             listener.Stop();
             working = false;
         }
+
         /// <summary>
         /// 服务获取
         /// </summary>
@@ -135,22 +148,25 @@ namespace FORCEBuild.Net.DistributedService
             //设置node
             var nodeInfo =
                 formatter.Deserialize(socket.GetSpecificLenStream(head.LeaveLength)) as ServiceNodeInfo;
-            var serviceNode = Mapper.Map<ServiceNodeInfo, ServiceNode>(nodeInfo);
+            var serviceNode = _mapper.Map<ServiceNodeInfo, ServiceNode>(nodeInfo);
             foreach (var str in nodeInfo.InterfacesList)
             {
                 if (!serviceNodes.ContainsKey(str))
                 {
                     serviceNodes.TryAdd(str, new ConcurrentDictionary<Guid, ServiceNode>());
                 }
+
                 if (!serviceNodes[str].ContainsKey(nodeInfo.ServiceGuid))
                 {
                     serviceNodes[str].TryAdd(serviceNode.ServiceGuid, serviceNode);
                 }
             }
+
             if (!allServiceNodes.ContainsKey(nodeInfo.ServiceGuid))
             {
                 allServiceNodes.TryAdd(nodeInfo.ServiceGuid, serviceNode);
             }
+
             //if (node==null) {
             //    //没有实际接口功能将退出
             //    return;
@@ -160,15 +176,18 @@ namespace FORCEBuild.Net.DistributedService
             while (socket.Connected && work)
             {
                 Thread.Sleep(1000);
-                if (socket.Available > 0) {
+                if (socket.Available > 0)
+                {
                     var head1 = socket.GetStruct<RequestHead>();
-                    if (!head1.IsCorrect||head1.Calltype!=CallType.Heart) continue;
+                    if (!head1.IsCorrect || head1.Calltype != CallType.Heart) continue;
                     var realinfo = formatter.Deserialize(socket.GetSpecificLenStream(head1.LeaveLength))
                         as ServiceNodeRealTimeInfo;
-                    Mapper.Map(realinfo, serviceNode);
+                    _mapper.Map(realinfo, serviceNode);
                 }
+
                 if ((DateTime.Now - lastheartTime).TotalSeconds > 3) break;
             }
+
             socket.Close();
             socket.Dispose();
             //清理
@@ -177,6 +196,7 @@ namespace FORCEBuild.Net.DistributedService
             foreach (var nodedic in serviceNodes.Values)
                 nodedic.TryRemove(nodeInfo.ServiceGuid, out serviceNode);
         }
+
         /// <summary>
         /// 转发请求
         /// </summary>
@@ -191,27 +211,34 @@ namespace FORCEBuild.Net.DistributedService
                 if (listener.Pending())
                 {
                     var socket = listener.AcceptSocket();
-                    Task.Run(() => {
-                        try {
+                    Task.Run(() =>
+                    {
+                        try
+                        {
                             var head = socket.GetStruct<RequestHead>();
-                            if (head.IsCorrect) {
+                            if (head.IsCorrect)
+                            {
                                 var steam = socket.GetSpecificLenStream(head.LeaveLength);
                                 var call = formatter.Deserialize(steam) as InterfaceCallRequest;
                                 serviceNodes.TryGetValue(call.InterfaceType,
                                     out ConcurrentDictionary<Guid, ServiceNode> nodes);
                                 //取得服务器的连接
-                                if (nodes == null || nodes.Count == 0) {
+                                if (nodes == null || nodes.Count == 0)
+                                {
                                     var exp = new Exception("需要的服务未开启");
                                     SendResponse(false, exp, socket);
                                 }
-                                else {
+                                else
+                                {
                                     var select = nodes.Values.OrderBy(node => node.CpuUsage).First();
                                     select.TcpSockets.TryPop(out Socket child);
-                                    if (child == null) {
+                                    if (child == null)
+                                    {
                                         var client = new TcpClient();
                                         client.Connect(select.EndPoint);
                                         child = client.Client;
                                     }
+
                                     child.Send(head.ToBytes());
                                     child.Send(steam.ToArray());
                                     var response = child.GetStruct<ResponseHead>();
@@ -222,24 +249,27 @@ namespace FORCEBuild.Net.DistributedService
                                     select.TcpSockets.Push(child);
                                 }
                             }
-                            else {
+                            else
+                            {
                                 throw new Exception("收到的请求错误");
                             }
                         }
-                        catch (Exception e) {
-                            SendResponse(false,new Exception("网络通信错误",e), socket);
+                        catch (Exception e)
+                        {
+                            SendResponse(false, new Exception("网络通信错误", e), socket);
                             Log.Write(e);
                         }
-                        finally {
+                        finally
+                        {
                             socket.Close();
                             socket.Dispose();
                         }
                     });
                 }
             }
+
             listener.Stop();
             working = false;
-
         }
 
         private void SendResponse(bool isExecuted, object dto, Socket socket)
@@ -254,29 +284,20 @@ namespace FORCEBuild.Net.DistributedService
             else
             {
                 socket.SendResponse(isExecuted, new byte[] { });
-
             }
         }
 
         public void End()
         {
-            if (working) {
+            if (working)
+            {
                 work = false;
                 broadcast = false;
             }
         }
 
-        [Fact]
-        public void FactMethodName()
-        {
-            var time = DateTime.Now.ToBinary();
-            Thread.Sleep(200);
-            var time2 = DateTime.Now.ToBinary();
-            Assert.True(time2 - time > 0);
-        }
-
     }
-}  /// <summary>
+} /// <summary>
 /// 服务订阅/取消订阅
 /// 2017.6.7 取消该机制，因为难以实现均衡负载，改为转发机制
 /// </summary>

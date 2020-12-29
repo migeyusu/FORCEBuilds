@@ -3,7 +3,6 @@ using FORCEBuild.Net.Base;
 
 namespace FORCEBuild.Net.RPC
 {
-
     public class CallProducePipe: MessagePipe<IMessage,IMessage>
     {
         public Actuator Actuator { get; set; }

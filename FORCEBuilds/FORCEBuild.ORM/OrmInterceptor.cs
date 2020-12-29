@@ -16,7 +16,7 @@ namespace FORCEBuild.Persistence
 
         /*全生命周期；在orm1.0阶段（2016中-2017上旬），该值类型为int，来自数据库自动生成，为了保持前向兼容，保留该属性*/
 
-        public Guid ORMID { get; set; }
+        public Guid ID { get; set; }
 
         //经过selector选择过滤
         public void Intercept(IInvocation invocation)

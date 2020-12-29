@@ -153,39 +153,44 @@ namespace FORCEBuild.Persistence
         /// <param name="register"></param>
         public static Field OpenField(OrmConfig register)
         {
-            if (register.ConnectionStringBuilder == null) {
+            if (register.ConnectionStringBuilder == null)
+            {
                 throw new NullReferenceException("Connectionstring is null!");
             }
 
-            if (register.IsLinked && string.IsNullOrEmpty(register.LinkedIdName)) {
+            if (register.IsLinked && string.IsNullOrEmpty(register.LinkedIdName))
+            {
                 throw new ArgumentNullException("LinkedIdName is null!");
             }
 
-            if (register.AccessorType == default(AccessorType)) {
+            if (register.AccessorType == default(AccessorType))
+            {
                 throw new ArgumentNullException("AccessorType is null!");
             }
 
-            if (register.Logger == null) {
+            if (register.Logger == null)
+            {
                 throw new NullReferenceException("Log is null!");
             }
 
-            
-            
-             register.Function.HasFlag(DecoratorFunction.PropertyChangedNotify)
-             {
-                 
-             }   
 
+            if (register.Function.HasFlag(DecoratorFunction.PropertyChangedNotify))
+            {
+                //todo:?
+            }
 
             var accessor = CreateAccessor(register.AccessorType);
             accessor.Config = register;
-            if (accessor.IsLinked) {
-                foreach (var define in register.ClassDefines.Values) {
+            if (accessor.IsLinked)
+            {
+                foreach (var define in register.ClassDefines.Values)
+                {
                     define.IdPropertyInfo = define.ClassType.GetProperty(register.LinkedIdName);
                 }
             }
 
-            var field = new Field {
+            var field = new Field
+            {
                 Accessor = accessor,
             };
 

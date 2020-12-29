@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.Service
 {

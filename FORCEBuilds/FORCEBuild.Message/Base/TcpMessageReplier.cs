@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Net.Remote;
 using FORCEBuild.Net.Service;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.Base
 {

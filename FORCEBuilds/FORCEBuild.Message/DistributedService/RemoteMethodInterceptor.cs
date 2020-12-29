@@ -1,4 +1,5 @@
 ﻿using System;
+using Castle.DynamicProxy;
 
 namespace FORCEBuild.Net.DistributedService
 {

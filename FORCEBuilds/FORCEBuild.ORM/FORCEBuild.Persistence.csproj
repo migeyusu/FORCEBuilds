@@ -6,6 +6,10 @@
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FORCEBuild.Message\FORCEBuild.Net.csproj" />
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">
     </ProjectReference>
   </ItemGroup>

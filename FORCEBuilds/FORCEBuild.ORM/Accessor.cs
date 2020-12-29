@@ -114,7 +114,7 @@ namespace FORCEBuild.Persistence
         {
             var interceptor = model.OrmInterceptor; //IForceBuildFactory.GetInterceptor<OrmInterceptor>(model);
             var type = model.ClassDefine.ClassType;
-            if (interceptor.ORMID != Guid.Empty)
+            if (interceptor.ID != Guid.Empty)
                 return;
             var classModel = model.ClassDefine;
 
@@ -128,13 +128,13 @@ namespace FORCEBuild.Persistence
                 if (value != null) //对象为空不插入，相应的，数据库需要允许外键为空
                 {
                     var iOrmModel = value as IOrmModel;
-                    if (iOrmModel.OrmInterceptor.ORMID.IsEmpty()) {
+                    if (iOrmModel.OrmInterceptor.ID.IsEmpty()) {
                         Insert(iOrmModel);
                     }
 
                     cmd.InsertPairs.Add(new ColumnValuePair {
                         Column = manytoOne.Column,
-                        Value = iOrmModel.OrmInterceptor.ORMID
+                        Value = iOrmModel.OrmInterceptor.ID
                     });
                 }
             }
@@ -147,11 +147,11 @@ namespace FORCEBuild.Persistence
                 var value = foreignOne.PropertyInfo.GetValue(model);
                 if (value != null) {
                     var iOrmModel = value as IOrmModel;
-                    if (iOrmModel.OrmInterceptor.ORMID.IsEmpty())
+                    if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                         Insert(iOrmModel);
                     cmd.InsertPairs.Add(new ColumnValuePair {
                         Column = foreignOne.Column,
-                        Value = iOrmModel.OrmInterceptor.ORMID
+                        Value = iOrmModel.OrmInterceptor.ID
                     });
                 }
             }
@@ -159,7 +159,7 @@ namespace FORCEBuild.Persistence
             #endregion
 
             //防止对象在之前操作中被写入
-            if (!model.OrmInterceptor.ORMID.IsEmpty())
+            if (!model.OrmInterceptor.ID.IsEmpty())
                 return;
 
             #region 属性
@@ -192,7 +192,7 @@ namespace FORCEBuild.Persistence
                 classModel.IdPropertyInfo.SetValue(model, primaryKey);
             }
 
-            interceptor.ORMID = primaryKey;
+            interceptor.ID = primaryKey;
             
             ObjectCache[type].Add(primaryKey, model);
 
@@ -387,7 +387,7 @@ namespace FORCEBuild.Persistence
             //允许记录更改
             interceptor.IsRecordable = true;
             //允许发射更改
-            ((IOrmModel) instance).OrmInterceptor.ORMID = mainId;
+            ((IOrmModel) instance).OrmInterceptor.ID = mainId;
             return instance;
         }
 
@@ -432,7 +432,7 @@ namespace FORCEBuild.Persistence
 
         public virtual void Update(IOrmModel model)
         {
-            var primaryKey = model.OrmInterceptor.ORMID;
+            var primaryKey = model.OrmInterceptor.ID;
             //防止被未插入对象使用
             if (primaryKey.IsEmpty())
                 return;
@@ -462,11 +462,11 @@ namespace FORCEBuild.Persistence
                     else if (element.RelationType == RelationType.ForeignOne) {
                         if (value != null) {
                             var iOrmCell = value as IOrmModel;
-                            if (iOrmCell.OrmInterceptor.ORMID.IsEmpty())
+                            if (iOrmCell.OrmInterceptor.ID.IsEmpty())
                                 Insert(iOrmCell);
                             command.UpdatePairs.Add(new ColumnValuePair {
                                 Column = element.Column,
-                                Value = iOrmCell.OrmInterceptor.ORMID
+                                Value = iOrmCell.OrmInterceptor.ID
                             });
                         }
                         else {
@@ -484,11 +484,11 @@ namespace FORCEBuild.Persistence
                     else if (element.RelationType == RelationType.ManyToOne) {
                         if (value != null) {
                             var iOrmModel = value as IOrmModel;
-                            if (iOrmModel.OrmInterceptor.ORMID.IsEmpty())
+                            if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                                 Insert(iOrmModel);
                             command.UpdatePairs.Add(new ColumnValuePair {
                                 Column = element.Column,
-                                Value = iOrmModel.OrmInterceptor.ORMID
+                                Value = iOrmModel.OrmInterceptor.ID
                             });
                         }
                         else {
@@ -583,7 +583,7 @@ namespace FORCEBuild.Persistence
                                                 break;
                                             case NotifyCollectionChangedAction.Remove:
                                                 foreach (var oldItem in argse.OldItems) {
-                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ORMID;
+                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ID;
                                                     if (id.IsEmpty())
                                                         continue;
                                                     //舊對象不存在不需要更新
@@ -603,7 +603,7 @@ namespace FORCEBuild.Persistence
                                                 break;
                                             case NotifyCollectionChangedAction.Replace:
                                                 foreach (var oldItem in argse.OldItems) {
-                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ORMID;
+                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ID;
                                                     if (id.IsEmpty())
                                                         continue;
                                                     var deleteCommand =
@@ -657,7 +657,7 @@ namespace FORCEBuild.Persistence
                                                     });
                                                     updateCommand.ConditionPairs.Add(new ColumnValuePair {
                                                         Column = onetoMany.ReferColumn,
-                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ORMID
+                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ID
                                                     });
                                                     ExecuteSql(updateCommand);
                                                 }
@@ -675,7 +675,7 @@ namespace FORCEBuild.Persistence
                                                     });
                                                     updateCommand.ConditionPairs.Add(new ColumnValuePair {
                                                         Column = onetoMany.ReferColumn,
-                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ORMID
+                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ID
                                                     });
                                                     ExecuteSql(updateCommand);
                                                 }
@@ -706,12 +706,12 @@ namespace FORCEBuild.Persistence
         private void InsertOneToOne(OnetoOne oneToOne, Guid pk, object oc)
         {
             var iOrmModel = oc as IOrmModel;
-            if (iOrmModel.OrmInterceptor.ORMID.IsEmpty())
+            if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                 Insert(iOrmModel);
             var updateCommand = new UpdateCommand {TableName = oneToOne.ReferClass.Table};
             updateCommand.ConditionPairs.Add(new ColumnValuePair {
                 Column = IdColumnName,
-                Value = iOrmModel.OrmInterceptor.ORMID
+                Value = iOrmModel.OrmInterceptor.ID
             });
             updateCommand.UpdatePairs.Add(new ColumnValuePair {
                 Column = oneToOne.Column,
@@ -739,11 +739,11 @@ namespace FORCEBuild.Persistence
             foreach (var item in preCollection) {
                 var iOrmModel = item as IOrmModel;
                 var updateCommand = new UpdateCommand {TableName = onetoMany.ReferClass.Table};
-                if (iOrmModel.OrmInterceptor.ORMID.IsEmpty())
+                if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                     Insert(iOrmModel);
                 updateCommand.ConditionPairs.Add(new ColumnValuePair {
                     Column = IdColumnName,
-                    Value = iOrmModel.OrmInterceptor.ORMID
+                    Value = iOrmModel.OrmInterceptor.ID
                 });
                 updateCommand.UpdatePairs.Add(new ColumnValuePair {
                     Column = onetoMany.ReferColumn,
@@ -766,7 +766,7 @@ namespace FORCEBuild.Persistence
         private void InsertAllManyToMany(ManytoMany manytoMany, IEnumerable collection, Guid pk)
         {
             foreach (var item in collection) {
-                var ormid = ((IOrmModel) item).OrmInterceptor.ORMID;
+                var ormid = ((IOrmModel) item).OrmInterceptor.ID;
                 if (ormid.IsEmpty())
                     Insert(item as IOrmModel);
                 var insertCommand = new InsertCommand {TableName = manytoMany.Table,};
@@ -785,7 +785,7 @@ namespace FORCEBuild.Persistence
         public virtual void Delete(IOrmModel model)
         {
             var classDefine = model.ClassDefine;
-            var ormid = model.OrmInterceptor.ORMID;
+            var ormid = model.OrmInterceptor.ID;
             var objects = ObjectCache[classDefine.ClassType];
             if (objects.TryGetValue(ormid, out object value) && value == model) {
                 var deleteCommand = new DeleteCommand {TableName = classDefine.Table};
@@ -863,7 +863,7 @@ namespace FORCEBuild.Persistence
                     deleteCommand.TableName = oneToMany.ReferClass.Table;
                     deleteCommand.ConditionPairs.Add(new ColumnValuePair {
                         Column = oneToMany.ReferColumn,
-                        Value = model.OrmInterceptor.ORMID
+                        Value = model.OrmInterceptor.ID
                     });
                     break;
                 case RelationType.ManyToMany:
@@ -871,7 +871,7 @@ namespace FORCEBuild.Persistence
                     deleteCommand.TableName = manyToMany.Table;
                     deleteCommand.ConditionPairs.Add(new ColumnValuePair {
                         Column = manyToMany.Column,
-                        Value = model.OrmInterceptor.ORMID
+                        Value = model.OrmInterceptor.ID
                     });
                     break;
                 default:

@@ -15,6 +15,19 @@
     <PackageReleaseNotes>removed unused icon</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Serialization\IXFormatter.cs" />
+    <Compile Remove="Serialization\XBinaryElementAttribute.cs" />
+    <Compile Remove="Serialization\XBinaryFormatter.cs" />
+    <Compile Remove="Serialization\XBinaryRootAttribute.cs" />
+    <Compile Remove="Serialization\XBinarySerializePair.cs" />
+    <Compile Remove="Serialization\XBinarySerializeRoot.cs" />
+    <Compile Remove="Serialization\XSoapElementAttribute.cs" />
+    <Compile Remove="Serialization\XSoapRootAttribute.cs" />
+    <Compile Remove="Serialization\XSoapSerializeItem.cs" />
+    <Compile Remove="Serialization\XSoapSerializer.cs" />
+    <Compile Remove="Serialization\XSoapSerializeRoot.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Castle.Windsor" Version="5.1.1" />

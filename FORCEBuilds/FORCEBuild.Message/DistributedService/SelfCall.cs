@@ -14,12 +14,5 @@ namespace FORCEBuild.Net.DistributedService
 
         public object[] Parameters { get; set; }
 
-        [Fact]
-        public void FactMethodName()
-        {
-            var ipendpoint = new IPEndPoint(IPAddress.Broadcast, 200);
-            var ip2 = new IPEndPoint(IPAddress.Broadcast, 200);
-            Assert.True(Equals(ipendpoint, ip2));
-        }
     }
 }

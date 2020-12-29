@@ -8,8 +8,9 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.Threading.Tasks;
+using Castle.DynamicProxy;
 using FORCEBuild.Net.Base;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.DistributedService
 {

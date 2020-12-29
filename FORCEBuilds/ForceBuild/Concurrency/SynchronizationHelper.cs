@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace FORCEBuild.Concurrency
 {

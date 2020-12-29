@@ -14,11 +14,5 @@ namespace FORCEBuild.Net.DistributedService
         {
             Implement = implementname;
         }
-        [Fact]
-        public void FactMethodName()
-        {
-            var dt = new DateTime();
-            Assert.Equal(DateTime.Now, dt);
-        }
     }
 }

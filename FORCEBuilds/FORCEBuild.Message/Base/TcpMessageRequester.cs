@@ -9,7 +9,7 @@ using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Net.Remote;
 using FORCEBuild.Net.Remote.DataTransferObject;
 using FORCEBuild.Net.Service;
-using FORCEBuild.Persistence.Serialization;
+using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.Base
 {
