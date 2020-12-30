@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>FORCEBuild</RootNamespace>
     <AssemblyName>FORCEBuild</AssemblyName>
-    <Version>3.0.0.1</Version>
+    <Version>3.1.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
     <Description>.Net enterprise lib</Description>
@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
     <RepositoryType></RepositoryType>
     <PackageTags>Enterprise</PackageTags>
-    <PackageReleaseNotes>removed unused icon</PackageReleaseNotes>
+    <PackageReleaseNotes>Beta version.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Serialization\IXFormatter.cs" />

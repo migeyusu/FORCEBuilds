@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Feature
+namespace FORCEBuild.UI.WinForm.Feature
 {
     class SimpleStateMachine
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace FORCEBuild.PInvoke
+namespace FORCEBuild.Windows.PInvoke
 {
     /// <summary>
     /// 窗体同绘制有关操作

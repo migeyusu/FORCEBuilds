@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Cluster
+namespace FORCEBuild.UI.WinForm.Cluster
 {
     /// <summary>
     /// 控制单个panel形成一个按钮

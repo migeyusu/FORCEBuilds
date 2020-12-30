@@ -2,7 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Render
+namespace FORCEBuild.UI.WinForm.Render
 {
     public class ShadowCreater
     {

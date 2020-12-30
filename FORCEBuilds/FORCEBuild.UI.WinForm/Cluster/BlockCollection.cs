@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Cluster
+namespace FORCEBuild.UI.WinForm.Cluster
 {
     /// <summary>
     /// 组织panel上的所以控件形成一个整体按钮

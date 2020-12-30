@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Cluster
+namespace FORCEBuild.UI.WinForm.Cluster
 {
     /// <summary>
     /// 组织控件形成条状菜单栏

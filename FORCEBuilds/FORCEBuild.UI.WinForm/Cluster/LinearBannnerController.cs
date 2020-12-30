@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Cluster
+namespace FORCEBuild.UI.WinForm.Cluster
 {
     class LinearBannnerController
     {

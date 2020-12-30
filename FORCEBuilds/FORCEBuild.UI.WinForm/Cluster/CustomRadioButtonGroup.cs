@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace FORCEBuild.UI.Winform.Cluster
+namespace FORCEBuild.UI.WinForm.Cluster
 {
     /// <summary>
     /// 组织控件具有单选特性

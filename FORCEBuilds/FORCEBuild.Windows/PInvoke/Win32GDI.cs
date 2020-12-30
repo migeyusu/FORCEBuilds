@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace FORCEBuild.PInvoke
+namespace FORCEBuild.Windows.PInvoke
 {
     public class Win32GDI
     {

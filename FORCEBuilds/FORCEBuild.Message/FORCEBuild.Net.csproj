@@ -4,9 +4,25 @@
     <AssemblyName>FORCEBuild.Net</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    <Description>MessageBus,MessagePipe,RPC</Description>
+    <Copyright>2021</Copyright>
+    <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
+    <RepositoryType>.Net</RepositoryType>
+    <PackageIcon>socialism_186.png</PackageIcon>
+    <PackageTags></PackageTags>
+    <PackageReleaseNotes>MessageBus,MessagePipe,RPC</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\socialism_186.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="5.0.0" />
   </ItemGroup>
 </Project>

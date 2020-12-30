@@ -12,16 +12,15 @@ namespace FORCEBuild.Windows.Hardware
         /// </summary>
         private static string GetInstanceName()
         {
-            var returnvalue = "not found";
             //Checks bandwidth usage for CUPC.exe..Change it with your application Name
-            var Array = PerformanceCounterCategory.GetCategories();
-            foreach (var t in Array) {
+            var array = PerformanceCounterCategory.GetCategories();
+            foreach (var t in array) {
                 if (!t.CategoryName.Contains(".NET CLR Networking")) continue;
                 foreach (var item in t.GetInstanceNames())
                     if (item.ToLower().Contains("CUPC".ToLower()))
-                        returnvalue = item;
+                        return item;
             }
-            return returnvalue;
+            return string.Empty;
         }
     }
 }

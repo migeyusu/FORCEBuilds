@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Management;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using FORCEBuild.Windows.CIM;

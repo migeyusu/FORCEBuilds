@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.PInvoke
+namespace FORCEBuild.Windows.PInvoke
 {
     public struct WindowInfo
     {

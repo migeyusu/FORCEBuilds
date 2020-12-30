@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace FORCEBuild.UI.Winform.Feature
+namespace FORCEBuild.UI.WinForm.Feature
 {
     public class FormFeature
     {

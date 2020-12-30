@@ -4,6 +4,12 @@
     <AssemblyName>FORCEBuild.Persistence</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    <PackageReleaseNotes>Beta</PackageReleaseNotes>
+    <PackageTags>ORM</PackageTags>
+    <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
+    <PackageIcon>socialism_186.png</PackageIcon>
+    <Copyright>2021</Copyright>
+    <Description />
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
@@ -12,5 +18,11 @@
     <ProjectReference Include="..\FORCEBuild.Message\FORCEBuild.Net.csproj" />
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\socialism_186.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace FORCEBuild.Windows
+namespace FORCEBuild.UI.WinForm
 {
     public class WindowOperate
     {

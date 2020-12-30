@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace FORCEBuild.Windows
+namespace FORCEBuild.UI.WinForm
 {
     /// <summary>
     /// 键盘钩子
