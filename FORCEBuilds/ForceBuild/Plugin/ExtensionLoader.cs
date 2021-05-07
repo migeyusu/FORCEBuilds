@@ -6,8 +6,10 @@ using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using AutoMapper;
 using AutoMapper.Internal;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
 using FORCEBuild.Helper;
-using Microsoft.Extensions.DependencyInjection;
+
 
 namespace FORCEBuild.Plugin
 {
@@ -37,7 +39,7 @@ namespace FORCEBuild.Plugin
         /// <summary>
         /// key:interface type
         /// </summary>
-        public Dictionary<Type, ExtensionTypePairEntry> ImplementTypes { get; set; }
+        public Dictionary<Type, ExtensionTypePairEntry> LoadedPairEntries { get; set; }
     }
 
     internal class ExtensionTypePairEntry
@@ -45,12 +47,13 @@ namespace FORCEBuild.Plugin
         public Type InterfaceType { get; set; }
 
         public Type ImplementType { get; set; }
+
         public bool IsTypeCached { get; set; }
 
         /// <summary>
         /// 加快invoke
         /// </summary>
-        public ConstructorInfo ConstructorInfo { get; set; }
+        // public ConstructorInfo ConstructorInfo { get; set; }
     }
 
     /// <summary>
@@ -60,14 +63,43 @@ namespace FORCEBuild.Plugin
     public class ExtensionLoader
     {
         /// <summary>
+        /// 可通过该接口注入特定服务
+        /// </summary>
+        public IWindsorContainer MergedContainer { get; set; }
+
+        private IWindsorContainer _internalContainer;
+
+        /// <summary>
         /// 是否允许扩展的dll替换原有的assembly
         /// </summary>
         public bool IsAllowDuplicatedDll { get; set; } = false;
+
+        /// <summary>
+        /// 依赖容器是否隔离，如果是，将使用一个新的内部容器
+        /// </summary>
+        public bool IsContainerIsolation { get; set; } = false;
 
         private IEnumerable<ExtensionEntry> _extensionEntries;
 
         public void Initialize(IEnumerable<Extension> extensions)
         {
+            if (MergedContainer != null)
+            {
+                if (IsContainerIsolation)
+                {
+                    _internalContainer = new WindsorContainer();
+                    MergedContainer.AddChildContainer(_internalContainer);
+                }
+                else
+                {
+                    _internalContainer = MergedContainer;
+                }
+            }
+            else
+            {
+                _internalContainer = new WindsorContainer();
+            }
+
             var mapper =
                 new Mapper(new MapperConfiguration(expression =>
                     expression.CreateMap<Plugin.Extension, ExtensionEntry>()));
@@ -84,7 +116,7 @@ namespace FORCEBuild.Plugin
                 IEnumerable<Assembly> assemblies;
                 if (IsAllowDuplicatedDll)
                 {
-                    assemblies=assemblyNames.Select(name => Assembly.Load(name)).ToArray();
+                    assemblies = assemblyNames.Select(name => Assembly.Load(name)).ToArray();
                 }
                 else
                 {
@@ -94,24 +126,27 @@ namespace FORCEBuild.Plugin
                         .Where(name => !loadedAssemblyNames.Contains(name.Name))
                         .Select(name => Assembly.Load(name)).ToArray();
                 }
+
                 var extensionEntry = mapper.Map<ExtensionEntry>(entry);
                 extensionEntry.Assemblies = assemblies;
-                extensionEntry.ImplementTypes = FindTypes(assemblies, entry.InterfaceTypes)
-                    .ToDictionary((pairEntry => pairEntry.InterfaceType));
+                extensionEntry.LoadedPairEntries = FindTypes(assemblies, entry.InterfaceTypes, _internalContainer, entry.Name)
+                    .ToDictionary(pairEntry => pairEntry.InterfaceType);
                 return extensionEntry;
             });
         }
 
 
-        private IEnumerable<ExtensionTypePairEntry> FindTypes(IEnumerable<Assembly> assemblies,
-            IEnumerable<Type> interfaceTypes)
+        private static IEnumerable<ExtensionTypePairEntry> FindTypes(IEnumerable<Assembly> assemblies,
+            IEnumerable<Type> interfaceTypes, IWindsorContainer container, string extensionName)
         {
             var types = assemblies.SelectMany((assembly => assembly.GetLoadableTypes()));
-            var typePairEntries = interfaceTypes.Select((type => new ExtensionTypePairEntry()
-            {
-                InterfaceType = type,
-            })).ToArray();
-            foreach (var type in types)
+            var typePairEntries = interfaceTypes.Select((type =>
+                    new ExtensionTypePairEntry()
+                    {
+                        InterfaceType = type,
+                    })
+            ).ToArray();
+            foreach (var rawType in types)
             {
                 var pairEntries = typePairEntries.Where((entry => !entry.IsTypeCached));
                 if (!pairEntries.Any())
@@ -122,28 +157,30 @@ namespace FORCEBuild.Plugin
                 foreach (var typePairEntry in pairEntries)
                 {
                     var interfaceType = typePairEntry.InterfaceType;
-                    if (type.IsClass && !type.IsAbstract && interfaceType.IsAssignableFrom(type))
+                    if (rawType.IsClass && !rawType.IsAbstract && interfaceType.IsAssignableFrom(rawType))
                     {
-                        ConstructorInfo targetConstructorInfo;
-                        if ((targetConstructorInfo = type.GetConstructor(Type.EmptyTypes)) == null) continue;
-                        typePairEntry.ConstructorInfo = targetConstructorInfo;
-                        typePairEntry.ImplementType = type;
+                        typePairEntry.ImplementType = rawType;
                         typePairEntry.IsTypeCached = true;
+                        container.Register(Component.For(interfaceType)
+                            .ImplementedBy(rawType)
+                            .Named(extensionName)
+                            .LifestyleTransient());
                     }
                 }
             }
 
             return typePairEntries;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="T">extension name</typeparam>
-        /// <param name="name"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name">extension name</param>
         /// <returns></returns>
         public T Create<T>(string name)
         {
+            //validate first
             var extensionEntry = _extensionEntries.FirstOrDefault((entry => entry.Name == name));
             if (extensionEntry == null)
             {
@@ -151,7 +188,7 @@ namespace FORCEBuild.Plugin
             }
 
             var type = typeof(T);
-            if (!extensionEntry.ImplementTypes.TryGetValue(type, out var value))
+            if (!extensionEntry.LoadedPairEntries.TryGetValue(type, out var value))
                 throw new KeyNotFoundException($"Can't find interface pre defined in extension '{name}'.");
             if (!value.IsTypeCached)
             {
@@ -159,7 +196,12 @@ namespace FORCEBuild.Plugin
                     $"Can't load class which inherited interface named '{type.Name}' with parameterless constructor");
             }
 
-            return (T) value.ConstructorInfo.Invoke(null);
+            return _internalContainer.Resolve<T>(name);
+        }
+
+        public IEnumerable<T> ResolveAll<T>()
+        {
+            return _internalContainer.ResolveAll<T>();
         }
     }
 }
