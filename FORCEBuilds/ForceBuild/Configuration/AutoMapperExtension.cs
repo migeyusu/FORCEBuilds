@@ -5,7 +5,7 @@ using AutoMapper.Configuration;
 
 namespace FORCEBuild.Configuration
 {
-    public static class AutoMapperInstaller
+    public static class AutoMapperExtension
     {
         public static IMapper CreateMapper(params Profile[] profiles)
         {
@@ -19,4 +19,4 @@ namespace FORCEBuild.Configuration
             return config.CreateMapper();
         }
     }
-}
+}       

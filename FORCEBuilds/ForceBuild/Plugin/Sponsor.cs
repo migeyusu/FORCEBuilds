@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Runtime.Remoting;
+#if NETFRAMEWORK
 using System.Runtime.Remoting.Lifetime;
+#endif
 using System.Security.Permissions;
 
 namespace FORCEBuild.Plugin
 {
+#if NETFRAMEWORK
     /// <summary>
     /// Wraps an instance of TInterface. If the instance is a 
     /// MarshalByRefObject, this class acts as a sponsor for its lifetime 
@@ -49,7 +52,7 @@ namespace FORCEBuild.Plugin
 
             if (Instance is MarshalByRefObject)
             {
-                var lifetimeService = RemotingServices.GetLifetimeService((MarshalByRefObject) (object) Instance);
+                var lifetimeService = RemotingServices.GetLifetimeService((MarshalByRefObject)(object)Instance);
                 if (lifetimeService is ILease lease)
                 {
                     lease.Register(this);
@@ -92,7 +95,7 @@ namespace FORCEBuild.Plugin
                     if (Instance is MarshalByRefObject)
                     {
                         var lifetimeService =
-                            RemotingServices.GetLifetimeService((MarshalByRefObject) (object) Instance);
+                            RemotingServices.GetLifetimeService((MarshalByRefObject)(object)Instance);
                         if (lifetimeService is ILease lease)
                         {
                             lease.Unregister(this);
@@ -115,4 +118,6 @@ namespace FORCEBuild.Plugin
             return IsDisposed ? TimeSpan.Zero : LifetimeServices.RenewOnCallTime;
         }
     }
+#endif
+
 }

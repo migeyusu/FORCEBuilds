@@ -23,10 +23,12 @@ namespace FORCEBuild.Helper
     {
         public static object Default(this Type type)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
                 var valueProperty = type.GetProperty("Value");
                 if (valueProperty != null) type = valueProperty.PropertyType;
             }
+
             return type.IsValueType ? Activator.CreateInstance(type) : null;
         }
 
@@ -34,7 +36,8 @@ namespace FORCEBuild.Helper
 
         public static void Save<T>(this T instance, string path)
         {
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write)) {
+            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+            {
                 Formatter.Serialize(fs, instance);
             }
         }
@@ -45,7 +48,36 @@ namespace FORCEBuild.Helper
             return (T) Formatter.Deserialize(stream);
         }
 
-        public static float Median<TSource>(this IEnumerable<TSource> source,Func<TSource, int> selector)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumerable, Action<T> itemAction)
+        {
+            if (itemAction == null)
+            {
+                throw new ArgumentNullException(nameof(itemAction));
+            }
+
+            foreach (var item in enumerable)
+            {
+                itemAction.Invoke(item);
+            }
+
+            return enumerable;
+        }
+
+
+        public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+        {
+            if (assembly == null) throw new ArgumentNullException(nameof(assembly));
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(t => t != null);
+            }
+        }
+
+        public static float Median<TSource>(this IEnumerable<TSource> source, Func<TSource, int> selector)
         {
             // Create a copy of the input, and sort the copy
             var temp = source.Select(selector).ToArray();
@@ -60,6 +92,7 @@ namespace FORCEBuild.Helper
                 var b = temp[count / 2];
                 return (a + b) / 2f;
             }
+
             // count is odd, return the middle element
             return temp[count / 2];
         }
@@ -79,6 +112,7 @@ namespace FORCEBuild.Helper
                 var b = temp[count / 2];
                 return (a + b) / 2;
             }
+
             // count is odd, return the middle element
             return temp[count / 2];
         }
@@ -98,6 +132,7 @@ namespace FORCEBuild.Helper
                 var b = temp[count / 2];
                 return (a + b) / 2;
             }
+
             // count is odd, return the middle element
             return temp[count / 2];
         }
@@ -109,12 +144,15 @@ namespace FORCEBuild.Helper
 
         public static Type GetEnumerableType(this Type type)
         {
-            return (from intType in type.GetInterfaces() where intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>) select intType.GetGenericArguments()[0]).FirstOrDefault();
+            return (from intType in type.GetInterfaces()
+                where intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>)
+                select intType.GetGenericArguments()[0]).FirstOrDefault();
         }
 
         public static bool IsGenericEnumerableType(this Type type)
         {
-            return type.GetInterfaces().Any(intType => intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            return type.GetInterfaces().Any(intType =>
+                intType.IsGenericType && intType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         public static bool IsGenericEnumerable(this Type type)
@@ -131,7 +169,7 @@ namespace FORCEBuild.Helper
         {
             return new ObservableConcurrentList<T>(iEnumerable);
         }
-        
+
         public static IEnumerable<T> ToGenericEnumerable<T>(this IEnumerable enumerable)
         {
             return (from T x in enumerable where x != null select x);
@@ -154,26 +192,27 @@ namespace FORCEBuild.Helper
             return container;
         }
 
-        public static ConcurrentDictionary<TKey, TElement> ToConcurrencyDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> sources,
+        public static ConcurrentDictionary<TKey, TElement> ToConcurrencyDictionary<TSource, TKey, TElement>(
+            this IEnumerable<TSource> sources,
             Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
         {
             return new ConcurrentDictionary<TKey, TElement>(sources.Select
             (source => new KeyValuePair<TKey, TElement>(keySelector(source),
                 elementSelector(source))));
-
         }
-            
+
         public static object ToSpecificCollection(this IEnumerable enumerable, Type collectionType)
         {
             var generictype = collectionType.GenericTypeArguments[0];
             var listType = typeof(List<>);
             listType = listType.MakeGenericType(generictype);
             var list = Convert.ChangeType(Activator.CreateInstance(listType), listType);
-            var methodAdd = listType.GetMethod("Add", new[] { generictype });
+            var methodAdd = listType.GetMethod("Add", new[] {generictype});
             foreach (var en in enumerable)
             {
-                methodAdd.Invoke(list, new[] { en });
+                methodAdd.Invoke(list, new[] {en});
             }
+
             var member = listType.InvokeMember("ToArray", BindingFlags.Default | BindingFlags.InvokeMethod,
                 null, list, null);
             return Activator.CreateInstance(collectionType, member);
@@ -191,6 +230,7 @@ namespace FORCEBuild.Helper
             {
                 stringBuilder.Append(x + ",");
             }
+
             return stringBuilder.ToString();
         }
 
@@ -207,6 +247,5 @@ namespace FORCEBuild.Helper
             if (badCharsRegex.IsMatch(testName))
                 throw new ArgumentException($"文件路径不能包含{badChars}等字符");
         }
-
     }
 }

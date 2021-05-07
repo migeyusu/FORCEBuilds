@@ -6,6 +6,7 @@ using System.Security.Permissions;
 
 namespace FORCEBuild.Plugin
 {
+#if NETFRAMEWORK
     /// <summary>
     /// Utility class for enabling dynamic loading of assemblies and dynamic instantiation of objects 
     /// that adhere to interfaces defined in the integration project.
@@ -224,4 +225,6 @@ namespace FORCEBuild.Plugin
             }
         }
     }
+#endif
+
 }
