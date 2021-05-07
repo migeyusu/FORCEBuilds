@@ -54,9 +54,9 @@
       <Project>{96b3811c-7f33-4e01-96d7-59a7bf54cec2}</Project>
       <Name>FORCEBuild</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InterfaceDefine\InterfaceDefine.csproj">
+    <ProjectReference Include="..\InterfaceDefine\Interface.csproj">
       <Project>{5235ec26-c303-4402-89f3-8840e924daf5}</Project>
-      <Name>InterfaceDefine</Name>
+      <Name>Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -44,14 +44,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestClass.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InterfaceDefine\InterfaceDefine.csproj">
+    <ProjectReference Include="..\InterfaceDefine\Interface.csproj">
       <Project>{5235ec26-c303-4402-89f3-8840e924daf5}</Project>
-      <Name>InterfaceDefine</Name>
+      <Name>Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -59,6 +59,11 @@ namespace FORCEBuild.Plugin
     /// </summary>
     public class ExtensionLoader
     {
+        /// <summary>
+        /// 是否允许扩展的dll替换原有的assembly
+        /// </summary>
+        public bool IsAllowDuplicatedDll { get; set; } = false;
+
         private IEnumerable<ExtensionEntry> _extensionEntries;
 
         public void Initialize(IEnumerable<Extension> extensions)
@@ -74,8 +79,21 @@ namespace FORCEBuild.Plugin
                     throw new DirectoryNotFoundException(nameof(directoryInfo.FullName));
                 }
 
-                var assemblies = directoryInfo.GetFiles("*.dll")
-                    .Select(info => Assembly.LoadFile(info.FullName));
+                var assemblyNames = directoryInfo.GetFiles("*.dll")
+                    .Select(info => AssemblyName.GetAssemblyName(info.FullName));
+                IEnumerable<Assembly> assemblies;
+                if (IsAllowDuplicatedDll)
+                {
+                    assemblies=assemblyNames.Select(name => Assembly.Load(name)).ToArray();
+                }
+                else
+                {
+                    var loadedAssemblyNames = AppDomain.CurrentDomain.GetAssemblies()
+                        .Select(assembly => assembly.GetName().Name);
+                    assemblies = assemblyNames
+                        .Where(name => !loadedAssemblyNames.Contains(name.Name))
+                        .Select(name => Assembly.Load(name)).ToArray();
+                }
                 var extensionEntry = mapper.Map<ExtensionEntry>(entry);
                 extensionEntry.Assemblies = assemblies;
                 extensionEntry.ImplementTypes = FindTypes(assemblies, entry.InterfaceTypes)
@@ -92,8 +110,7 @@ namespace FORCEBuild.Plugin
             var typePairEntries = interfaceTypes.Select((type => new ExtensionTypePairEntry()
             {
                 InterfaceType = type,
-            }));
-            var extensionTypePairEntries = new List<ExtensionTypePairEntry>(interfaceTypes.Count());
+            })).ToArray();
             foreach (var type in types)
             {
                 var pairEntries = typePairEntries.Where((entry => !entry.IsTypeCached));
@@ -116,9 +133,9 @@ namespace FORCEBuild.Plugin
                 }
             }
 
-            return extensionTypePairEntries;
+            return typePairEntries;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -143,7 +160,6 @@ namespace FORCEBuild.Plugin
             }
 
             return (T) value.ConstructorInfo.Invoke(null);
-
         }
     }
 }
