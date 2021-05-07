@@ -1,0 +1,1 @@
+Code in plugin from internet, url:https://www.brad-smith.info/blog/archives/500

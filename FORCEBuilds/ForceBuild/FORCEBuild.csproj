@@ -1,42 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>FORCEBuild</RootNamespace>
-    <AssemblyName>FORCEBuild</AssemblyName>
-    <Version>3.1.0.0</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
-    <Description>.Net enterprise lib</Description>
-    <Copyright>2021</Copyright>
-    <PackageProjectUrl></PackageProjectUrl>
-    <PackageIcon>socialism_186.png</PackageIcon>
-    <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
-    <RepositoryType></RepositoryType>
-    <PackageTags>Enterprise</PackageTags>
-    <PackageReleaseNotes>Beta version.</PackageReleaseNotes>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Serialization\IXFormatter.cs" />
-    <Compile Remove="Serialization\XBinaryElementAttribute.cs" />
-    <Compile Remove="Serialization\XBinaryFormatter.cs" />
-    <Compile Remove="Serialization\XBinaryRootAttribute.cs" />
-    <Compile Remove="Serialization\XBinarySerializePair.cs" />
-    <Compile Remove="Serialization\XBinarySerializeRoot.cs" />
-    <Compile Remove="Serialization\XSoapElementAttribute.cs" />
-    <Compile Remove="Serialization\XSoapRootAttribute.cs" />
-    <Compile Remove="Serialization\XSoapSerializeItem.cs" />
-    <Compile Remove="Serialization\XSoapSerializer.cs" />
-    <Compile Remove="Serialization\XSoapSerializeRoot.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="Castle.Windsor" Version="5.1.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\socialism_186.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<RootNamespace>FORCEBuild</RootNamespace>
+		<AssemblyName>FORCEBuild</AssemblyName>
+		<Version>3.1.0.2</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+		<Description>.Net Enterprise library</Description>
+		<Copyright>2021</Copyright>
+		<PackageIcon>socialism_186.png</PackageIcon>
+		<RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
+		<RepositoryType></RepositoryType>
+		<PackageTags>Enterprise</PackageTags>
+		<PackageReleaseNotes>Add XmlConfigurationExtension.</PackageReleaseNotes>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="Serialization\IXFormatter.cs" />
+		<Compile Remove="Serialization\XBinaryElementAttribute.cs" />
+		<Compile Remove="Serialization\XBinaryFormatter.cs" />
+		<Compile Remove="Serialization\XBinaryRootAttribute.cs" />
+		<Compile Remove="Serialization\XBinarySerializePair.cs" />
+		<Compile Remove="Serialization\XBinarySerializeRoot.cs" />
+		<Compile Remove="Serialization\XSoapElementAttribute.cs" />
+		<Compile Remove="Serialization\XSoapRootAttribute.cs" />
+		<Compile Remove="Serialization\XSoapSerializeItem.cs" />
+		<Compile Remove="Serialization\XSoapSerializer.cs" />
+		<Compile Remove="Serialization\XSoapSerializeRoot.cs" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="10.1.1" />
+		<PackageReference Include="Castle.Core" Version="4.4.1" />
+		<PackageReference Include="Castle.Windsor" Version="5.1.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\socialism_186.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>

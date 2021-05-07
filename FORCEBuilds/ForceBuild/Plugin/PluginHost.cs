@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Permissions;
 
-namespace Loader
+namespace FORCEBuild.Plugin
 {
     /// <summary>
     /// Utility class for enabling dynamic loading of assemblies and dynamic instantiation of objects 
@@ -90,13 +90,11 @@ namespace Loader
         /// <summary>
         /// Returns the types of all classes that implement the specified interface across all loaded assemblies
         /// </summary>
-        /// <param name="pInterface"></param>
         /// <returns></returns>
         public IEnumerable<Sponsor<TInterface>> GetImplementations<TInterface>() where TInterface : class
         {
-            LinkedList<Sponsor<TInterface>> instances = new LinkedList<Sponsor<TInterface>>();
-
-            foreach (TInterface instance in Loader.GetImplementations<TInterface>())
+            var instances = new LinkedList<Sponsor<TInterface>>();
+            foreach (var instance in Loader.GetImplementations<TInterface>())
             {
                 instances.AddLast(new Sponsor<TInterface>(instance));
             }
@@ -132,12 +130,10 @@ namespace Loader
         /// </summary>
         public bool LoadPlugins()
         {
-            bool success = false;
-
+            var success = false;
             // unload any existing AppDomain and create a new one for the plugins
             UnloadDomain();
             CreateDomain();
-
             // only attempt to load plugins if the plugin directory exists
             if (Directory.Exists(PluginPath))
             {

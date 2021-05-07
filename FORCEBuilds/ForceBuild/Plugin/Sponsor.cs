@@ -3,7 +3,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Lifetime;
 using System.Security.Permissions;
 
-namespace Loader
+namespace FORCEBuild.Plugin
 {
     /// <summary>
     /// Wraps an instance of TInterface. If the instance is a 
@@ -16,7 +16,7 @@ namespace Loader
     [SecurityPermission(SecurityAction.Demand, Infrastructure = true)]
     public sealed class Sponsor<TInterface> : ISponsor, IDisposable where TInterface : class
     {
-        private TInterface mInstance;
+        private TInterface _mInstance;
 
         /// <summary>
         /// Gets the wrapped instance of TInterface.
@@ -28,9 +28,9 @@ namespace Loader
                 if (IsDisposed)
                     throw new ObjectDisposedException("Instance");
                 else
-                    return mInstance;
+                    return _mInstance;
             }
-            private set { mInstance = value; }
+            private set => _mInstance = value;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Loader
         public bool IsDisposed { get; private set; }
 
         /// <summary>
-        /// Initialises a new instance of the Sponsor&lt;TInterface&gt; class, 
+        /// Initialize a new instance of the Sponsor&lt;TInterface&gt; class, 
         /// wrapping the specified object instance.
         /// </summary>
         /// <param name="instance"></param>
@@ -49,17 +49,16 @@ namespace Loader
 
             if (Instance is MarshalByRefObject)
             {
-                object lifetimeService = RemotingServices.GetLifetimeService((MarshalByRefObject) (object) Instance);
-                if (lifetimeService is ILease)
+                var lifetimeService = RemotingServices.GetLifetimeService((MarshalByRefObject) (object) Instance);
+                if (lifetimeService is ILease lease)
                 {
-                    ILease lease = (ILease) lifetimeService;
                     lease.Register(this);
                 }
             }
         }
 
         /// <summary>
-        /// Finaliser.
+        /// Finalizer.
         /// </summary>
         ~Sponsor()
         {
@@ -85,15 +84,17 @@ namespace Loader
             {
                 if (disposing)
                 {
-                    if (Instance is IDisposable) ((IDisposable) Instance).Dispose();
+                    if (Instance is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
 
                     if (Instance is MarshalByRefObject)
                     {
-                        object lifetimeService =
+                        var lifetimeService =
                             RemotingServices.GetLifetimeService((MarshalByRefObject) (object) Instance);
-                        if (lifetimeService is ILease)
+                        if (lifetimeService is ILease lease)
                         {
-                            ILease lease = (ILease) lifetimeService;
                             lease.Unregister(this);
                         }
                     }
@@ -111,10 +112,7 @@ namespace Loader
         /// <returns></returns>
         TimeSpan ISponsor.Renewal(ILease lease)
         {
-            if (IsDisposed)
-                return TimeSpan.Zero;
-            else
-                return LifetimeServices.RenewOnCallTime;
+            return IsDisposed ? TimeSpan.Zero : LifetimeServices.RenewOnCallTime;
         }
     }
 }

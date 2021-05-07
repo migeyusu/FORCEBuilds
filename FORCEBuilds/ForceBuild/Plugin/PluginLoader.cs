@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Permissions;
 
-namespace Loader {
+namespace FORCEBuild.Plugin {
 
 	/// <summary>
 	/// When hosted in a separate AppDomain, provides a mechanism for loading 
@@ -14,7 +14,7 @@ namespace Loader {
 	[SecurityPermission(SecurityAction.Demand, Infrastructure = true)]
 	internal sealed class PluginLoader : MarshalByRefObject, IDisposable {
 
-		private Sponsor<TextWriter> mLog;
+		private Sponsor<TextWriter> _mLog;
 
 		/// <summary>
 		/// Gets or sets the directory containing the assemblies.
@@ -33,10 +33,10 @@ namespace Loader {
 		/// </summary>
 		public TextWriter Log {
 			get {
-				return (mLog != null) ? mLog.Instance : null;
+				return _mLog?.Instance;
 			}
 			set {
-				mLog = (value != null) ? new Sponsor<TextWriter>(value) : null;
+				_mLog = (value != null) ? new Sponsor<TextWriter>(value) : null;
 			}
 		}
 
@@ -56,19 +56,18 @@ namespace Loader {
 			Dispose(false);
 		}
 
-		/// <summary>
-		/// Loads plugin assemblies into the application domain and populates the collection of plugins.
-		/// </summary>
-		/// <param name="pluginDir"></param>
-		/// <param name="disabledPlugins"></param>
-		public void Init(string pluginDir) {
-			Uninit();
+        /// <summary>
+        /// Loads plugin assemblies into the application domain and populates the collection of plugins.
+        /// </summary>
+        /// <param name="pluginDir"></param>
+        public void Init(string pluginDir) {
+			UnInit();
 
 			PluginDir = pluginDir;
 
-			foreach (string dllFile in Directory.GetFiles(PluginDir, "*.dll")) {
+			foreach (var dllFile in Directory.GetFiles(PluginDir, "*.dll")) {
 				try {
-					Assembly asm = Assembly.LoadFile(dllFile);
+					var asm = Assembly.LoadFile(dllFile);
 					Log.WriteLine("Loaded assembly {0}.", asm.GetName().Name);
 
 					// TODO: restrict assemblies loaded based on digital signature, 
@@ -78,7 +77,7 @@ namespace Loader {
 				}
 				catch (ReflectionTypeLoadException rex) {
 					Log.WriteLine("Plugin {0} failed to load.", Path.GetFileName(dllFile));
-					foreach (Exception ex in rex.LoaderExceptions) {
+					foreach (var ex in rex.LoaderExceptions) {
 						Log.WriteLine("\t{0}: {1}", ex.GetType().Name, ex.Message);
 					}
 				}
@@ -96,7 +95,7 @@ namespace Loader {
 		/// <summary>
 		/// Clears all plugin assemblies and type info.
 		/// </summary>
-		public void Uninit() {
+		public void UnInit() {
 			Assemblies.Clear();
 			ConstructorCache.Clear();
 		}
@@ -109,9 +108,9 @@ namespace Loader {
 		/// <typeparam name="TInterface"></typeparam>
 		/// <returns></returns>
 		public IEnumerable<TInterface> GetImplementations<TInterface>() {
-			LinkedList<TInterface> instances = new LinkedList<TInterface>();
+			var instances = new LinkedList<TInterface>();
 
-			foreach (ConstructorInfo constructor in GetConstructors<TInterface>()) {
+			foreach (var constructor in GetConstructors<TInterface>()) {
 				instances.AddLast(CreateInstance<TInterface>(constructor));
 			}
 
@@ -126,7 +125,7 @@ namespace Loader {
 		/// <param name="instance"></param>
 		/// <returns></returns>
 		public AssemblyName GetOwningAssembly(object instance) {
-			Type type = instance.GetType();
+			var type = instance.GetType();
 			return type.Assembly.GetName();
 		}
 
@@ -138,13 +137,13 @@ namespace Loader {
 		/// <param name="instance"></param>
 		/// <returns></returns>
 		public string GetTypeName(object instance) {
-			Type type = instance.GetType();
+			var type = instance.GetType();
 			return type.FullName;
 		}
 
 		/// <summary>
 		/// Returns the first implementation of a particular interface type. 
-		/// Default implementations are not favoured.
+		/// Default implementations are not favored.
 		/// </summary>
 		/// <typeparam name="TInterface"></typeparam>
 		/// <returns></returns>
@@ -163,13 +162,13 @@ namespace Loader {
 				return ConstructorCache[typeof(TInterface)];
 			}
 			else {
-				LinkedList<ConstructorInfo> constructors = new LinkedList<ConstructorInfo>();
+				var constructors = new LinkedList<ConstructorInfo>();
 
-				foreach (Assembly asm in Assemblies) {
-					foreach (Type type in asm.GetTypes()) {
+				foreach (var asm in Assemblies) {
+					foreach (var type in asm.GetTypes()) {
 						if (type.IsClass && !type.IsAbstract) {
 							if (type.GetInterfaces().Contains(typeof(TInterface))) {
-								ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
+								var constructor = type.GetConstructor(Type.EmptyTypes);
 								constructors.AddLast(constructor);
 							}
 						}
@@ -189,13 +188,13 @@ namespace Loader {
 		/// <param name="assembly"></param>
 		/// <returns></returns>
 		private IEnumerable<TInterface> GetImplementations<TInterface>(Assembly assembly) {
-			List<TInterface> instances = new List<TInterface>();
+			var instances = new List<TInterface>();
 
-			foreach (Type type in assembly.GetTypes()) {
+			foreach (var type in assembly.GetTypes()) {
 				if (type.IsClass && !type.IsAbstract) {
 					if (type.GetInterfaces().Contains(typeof(TInterface))) {
-						TInterface instance = default(TInterface);
-						ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
+						var instance = default(TInterface);
+						var constructor = type.GetConstructor(Type.EmptyTypes);
 						instance = CreateInstance<TInterface>(constructor);
 						if (instance != null) instances.Add(instance);
 					}
@@ -213,7 +212,7 @@ namespace Loader {
 		/// <param name="constructor"></param>
 		/// <returns></returns>
 		private TInterface CreateInstance<TInterface>(ConstructorInfo constructor) {
-			TInterface instance = default(TInterface);
+			var instance = default(TInterface);
 
 			try {
 				instance = (TInterface)constructor.Invoke(null);
@@ -250,8 +249,8 @@ namespace Loader {
 
 		private void Dispose(bool disposing) {
 			if (disposing) {
-				Uninit();
-				if (mLog != null) mLog.Dispose();
+				UnInit();
+				if (_mLog != null) _mLog.Dispose();
 			}
 		}
 
