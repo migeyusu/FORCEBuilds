@@ -32,7 +32,7 @@ namespace FORCEBuild.Plugin
         public IEnumerable<Type> InterfaceTypes { get; set; }
     }
 
-    internal class ExtensionEntry : Extension
+    public class ExtensionEntry : Extension
     {
         public IEnumerable<Assembly> Assemblies { get; set; }
 
@@ -42,18 +42,13 @@ namespace FORCEBuild.Plugin
         public Dictionary<Type, ExtensionTypePairEntry> LoadedPairEntries { get; set; }
     }
 
-    internal class ExtensionTypePairEntry
+    public class ExtensionTypePairEntry
     {
         public Type InterfaceType { get; set; }
 
         public Type ImplementType { get; set; }
 
-        public bool IsTypeCached { get; set; }
-
-        /// <summary>
-        /// 加快invoke
-        /// </summary>
-        // public ConstructorInfo ConstructorInfo { get; set; }
+        public bool IsTypeFind { get; set; }
     }
 
     /// <summary>
@@ -79,7 +74,7 @@ namespace FORCEBuild.Plugin
         /// </summary>
         public bool IsContainerIsolation { get; set; } = false;
 
-        private IEnumerable<ExtensionEntry> _extensionEntries;
+        public IEnumerable<ExtensionEntry> ExtensionEntries { get; private set; }
 
         public void Initialize(IEnumerable<Extension> extensions)
         {
@@ -103,7 +98,7 @@ namespace FORCEBuild.Plugin
             var mapper =
                 new Mapper(new MapperConfiguration(expression =>
                     expression.CreateMap<Plugin.Extension, ExtensionEntry>()));
-            this._extensionEntries = extensions.Select(entry =>
+            this.ExtensionEntries = extensions.Select(entry =>
             {
                 var directoryInfo = new DirectoryInfo(entry.DirectoryLocation);
                 if (!directoryInfo.Exists)
@@ -148,7 +143,7 @@ namespace FORCEBuild.Plugin
             ).ToArray();
             foreach (var rawType in types)
             {
-                var pairEntries = typePairEntries.Where((entry => !entry.IsTypeCached));
+                var pairEntries = typePairEntries.Where((entry => !entry.IsTypeFind));
                 if (!pairEntries.Any())
                 {
                     return typePairEntries;
@@ -160,7 +155,7 @@ namespace FORCEBuild.Plugin
                     if (rawType.IsClass && !rawType.IsAbstract && interfaceType.IsAssignableFrom(rawType))
                     {
                         typePairEntry.ImplementType = rawType;
-                        typePairEntry.IsTypeCached = true;
+                        typePairEntry.IsTypeFind = true;
                         container.Register(Component.For(interfaceType)
                             .ImplementedBy(rawType)
                             .Named(extensionName)
@@ -181,7 +176,7 @@ namespace FORCEBuild.Plugin
         public T Create<T>(string name)
         {
             //validate first
-            var extensionEntry = _extensionEntries.FirstOrDefault((entry => entry.Name == name));
+            var extensionEntry = ExtensionEntries.FirstOrDefault((entry => entry.Name == name));
             if (extensionEntry == null)
             {
                 throw new ArgumentOutOfRangeException(nameof(name), $"There's no extension named '{name}'");
@@ -190,7 +185,7 @@ namespace FORCEBuild.Plugin
             var type = typeof(T);
             if (!extensionEntry.LoadedPairEntries.TryGetValue(type, out var value))
                 throw new KeyNotFoundException($"Can't find interface pre defined in extension '{name}'.");
-            if (!value.IsTypeCached)
+            if (!value.IsTypeFind)
             {
                 throw new Exception(
                     $"Can't load class which inherited interface named '{type.Name}' with parameterless constructor");
