@@ -1,4 +1,4 @@
-﻿namespace InterfaceDefine
+﻿namespace PluginInterface
 {
     public interface ITest
     {

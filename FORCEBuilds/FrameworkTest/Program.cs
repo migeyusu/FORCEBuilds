@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FORCEBuild.Plugin;
-using InterfaceDefine;
+using PluginInterface;
 
 namespace FrameworkTest
 {

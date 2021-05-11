@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using FORCEBuild.Helper;
-using FORCEBuild.Properties;
 
 
 namespace FORCEBuild.Concurrency

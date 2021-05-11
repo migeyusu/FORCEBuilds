@@ -1,7 +1,7 @@
 ﻿using System;
-using InterfaceDefine;
+using PluginInterface;
 
-namespace Implement
+namespace PluginImplement
 {
     public class TestClass:MarshalByRefObject,ITest
     {

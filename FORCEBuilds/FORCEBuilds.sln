@@ -17,9 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrameworkTest", "FrameworkT
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PluginTest", "PluginTest", "{1A09DC89-E3AB-4CB4-A029-8CB93F1F40AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interface", "InterfaceDefine\Interface.csproj", "{5235EC26-C303-4402-89F3-8840E924DAF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginInterface", "InterfaceDefine\PluginInterface.csproj", "{5235EC26-C303-4402-89F3-8840E924DAF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Implement", "Implement\Implement.csproj", "{4849F554-5C0C-4096-AB23-5849D306B768}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginImplement", "Implement\PluginImplement.csproj", "{4849F554-5C0C-4096-AB23-5849D306B768}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
