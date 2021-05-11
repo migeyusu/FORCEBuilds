@@ -127,7 +127,7 @@ namespace FORCEBuild.Plugin
                 extensionEntry.LoadedPairEntries = FindTypes(assemblies, entry.InterfaceTypes, _internalContainer, entry.Name)
                     .ToDictionary(pairEntry => pairEntry.InterfaceType);
                 return extensionEntry;
-            });
+            }).ToArray();
         }
 
 
