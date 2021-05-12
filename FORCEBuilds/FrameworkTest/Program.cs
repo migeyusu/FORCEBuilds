@@ -26,5 +26,7 @@ namespace FrameworkTest
             test.Message();
             Console.ReadKey();
         }
+
     }
+
 }

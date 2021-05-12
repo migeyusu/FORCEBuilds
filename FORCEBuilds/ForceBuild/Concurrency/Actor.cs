@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace FORCEBuild.Concurrency
 {
-    public abstract class Actor<T>:IActor
+    public abstract class Actor<T> : IActor
     {
-        private readonly Queue<T> _mMessageQueue = new Queue<T>();
+        private readonly ConcurrentQueue<T> _mMessageQueue = new ConcurrentQueue<T>();
 
         public void Post(T message)
         {
             if (this.m_exited) return;
-
-            lock (this._mMessageQueue)
-            {
-                this._mMessageQueue.Enqueue(message);
-            }
-
+            this._mMessageQueue.Enqueue(message);
             ActorDispatcher.Instance.ReadyToExecute(this);
         }
 
@@ -29,7 +25,7 @@ namespace FORCEBuild.Concurrency
         {
             this._mContext = new ActorContext(this);
         }
-        
+
         private readonly ActorContext _mContext;
 
         ActorContext IActor.Context => this._mContext;
@@ -40,16 +36,12 @@ namespace FORCEBuild.Concurrency
 
         public void Execute()
         {
-            T message;
-            lock (this._mMessageQueue)
+            if (this._mMessageQueue.TryDequeue(out var message))
             {
-                message = this._mMessageQueue.Dequeue();
+                this.Receive(message);
             }
-
-            this.Receive(message);
         }
 
         private bool m_exited = false;
-
     }
 }

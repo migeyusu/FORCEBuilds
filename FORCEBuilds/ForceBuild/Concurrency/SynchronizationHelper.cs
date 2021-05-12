@@ -15,35 +15,41 @@ namespace FORCEBuild.Concurrency
     /// </summary>
     public static class SynchronizationHelper
     {
-        private static SynchronizationContext _uiContext;
+        public static SynchronizationContext UiContext { get; private set; }
 
         /// <summary>
         /// 必须在STA主线程下初始化
         /// </summary>
         public static void Initialize()
         {
-            if (_uiContext != null)
+            if (UiContext != null)
                 return;
-            if (SynchronizationContext.Current == null) {
+            if (SynchronizationContext.Current == null)
+            {
                 SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
             }
-            _uiContext = SynchronizationContext.Current;
+
+            UiContext = SynchronizationContext.Current;
         }
 
-        public static void Inovke(Action<object> action,object state)
+        public static void Invoke(Action<object> action, object state)
         {
-            if (_uiContext==null) {
+            if (UiContext == null)
+            {
                 throw new NullReferenceException("未初始化同步帮助类");
             }
-            _uiContext.Send(o => action(o),state);
+
+            UiContext.Send(o => action(o), state);
         }
 
-        public static void InvokeAsync(Action<object> action,object state)
+        public static void InvokeAsync(Action<object> action, object state)
         {
-            if (_uiContext==null) {
+            if (UiContext == null)
+            {
                 throw new NullReferenceException("未初始化同步帮助类");
             }
-            _uiContext.Post(o => action(o),state);
+
+            UiContext.Post(o => action(o), state);
         }
     }
 }
