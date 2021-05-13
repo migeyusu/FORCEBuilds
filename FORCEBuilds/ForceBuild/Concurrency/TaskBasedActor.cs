@@ -34,7 +34,7 @@ namespace FORCEBuild.Concurrency
         /// </summary>
         public void Post(T message)
         {
-            _taskFactory.StartNew(() => { ReceiveMessage(message); }).RunSynchronously(_taskScheduler);
+            new Task(() => { ReceiveMessage(message); }).RunSynchronously(_taskScheduler);
         }
     }
 }
