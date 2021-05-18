@@ -4,9 +4,9 @@ using System.Windows.Forms;
 
 namespace FORCEBuild.UI.WinForm.Feature
 {
-    public class StateMachinePlus
+    public class UIStateMachine
     {
-        public StateMachinePlus()
+        public UIStateMachine()
         {
             _ctlList = new Dictionary<Control, FocusFunc>();
         }

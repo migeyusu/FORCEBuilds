@@ -3,30 +3,17 @@ using System.Collections.Concurrent;
 
 namespace FORCEBuild.Persistence.DistributedStorage.Cache
 {
-    public class StateMachine
+    internal class CacheStateMachine
     {
-        private static StateMachine machine;
+        private static CacheStateMachine _machine;
 
         private static ConcurrentDictionary<MESIStatus, ConcurrentDictionary<OperationType, Func<int, object>>> StatesTransition;
 
-        public static StateMachine Instance {
+        public static CacheStateMachine Instance {
             get {
-                machine = new StateMachine();
-                return machine;
+                _machine = new CacheStateMachine();
+                return _machine;
             }
         }
-
-        //private StateMachine()
-        //{
-        //    StatesTransition = new ConcurrentDictionary<MESIStatus, ConcurrentDictionary<OperationType, Func<int, object>>>();
-        //    foreach (var value in Enum.GetValues(MESIStatus)) {
-                
-        //    }
-        //}
-
-        //public MESIStatus GetNext()
-        //{
-            
-        //}
     }
 }
