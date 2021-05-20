@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace FORCEBuild.Data
 {
+    interface IMapping<T, K>
+    {
+        void Map(T t, K k);
+    }
+
+    public class MyClass
+    {
+    }
+
     public static class BridgeExtension
     {
         public static PropertyInstanceAccessor<T, TK> Instance<T, TK>(this PropertyAccessor<T, TK> accessor, T t)
@@ -12,172 +20,192 @@ namespace FORCEBuild.Data
             return new PropertyInstanceAccessor<T, TK>(t, accessor);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="get">source</param>
-        /// <param name="set">target</param>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="TK"></typeparam>
-        /// <typeparam name="TS"></typeparam>
-        /// <returns></returns>
-        public static TwoWayMappingBridge<T, TS> To<T, TK, TS>(this IPropertyGet<T, TK> get, IPropertySet<TS, TK> set)
-        {
-            void BridgeAction(T t, TS ts)
-            {
-                var tk = get.Get(t);
-                set.Set(ts, tk);
-            }
 
-            return new TwoWayMappingBridge<T, TS>(BridgeAction);
+        public static IInstanceConsumer<T> OneWayTo<T, TK>(this IPropertyGet<T, TK> get, Action<TK> action)
+        {
+            var receiver = new ActionValueReceiver<TK>(action);
+            return new InstanceConsumer<T, TK>(get, receiver);
         }
 
-        public static DelegateMappingBridge To<T>(this IValueProvider<T> provider, IValueReceiver<T> receiver)
+
+        public static TypeMappingBridge<T> OneWayTo<T, TK>(this IPropertyGet<T, TK> get, Func<IValueReceiver<TK>> func)
         {
-            void BridgeAction()
+            void Action(T obj)
             {
-                var provide = provider.Provide();
-                receiver.Receive(provide);
+                var k = get.Get(obj);
+                var receiver = func.Invoke();
+                receiver.Receive(k);
             }
 
-            return new DelegateMappingBridge(BridgeAction);
+            return new TypeMappingBridge<T>(Action);
+        }
+
+        public static TypeMappingBridge<T> OneWayTo<T, TK>(this IPropertyGet<T, TK> get, IValueReceiver<TK> set)
+        {
+            void Action(T obj)
+            {
+                var k = get.Get(obj);
+                set.Receive(k);
+            }
+
+            return new TypeMappingBridge<T>(Action);
+        }
+
+        /*public static IValueProvider<TK> ReadFrom<T, TK>(this IPropertyGet<T, TK> get, Func<T> provider)
+        {
+            return new ValueProvider<T, TK>(new DelegateInstanceFactory<T>(provider), get);
+        }*/
+
+        public static IValueProvider<TK> ReadFrom<T, TK>(this IPropertyGet<T, TK> get, IInstanceProvider<T> provider)
+        {
+            return new ValueProvider<T, TK>(provider, get);
+        }
+
+        public static ObservableValueProvider<T, TK> ToObservable<T, TK>(this IPropertyGet<T, TK> propertyGet)
+        {
+            return new ObservableValueProvider<T, TK>(propertyGet);
+        }
+
+        /*public static PropertyGetterDelegateSubscriber<S, TK> OnBind<T, TK, S>(
+            this ObservableValueProvider<T, TK> provider,
+            Action<S> receiverExpression)
+        {
+            
+            var propertyGetter = new PropertyGetterDelegateSubscriber<S, TK>(new Expression<Action<S>>(receiverExpression), provider);
+            return propertyGetter;
+        }*/
+
+
+        public static IValueReceiver<TK> SetTo<T, TK>(this IPropertySet<T, TK> propertySet,
+            IInstanceProvider<T> provider)
+        {
+            return new ValueDeceiver<T, TK>(provider, propertySet);
         }
     }
 
-    public interface IMappingBridge
+    public class PropertyGetterDelegateSubscriber<T, TK> : PropertyGetter<T, TK>, IObserver<TK>
     {
-        Direction Direction { get; }
+        private readonly IObservable<TK> _tk;
+
+        private IInstanceProvider<T> _instanceProvider;
+
+        public IObservable<TK> OnInstance(IInstanceProvider<T> instanceProvider)
+        {
+            this._instanceProvider = instanceProvider;
+            return _tk;
+        }
+
+        public void OnNext(TK value)
+        {
+            if (_instanceProvider==null)
+            {
+                throw new NullReferenceException("Must call method OnValue first!");
+            }
+        }
+
+        public void OnError(Exception error)
+        {
+            //do nothing
+        }
+
+        public void OnCompleted()
+        {
+            //do nothing
+        }
+
+        public PropertyGetterDelegateSubscriber(Expression<Action<T>> expression, IObservable<TK> tk) : base(expression)
+        {
+            this._tk = tk;
+            tk.Subscribe(this);
+        }
     }
 
-    public enum Direction
-    {
-        To,
-        From,
-    }
-    
-    
     /// <summary>
-    /// 单向绑定，允许一对多
+    /// 一对多
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class OnewayDelegateMappingBridge<T>
+    /// <typeparam name="TK"></typeparam>
+    public class ObservableValueProvider<T, TK> : IObservable<TK>, IPropertyGet<T, TK>
     {
-        private Action<T> _valuePass;
+        private readonly IPropertyGet<T, TK> _propertyGet;
 
-        public OnewayDelegateMappingBridge(Action<T> valuePass)
+        private IList<IValueReceiver<TK>> _receivers = new List<IValueReceiver<TK>>();
+
+        public ObservableValueProvider(IPropertyGet<T, TK> propertyGet)
         {
-            this._valuePass = valuePass;
+            _propertyGet = propertyGet;
+        }
+
+        public IDisposable Subscribe(IObserver<TK> observer)
+        {
+            return null;
+        }
+
+        public TK Get(T t)
+        {
+            return _propertyGet.Get(t);
         }
     }
-    
+
+
+    public interface IInstanceConsumer<T>
+    {
+        void Consume(T t);
+    }
+
+    public class InstanceConsumer<T, TK> : IInstanceConsumer<T>
+    {
+        private readonly IPropertyGet<T, TK> _get;
+
+        private readonly IValueReceiver<TK> _receiver;
+
+        public InstanceConsumer(IPropertyGet<T, TK> get, IValueReceiver<TK> receiver)
+        {
+            _receiver = receiver;
+            _get = get;
+        }
+
+        public void Consume(T t)
+        {
+            var k = _get.Get(t);
+            _receiver.Receive(k);
+        }
+    }
+
     /// <summary>
-    /// 委托绑定，可一对一，可一对多
+    /// provider connection
     /// </summary>
-    public class DelegateMappingBridge
+    /// <typeparam name="T"></typeparam>
+    public class ValueBridge<T>
     {
-        private readonly Action _fromAction;
+        private readonly IValueProvider<T> _provider;
+        private readonly IList<IValueReceiver<T>> _receivers;
 
-        private Action _toAction;
-
-        public DelegateMappingBridge(Action fromAction, Action toAction)
+        public ValueBridge(IValueProvider<T> provider, IValueReceiver<T> receiver)
         {
-            _fromAction = fromAction;
-            _toAction = toAction;
+            _receivers = new List<IValueReceiver<T>>() {receiver};
+            _provider = provider;
         }
 
-        public void Invoke()
+        public void Add(IValueReceiver<T> receiver)
         {
-            _fromAction.Invoke();
+            this._receivers.Add(receiver);
         }
-    }
-    
-    /// <summary>
-    /// 双向绑定，一对一
-    /// </summary>
-    public class TwoWayMappingBridge<T, TS>
-    {
-        private Action<T, TS> _settingAction;
 
-        Action<TS,T>  
-        public TwoWayMappingBridge(Action<T, TS> x)
+        public ValueBridge<T> OnValue(IValueReceiver<T> receiver)
         {
-            this._settingAction = x;
-        }
-    }
-
-    public class InstanceBinder
-    {
-        private readonly IList<DelegateMappingBridge> _bridges = new List<DelegateMappingBridge>();
-
-        public InstanceBinder Register(DelegateMappingBridge bridge)
-        {
-            _bridges.Add(bridge);
+            this._receivers.Add(receiver);
             return this;
         }
 
-        public void Notify()
+        public void Push()
         {
-            foreach (var bridge in _bridges)
+            var provide = _provider.Provide();
+            foreach (var receiver in _receivers)
             {
-                bridge.Invoke();
+                receiver.Receive(provide);
             }
         }
-
-    }
-
-
-    public class ClassInstaBinder<T>
-    {
-        public ClassBinder()
-        {
-        }
-
-        private readonly IList<PropertyAccessor<T>> _classBinders = new List<IPropertySet<,>>();
-
-        public PropertyAccessor<T, TK> Open<TK>(Expression<Func<T, TK>> expression)
-        {
-            var propertyBinder = new PropertyAccessor<T, TK>(expression);
-            // _classBinders.Add(propertyBinder);
-            return propertyBinder;
-        }
-
-        public void Apply(T t)
-        {
-            foreach (var binder in _classBinders)
-            {
-                binder.Set(t, TODO);
-            }
-        }
-    }
-
-
-    /// <summary>
-    ///  期望的实例类型
-    /// </summary>
-    /// <typeparam name="K">class type</typeparam>
-    /// <typeparam name="KS">property type</typeparam>
-    public interface IPropertySet<K, KS>
-    {
-        /// <summary>
-        /// 接收一个实例类型
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        void Set(K x, KS y);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <typeparam name="T">class type</typeparam>
-    /// <typeparam name="TK">property type</typeparam>
-    public interface IPropertyGet<T, TK>
-    {
-        /// <summary>
-        /// 广播一个类型的实例
-        /// </summary>
-        /// <param name="t"></param>
-        TK Get(T t);
     }
 
     public interface IValueProvider<T>
@@ -190,25 +218,18 @@ namespace FORCEBuild.Data
         void Receive(T x);
     }
 
-    public class PropertyDelegateAccessor<T, TK> : PropertyAccessor<T, TK>, IValueProvider<TK>, IValueReceiver<TK>
+    public class ActionValueReceiver<T> : IValueReceiver<T>
     {
-        private readonly Func<T> _factoryDelegate;
+        private readonly Action<T> _action;
 
-        public PropertyDelegateAccessor(Expression<Func<T, TK>> expression, Func<T> factoryDelegate) : base(expression)
+        public ActionValueReceiver(Action<T> action)
         {
-            this._factoryDelegate = factoryDelegate;
+            _action = action;
         }
 
-        public TK Provide()
+        public void Receive(T x)
         {
-            var invoke = _factoryDelegate.Invoke();
-            return GetMethodDelegate.Invoke(invoke);
-        }
-
-        public void Receive(TK x)
-        {
-            var invoke = _factoryDelegate.Invoke();
-            SetMethodDelegate.Invoke(invoke, x);
+            _action.Invoke(x);
         }
     }
 
@@ -229,65 +250,6 @@ namespace FORCEBuild.Data
         public void Receive(TK x)
         {
             SetMethodDelegate.Invoke(_t, x);
-        }
-    }
-
-    /// <summary>
-    /// 类型的属性绑定
-    /// </summary>
-    /// <typeparam name="T">期望的绑定class type</typeparam>
-    /// <typeparam name="TK">期望绑定的属性 type</typeparam>
-    public class PropertyAccessor<T, TK> : IPropertySet<T, TK>, IPropertyGet<T, TK>
-    {
-        public Expression<Func<T, TK>> Expression { get; }
-
-        public MethodInfo GetMethodInfo { get; private set; }
-
-        public Func<T, TK> GetMethodDelegate { get; private set; }
-
-        public MethodInfo SetMethodInfo { get; private set; }
-
-        public Action<T, TK> SetMethodDelegate { get; private set; }
-
-        public PropertyAccessor(Expression<Func<T, TK>> expression)
-        {
-            this.Expression = expression;
-            this.Compile();
-        }
-
-        public void Compile()
-        {
-            if (!(Expression.Body is MemberExpression memberExpression))
-            {
-                throw new Exception("Please use MemberExpression");
-            }
-
-            var memberExpressionMember = memberExpression.Member;
-            if (!(memberExpressionMember is PropertyInfo propertyInfo))
-            {
-                throw new Exception($"Please define property expression such as x=>x.y in class {typeof(T).Name}");
-            }
-
-            if (!propertyInfo.CanRead)
-            {
-                throw new Exception($"Property {propertyInfo.Name} should be readable!");
-            }
-
-            GetMethodInfo = propertyInfo.GetMethod;
-            GetMethodDelegate = Delegate.CreateDelegate(typeof(Func<T, TK>), GetMethodInfo) as Func<T, TK>;
-            SetMethodInfo = propertyInfo.SetMethod;
-            SetMethodDelegate = Delegate.CreateDelegate(typeof(Action<T, TK>), SetMethodInfo) as Action<T, TK>;
-        }
-
-
-        public void Set(T x, TK y)
-        {
-            SetMethodDelegate.Invoke(x, y);
-        }
-
-        public TK Get(T t)
-        {
-            return GetMethodDelegate.Invoke(t);
         }
     }
 

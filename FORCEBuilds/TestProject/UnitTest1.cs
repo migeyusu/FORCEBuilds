@@ -15,6 +15,7 @@ namespace TestProject
         {
             this._output = output;
         }
+        
 
         [Fact]
         public async void Test1()
