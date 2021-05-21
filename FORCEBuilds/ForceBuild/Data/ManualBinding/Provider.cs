@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FORCEBuild.Data
+namespace FORCEBuild.Data.ManualBinding
 {
     public interface IInstanceProvider<T>
     {

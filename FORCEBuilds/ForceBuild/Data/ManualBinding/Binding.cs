@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using FORCEBuild.Data.ManualBinding.Abstraction;
 
-namespace FORCEBuild.Data
+namespace FORCEBuild.Data.ManualBinding
 {
     public class ObservableReceiver<TK> : IValueReceiver<TK>
     {

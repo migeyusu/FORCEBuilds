@@ -1,4 +1,4 @@
-﻿namespace FORCEBuild.Data
+﻿namespace FORCEBuild.Data.ManualBinding.Abstraction
 {
     /// <summary>
     /// 
