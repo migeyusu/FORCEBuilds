@@ -25,16 +25,19 @@ namespace TestProject
                  });
                  typeMappingBridge.Consume(new Poco());
              */
-            var poco3 = new Poco2(1d);
-            var observableValueProvider = TypeBinder<Poco>.Property(poco => poco.S)
+            /*var poco3 = new Poco2(1d);
+            var typeBinder = new TypeBinder<Poco>();
+            var observableValueProvider = typeBinder.Property(poco => poco.S)
                 .ToObservable();
             observableValueProvider
                 .SubscribeBy((Poco2 poco2) => poco2.S)
                 .OnInstance(poco3);
             observableValueProvider.Consume(new Poco());
-            
+            var binder = new TypeBinder<Poco2>();
+            var propertyBridge = typeBinder.Property((poco => poco.S))
+                .Bridge(binder,binder1 => binder1.Property(poco2 => poco2.S));
+            propertyBridge.BridgeFrom();*/
         }
-        
     }
 
     public class Poco

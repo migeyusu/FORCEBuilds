@@ -20,7 +20,6 @@ namespace TestProject
         [Fact]
         public async void Test1()
         {
-            
             var actionActor = new ActionActor(TaskScheduler.FromCurrentSynchronizationContext());
             for (int i = 0; i < 10; i++)
             {

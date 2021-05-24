@@ -5,7 +5,7 @@
     /// </summary>
     /// <typeparam name="T">class type</typeparam>
     /// <typeparam name="TK">property type</typeparam>
-    public interface IPropertyGet<T, TK>
+    public interface IPropertyGet<in T, out TK>
     {
         /// <summary>
         /// 广播一个类型的实例

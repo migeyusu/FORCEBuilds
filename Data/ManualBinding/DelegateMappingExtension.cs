@@ -6,8 +6,8 @@ namespace FORCEBuild.Data.ManualBinding
 {
     public class Pro
     {
-        
     }
+
     /// <summary>
     /// binding by delegate
     /// </summary>
@@ -51,11 +51,42 @@ namespace FORCEBuild.Data.ManualBinding
             return new ValueProvider<T, TK>(provider, get);
         }*/
 
-        public static ObservablePropertyGetter<T, TK> ToProvider<T, TK>(this TypeBinder<T> typeBinder, )
+        public static IPropertyBridge<T,S> Bridge<T, S, TK>(this PropertyAccessor<T, TK> accessor,
+            PropertyAccessor<S, TK> bindToAccessor)
         {
-            return new ObservablePropertyGetter<T, TK>(propertyGet);
+            return new PropertyBridge<T, S, TK>(accessor, bindToAccessor);
         }
         
+        public static IPropertyBridge<T,S> Bridge<T, S, TK>(this PropertyAccessor<T, TK> accessor,
+            TypeBinder<S> binder,Func<TypeBinder<S>,PropertyAccessor<S,TK>> bindToAccessorFunc)
+        {
+            var propertyAccessor = bindToAccessorFunc.Invoke(binder);
+            return new PropertyBridge<T, S, TK>(accessor, propertyAccessor);
+        }
+        
+        
+        public static ObservablePropertyGetter<T, TK> ObservableGetter<T, TK>(this TypeBinder<T> typeBinder,
+            Expression<Func<T, TK>> expression)
+        {
+            return typeBinder.Getter(expression).ToObservable();
+        }
+
+        public static ObservablePropertyGetter<T, TK> OnObservableProperty<T, TK>(this TypeBinder<T> typeBinder,
+            Expression<Func<T, TK>> expression)
+        {
+            var observablePropertyGetter = typeBinder.ObservableGetter(expression);
+            typeBinder.Attach(observablePropertyGetter);
+            return observablePropertyGetter;
+        }
+
+        public static TypeBinder<T> Register<T, TK>(this TypeBinder<T> binder,
+            Func<TypeBinder<T>, IInstanceConsumer<T>> func)
+        {
+            var instanceConsumer = func.Invoke(binder);
+            binder.Attach(instanceConsumer);
+            return binder;
+        }
+
         public static ObservablePropertyGetter<T, TK> ToObservable<T, TK>(this IPropertyGet<T, TK> propertyGet)
         {
             return new ObservablePropertyGetter<T, TK>(propertyGet);

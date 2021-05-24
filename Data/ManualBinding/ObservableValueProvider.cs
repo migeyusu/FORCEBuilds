@@ -23,7 +23,7 @@ namespace FORCEBuild.Data.ManualBinding
         public IDisposable Subscribe(IObserver<TK> observer)
         {
             _observers.Add(observer);
-            return null; //todo:
+            return null; //todo?:
         }
 
         public TK Get(T t)
