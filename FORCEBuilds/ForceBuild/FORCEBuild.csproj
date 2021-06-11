@@ -11,7 +11,7 @@
 		<RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Enterprise</PackageTags>
-		<PackageReleaseNotes>New StateMachine added, old statemachine rename to uistatemachine.</PackageReleaseNotes>
+		<PackageReleaseNotes>Add autoregister to statemachine</PackageReleaseNotes>
 		<PackageVersion>3.1.6.0</PackageVersion>
 	</PropertyGroup>
 	<ItemGroup>

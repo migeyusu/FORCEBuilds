@@ -41,6 +41,20 @@ namespace FORCEBuild
 
         private State _currentState;
 
+        /// <summary>
+        /// 是否自动注册
+        /// </summary>
+        /// <param name="autoRegister"></param>
+        public StateMachine(bool autoRegister = true)
+        {
+            var values = Enum.GetValues(typeof(T));
+            foreach (var value in values)
+            {
+                var enumValue = (T) value;
+                _statesDictionary.Add(enumValue, new State() {Status = enumValue});
+            }
+        }
+
         protected virtual void OnStateChanged(Transaction obj)
         {
             StateChanged?.Invoke(obj);
@@ -58,7 +72,7 @@ namespace FORCEBuild
                 return value;
             }
 
-            var state = new State() { Status = status };
+            var state = new State() {Status = status};
             _statesDictionary.Add(status, state);
             return state;
         }
@@ -72,7 +86,12 @@ namespace FORCEBuild
         {
             if (!_statesDictionary.TryGetValue(status, out State state))
             {
-                throw new NotSupportedException("Can't go to specific state.");
+                throw new NotSupportedException($"State {status} haven't be registered yet!");
+            }
+
+            if (CurrentState == state)
+            {
+                return;
             }
 
             CurrentState?.OnExit(status); //发生异常后无法进入state
@@ -80,6 +99,7 @@ namespace FORCEBuild
             {
                 state.OnEnter(CurrentState?.Status, param);
             }
+
             CurrentState = state;
         }
 

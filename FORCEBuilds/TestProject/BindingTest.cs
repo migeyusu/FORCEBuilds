@@ -3,8 +3,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Castle.Windsor;
-using FORCEBuild.Data;
-using FORCEBuild.Data.ManualBinding;
+
 using Moq;
 using Xunit;
 
@@ -15,6 +14,7 @@ namespace TestProject
         [Fact]
         public void TestBinding()
         {
+            
             /* var mock = new Mock<Poco2>();
              var setupSetter = mock.SetupSet(new Action<Poco2>((poco2 => poco2.D)));
              var typeMappingBridge = TypeBinder<Poco>.Property(poco => poco.S)
