@@ -12,7 +12,7 @@
 		<RepositoryType></RepositoryType>
 		<PackageTags>Enterprise</PackageTags>
 		<PackageReleaseNotes>Add autoregister to statemachine</PackageReleaseNotes>
-		<PackageVersion>3.1.6.0</PackageVersion>
+		<PackageVersion>3.2.1.0</PackageVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Serialization\IXFormatter.cs" />

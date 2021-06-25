@@ -3,14 +3,11 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using FORCEBuild.Helper;
 
-
-namespace FORCEBuild.Concurrency
+namespace FORCEBuild.Configuration
 {
     
     /// <summary>

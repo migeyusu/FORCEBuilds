@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FORCEBuild.Concurrency
 {
@@ -7,8 +8,7 @@ namespace FORCEBuild.Concurrency
      * begininvoke：通过向一个队列发送带有优先级的delegate，被sta thread调用实现UI刷新（异步）
      * invoke：阻塞sta thread直接强迫执行（同步）
      * 在wpf下获取SynchronizationContext.Current得到的是DispatcherSynchronizationContext
-     * 在winform下获取得到的是WindowsFormsSynchronizationContext，所以更通用
-     */
+     * 在winform下获取得到的是WindowsFormsSynchronizationContext*/
 
     /// <summary>
     /// 框架跨线程操作基础，包括集合类
@@ -17,6 +17,21 @@ namespace FORCEBuild.Concurrency
     {
         public static SynchronizationContext UiContext { get; private set; }
 
+        public static SynchronizationContextAwaiter GetAwaiter(this SynchronizationContext context)
+        {
+            return new SynchronizationContextAwaiter(context);
+        }
+        
+        public static TaskScheduler FromUISynchronizationContext()
+        {
+            return new CustomSynchronizationContextTaskScheduler(UiContext);
+        }
+
+        public static DefaultTaskBasedActor<T> TaskBasedActor<T>(Action<T> action)
+        {
+            return new DefaultTaskBasedActor<T>(new CustomSynchronizationContextTaskScheduler(UiContext),action);
+        }
+        
         /// <summary>
         /// 必须在STA主线程下初始化
         /// </summary>
