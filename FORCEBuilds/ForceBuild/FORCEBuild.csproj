@@ -11,8 +11,8 @@
 		<RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Enterprise</PackageTags>
-		<PackageReleaseNotes>Add backgroundtask class</PackageReleaseNotes>
-		<PackageVersion>3.2.2.0</PackageVersion>
+		<PackageReleaseNotes>Fixed backgroundtask bug</PackageReleaseNotes>
+		<PackageVersion>3.2.2.1</PackageVersion>
 		<Title>FORCEBuild</Title>
 	</PropertyGroup>
 	<ItemGroup>
@@ -32,6 +32,7 @@
 		<PackageReference Include="AutoMapper" Version="10.1.1" />
 		<PackageReference Include="Castle.Core" Version="4.4.1" />
 		<PackageReference Include="Castle.Windsor" Version="5.1.1" />
+		<PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
 		<PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
 	</ItemGroup>
 	<ItemGroup>

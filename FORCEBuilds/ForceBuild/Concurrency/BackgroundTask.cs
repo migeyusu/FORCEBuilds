@@ -6,12 +6,12 @@ namespace FORCEBuild.Concurrency
     /// <summary>
     /// 代表一个标准的、可停止的后台进程
     /// </summary>
-    public class BackgroundTask : IDisposable
+    public class BackgroundTask : IDisposable,IAsyncDisposable
     {
         protected readonly Func<CancellationToken, Task> Action;
         public const int Running = 1;
         public const int Sleep = 2;
-        protected int Status = 0;
+        protected int Status;
 
         public bool IsRunning
         {
@@ -61,7 +61,7 @@ namespace FORCEBuild.Concurrency
 
         public virtual void Stop()
         {
-            if (Interlocked.CompareExchange(ref Status, Running, Sleep) == Running)
+            if (Interlocked.CompareExchange(ref Status, Sleep, Running) == Running)
             {
                 TokenSource.Cancel();
                 Task.WaitAll(IncludeTask);
@@ -70,7 +70,7 @@ namespace FORCEBuild.Concurrency
 
         public virtual async Task StopAsync()
         {
-            if (Interlocked.CompareExchange(ref Status, Running, Sleep) == Running)
+            if (Interlocked.CompareExchange(ref Status, Sleep, Running) == Running)
             {
                 TokenSource.Cancel();
                 await Task.WhenAll(IncludeTask);
@@ -79,17 +79,19 @@ namespace FORCEBuild.Concurrency
 
         public virtual void Dispose()
         {
-            if (Status == Running)
-            {
-                Stop();
-            }
+            Stop();
+        }
+
+        public virtual async ValueTask DisposeAsync()
+        {
+            await StopAsync();
         }
     }
 
-    public class BackgroundTask<T> : IDisposable
+    public class BackgroundTask<T> : IDisposable,IAsyncDisposable
     {
         protected readonly Func<CancellationToken, Task<T>> Func;
-        protected int Status = 0;
+        protected int Status;
 
         public BackgroundTask(Func<CancellationToken, Task<T>> func)
         {
@@ -138,8 +140,8 @@ namespace FORCEBuild.Concurrency
 
         public virtual void Stop()
         {
-            if (Interlocked.CompareExchange(ref Status, BackgroundTask.Running, BackgroundTask.Sleep) ==
-                BackgroundTask.Running)
+            if (Interlocked.CompareExchange(ref Status, BackgroundTask.Sleep, BackgroundTask.Running) ==
+                BackgroundTask.Sleep)
             {
                 TokenSource.Cancel();
                 Task.WaitAll(IncludeTask);
@@ -148,8 +150,8 @@ namespace FORCEBuild.Concurrency
 
         public virtual async Task StopAsync()
         {
-            if (Interlocked.CompareExchange(ref Status, BackgroundTask.Running, BackgroundTask.Sleep) ==
-                BackgroundTask.Running)
+            if (Interlocked.CompareExchange(ref Status, BackgroundTask.Sleep, BackgroundTask.Running) ==
+                BackgroundTask.Sleep)
             {
                 TokenSource.Cancel();
                 await Task.WhenAll(IncludeTask);
@@ -158,10 +160,12 @@ namespace FORCEBuild.Concurrency
 
         public virtual void Dispose()
         {
-            if (Status == BackgroundTask.Running)
-            {
-                Stop();
-            }
+            Stop();
+        }
+
+        public virtual async ValueTask DisposeAsync()
+        {
+            await StopAsync();
         }
     }
 }
