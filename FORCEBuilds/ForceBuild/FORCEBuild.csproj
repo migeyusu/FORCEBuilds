@@ -11,8 +11,9 @@
 		<RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Enterprise</PackageTags>
-		<PackageReleaseNotes>Add autoregister to statemachine</PackageReleaseNotes>
-		<PackageVersion>3.2.1.0</PackageVersion>
+		<PackageReleaseNotes>Add backgroundtask class</PackageReleaseNotes>
+		<PackageVersion>3.2.2.0</PackageVersion>
+		<Title>FORCEBuild</Title>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Serialization\IXFormatter.cs" />
