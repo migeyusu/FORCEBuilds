@@ -19,36 +19,7 @@ namespace WpfAppTest
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var fromCurrentSynchronizationContext = TaskScheduler.FromCurrentSynchronizationContext();
-            var actionActor = new ActionActor(fromCurrentSynchronizationContext);
-            for (var i = 0; i < 10; i++)
-            {
-                Task.Run((async () =>
-                {
-                    await actionActor.PostAsync((() =>
-                    {
-                        Debug.WriteLine(Thread.CurrentThread.ManagedThreadId);
-                    }));
-                    actionActor.Post((() =>
-                    {
-                        Debug.WriteLine(Thread.CurrentThread.ManagedThreadId);
-                    }));
-                }));
-
-            }
         }
     }
-
-    public class ActionActor:TaskBasedActor<Action>
-    {
-        public ActionActor(TaskScheduler scheduler) : base(scheduler)
-        {
-            
-        }
-
-        protected override void ReceiveMessage(Action message)
-        {
-            message.Invoke();
-        }
-    }
+    
 }

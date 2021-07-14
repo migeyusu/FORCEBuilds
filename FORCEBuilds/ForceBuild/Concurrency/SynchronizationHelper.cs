@@ -27,7 +27,7 @@ namespace FORCEBuild.Concurrency
             return new CustomSynchronizationContextTaskScheduler(UiContext);
         }
 
-        public static DefaultTaskBasedActor<T> TaskBasedActor<T>(Action<T> action)
+        public static DefaultTaskBasedActor<T> TaskBasedActor<T>(Action<T,CancellationToken> action)
         {
             return new DefaultTaskBasedActor<T>(new CustomSynchronizationContextTaskScheduler(UiContext),action);
         }

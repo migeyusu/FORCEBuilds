@@ -18,14 +18,14 @@ namespace FORCEBuild.Concurrency
         protected TaskBasedActor(TaskScheduler scheduler)
         {
             this._taskScheduler = scheduler;
-            _taskFactory = new TaskFactory(scheduler);
+            this._taskFactory = new TaskFactory(scheduler);
         }
 
-        protected abstract void ReceiveMessage(T message);
+        protected abstract Task ReceiveMessage(T message, CancellationToken token);
 
         public Task PostAsync(T message, CancellationToken token = default)
         {
-            return _taskFactory.StartNew(() => { ReceiveMessage(message); }, token);
+            return _taskFactory.StartNew(() => { return ReceiveMessage(message, token); }, token);
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace FORCEBuild.Concurrency
         /// </summary>
         public void Post(T message)
         {
-            new Task(() => { ReceiveMessage(message); }).RunSynchronously(_taskScheduler);
+            new Task(() => { ReceiveMessage(message, CancellationToken.None); }).RunSynchronously(_taskScheduler);
         }
     }
 }
