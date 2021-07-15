@@ -28,7 +28,7 @@ namespace WpfAppTest
             InitializeComponent();
         }
 
-        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
             SynchronizationHelper.Initialize();
             /*var fromUiSynchronizationContext = SynchronizationHelper.FromUISynchronizationContext();
