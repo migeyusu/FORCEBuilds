@@ -13,7 +13,7 @@ namespace FrameworkTest
         static void Main(string[] args)
         {
             var extensionLoader = new ExtensionLoader();
-            extensionLoader.Initialize(new[]
+            extensionLoader.Load(new[]
             {
                 new Extension()
                 {

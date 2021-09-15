@@ -14,7 +14,7 @@ namespace FORCEBuild
         public State CurrentState
         {
             get => _currentState;
-            set
+            private set
             {
                 if (_currentState != null && value == _currentState)
                 {

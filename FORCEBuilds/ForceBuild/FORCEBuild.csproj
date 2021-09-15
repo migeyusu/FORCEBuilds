@@ -11,8 +11,8 @@
 		<RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
 		<RepositoryType></RepositoryType>
 		<PackageTags>Enterprise</PackageTags>
-		<PackageReleaseNotes>Async actor model now is ready! </PackageReleaseNotes>
-		<PackageVersion>3.3.0.0</PackageVersion>
+		<PackageReleaseNotes>Changed ExtensionLoader</PackageReleaseNotes>
+		<PackageVersion>3.3.1.0</PackageVersion>
 		<Title>FORCEBuild</Title>
 	</PropertyGroup>
 	<ItemGroup>

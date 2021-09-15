@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using AutoMapper;
 using AutoMapper.Internal;
+using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using FORCEBuild.Helper;
@@ -13,44 +14,6 @@ using FORCEBuild.Helper;
 
 namespace FORCEBuild.Plugin
 {
-    public class Extension
-    {
-        /// <summary>
-        /// 扩展名称
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// 扩展所在的文件夹路径
-        /// </summary>
-        public string DirectoryLocation { get; set; }
-
-        /// <summary>
-        /// 扩展已实现的接口，用于预加载
-        /// <para>当前不支持泛型接口</para>
-        /// </summary>
-        public IEnumerable<Type> InterfaceTypes { get; set; }
-    }
-
-    public class ExtensionEntry : Extension
-    {
-        public IEnumerable<Assembly> Assemblies { get; set; }
-
-        /// <summary>
-        /// key:interface type
-        /// </summary>
-        public Dictionary<Type, ExtensionTypePairEntry> LoadedPairEntries { get; set; }
-    }
-
-    public class ExtensionTypePairEntry
-    {
-        public Type InterfaceType { get; set; }
-
-        public Type ImplementType { get; set; }
-
-        public bool IsTypeFind { get; set; }
-    }
-
     /// <summary>
     /// load into current appdomain
     /// <para>support container di</para>
@@ -70,17 +33,23 @@ namespace FORCEBuild.Plugin
         public bool IsAllowDuplicatedDll { get; set; } = false;
 
         /// <summary>
-        /// 依赖容器是否隔离，如果是，将使用一个新的内部容器
+        /// 表示依赖容器是否隔离
         /// </summary>
-        public bool IsContainerIsolation { get; set; } = false;
+        public bool IsContainerIsolation { get; private set; }
 
         public IEnumerable<ExtensionEntry> ExtensionEntries { get; private set; }
 
-        public void Initialize(IEnumerable<Extension> extensions)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="container">附加的容器</param>
+        /// <param name="isContainerIsolation">依赖容器是否隔离，如果是，将使用一个新的内部容器</param>
+        public ExtensionLoader(IWindsorContainer container, bool isContainerIsolation = false)
         {
-            if (MergedContainer != null)
+            this.IsContainerIsolation = isContainerIsolation;
+            if (container != null)
             {
-                if (IsContainerIsolation)
+                if (isContainerIsolation)
                 {
                     _internalContainer = new WindsorContainer();
                     MergedContainer.AddChildContainer(_internalContainer);
@@ -94,7 +63,14 @@ namespace FORCEBuild.Plugin
             {
                 _internalContainer = new WindsorContainer();
             }
+        }
 
+        public ExtensionLoader() : this(new WindsorContainer())
+        {
+        }
+
+        public void Load(IEnumerable<Extension> extensions)
+        {
             var mapper =
                 new Mapper(new MapperConfiguration(expression =>
                     expression.CreateMap<Plugin.Extension, ExtensionEntry>()));
@@ -124,8 +100,9 @@ namespace FORCEBuild.Plugin
 
                 var extensionEntry = mapper.Map<ExtensionEntry>(entry);
                 extensionEntry.Assemblies = assemblies;
-                extensionEntry.LoadedPairEntries = FindTypes(assemblies, entry.InterfaceTypes, _internalContainer, entry.Name)
-                    .ToDictionary(pairEntry => pairEntry.InterfaceType);
+                extensionEntry.LoadedPairEntries =
+                    FindTypes(assemblies, entry.InterfaceTypes, _internalContainer, entry.Name)
+                        .ToDictionary(pairEntry => pairEntry.InterfaceType);
                 return extensionEntry;
             }).ToArray();
         }
@@ -175,20 +152,26 @@ namespace FORCEBuild.Plugin
         /// <returns></returns>
         public T Create<T>(string name)
         {
+            if (ExtensionEntries.IsNullOrEmpty())
+            {
+                return default;
+            }
             //validate first
             var extensionEntry = ExtensionEntries.FirstOrDefault((entry => entry.Name == name));
             if (extensionEntry == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(name), $"There's no extension named '{name}'");
+                return default; // throw new ArgumentOutOfRangeException(nameof(name), $"There's no extension named '{name}'");
             }
 
             var type = typeof(T);
             if (!extensionEntry.LoadedPairEntries.TryGetValue(type, out var value))
-                throw new KeyNotFoundException($"Can't find interface pre defined in extension '{name}'.");
+                return default;
+                // throw new KeyNotFoundException($"Can't find interface pre defined in extension '{name}'.");
             if (!value.IsTypeFind)
             {
-                throw new Exception(
-                    $"Can't load class which inherited interface named '{type.Name}' with parameterless constructor");
+                return default;
+                /*throw new Exception(
+                    $"Can't load class which inherited interface named '{type.Name}' with parameterless constructor");*/
             }
 
             return _internalContainer.Resolve<T>(name);
@@ -196,6 +179,10 @@ namespace FORCEBuild.Plugin
 
         public IEnumerable<T> ResolveAll<T>()
         {
+            if (ExtensionEntries.IsNullOrEmpty())
+            {
+                return Enumerable.Empty<T>();
+            }
             return _internalContainer.ResolveAll<T>();
         }
     }
