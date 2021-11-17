@@ -34,15 +34,13 @@ namespace WpfAppTest
             /*var fromUiSynchronizationContext = SynchronizationHelper.FromUISynchronizationContext();
             var defaultTaskBasedActor = new DefaultTaskBasedActor<string>(fromUiSynchronizationContext,i => this.ListBox.Items.Add(i));
             await defaultTaskBasedActor.PostAsync("asdf");*/
-            var thread = new Thread((async o =>
-            {
-                Thread.Sleep(1000);
-                // defaultTaskBasedActor.Post("asdfasfd");
-                await SynchronizationHelper.UiContext;
-                ListBox.Items.Add("asdg");
-            }));
-            thread.Start();
-            
-        }   
+
+        }
+
+        private async void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            await SynchronizationHelper.UiContext;
+            this.Title = "asd";
+        }
     }
 }

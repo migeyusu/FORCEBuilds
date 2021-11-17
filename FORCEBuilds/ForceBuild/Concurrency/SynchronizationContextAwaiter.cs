@@ -14,9 +14,18 @@ namespace FORCEBuild.Concurrency
             _context = context;
         }
 
-        public bool IsCompleted => _context == SynchronizationContext.Current;
+        public bool IsCompleted
+        {
+            get
+            {
+                return _context == SynchronizationContext.Current;
+            }
+        }
 
-        public void OnCompleted(Action continuation) => _context.Post(_postCallback, continuation);
+        public void OnCompleted(Action continuation)
+        {
+            _context.Post(_postCallback, continuation);
+        }
 
         public void GetResult() { }
     }
