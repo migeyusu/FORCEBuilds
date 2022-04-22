@@ -128,7 +128,7 @@ namespace FORCEBuild.Net.DistributedService
                 
                 #region 结果接收
 
-                var responseHead = client.Client.GetStruct<ResponseHead>();//GetResponseHead(client.Client);
+                var responseHead = client.Client.ReadStruct<ResponseHead>();//GetResponseHead(client.Client);
                 if (!responseHead.IsCorrect)
                     throw new IOException("接受到的数据发生损坏！");
                 var receiveStream = client.Client.GetSpecificLenStream(responseHead.LeaveLength);

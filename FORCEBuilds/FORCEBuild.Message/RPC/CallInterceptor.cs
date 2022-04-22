@@ -6,16 +6,13 @@ namespace FORCEBuild.Net.RPC
     public class CallInterceptor : IInterceptor
     {
         private Func<CallRequest, object> RemoteProceed { get; set; }
-
         private Type InterfaceType { get; set; }
 
-        public ServiceFactory.IException ExceptionCatcher { get; set; }
-
         public CallInterceptor(Func<CallRequest, object> callFunc,
-            Type interfacType)
+            Type interfaceType)
         {
             RemoteProceed = callFunc;
-            InterfaceType = interfacType;
+            InterfaceType = interfaceType;
         }
 
         public void Intercept(IInvocation invoc)
@@ -25,12 +22,7 @@ namespace FORCEBuild.Net.RPC
                 Method = invoc.Method,
                 Parameters = invoc.Arguments
             };
-            try {
-                invoc.ReturnValue = RemoteProceed?.Invoke(request);
-            }
-            catch (Exception exception) {
-                ExceptionCatcher.Catch(exception, invoc.MethodInvocationTarget, invoc.Method);
-            }
+            invoc.ReturnValue = RemoteProceed?.Invoke(request);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace FORCEBuild.Net.DistributedService
      * 但是因为可能的网络错误，订阅列表的更新采用lazy update
      * 只有当需要通知时才检查该调用方是否可用
      * 2017.6.7：取消订阅/发布机制，改为代理机制，修改请求头实现代理
-     * 为较远的将来的均衡负载做准备（先期可以演示这种能力）
+     * 为较远的将来的均衡负载做准备（先期演示）
      */
 
     /// <summary>
@@ -142,12 +142,12 @@ namespace FORCEBuild.Net.DistributedService
         /// <param name="socket"></param>
         private void ServiceAcquire(Socket socket)
         {
-            var head = socket.GetStruct<RequestHead>();
-            if (!head.IsCorrect)
+            var head = socket.ReadStruct<StreamMessageHeader>();
+            if (!head.Verify())
                 return;
             //设置node
             var nodeInfo =
-                formatter.Deserialize(socket.GetSpecificLenStream(head.LeaveLength)) as ServiceNodeInfo;
+                formatter.Deserialize(socket.GetSpecificLenStream(head.Length)) as ServiceNodeInfo;
             var serviceNode = _mapper.Map<ServiceNodeInfo, ServiceNode>(nodeInfo);
             foreach (var str in nodeInfo.InterfacesList)
             {
@@ -178,7 +178,7 @@ namespace FORCEBuild.Net.DistributedService
                 Thread.Sleep(1000);
                 if (socket.Available > 0)
                 {
-                    var head1 = socket.GetStruct<RequestHead>();
+                    var head1 = socket.ReadStruct<RequestHead>();
                     if (!head1.IsCorrect || head1.Calltype != CallType.Heart) continue;
                     var realinfo = formatter.Deserialize(socket.GetSpecificLenStream(head1.LeaveLength))
                         as ServiceNodeRealTimeInfo;
@@ -215,7 +215,7 @@ namespace FORCEBuild.Net.DistributedService
                     {
                         try
                         {
-                            var head = socket.GetStruct<RequestHead>();
+                            var head = socket.ReadStruct<RequestHead>();
                             if (head.IsCorrect)
                             {
                                 var steam = socket.GetSpecificLenStream(head.LeaveLength);
@@ -241,7 +241,7 @@ namespace FORCEBuild.Net.DistributedService
 
                                     child.Send(head.ToBytes());
                                     child.Send(steam.ToArray());
-                                    var response = child.GetStruct<ResponseHead>();
+                                    var response = child.ReadStruct<ResponseHead>();
                                     var datas = new byte[response.LeaveLength];
                                     child.Receive(datas, 0, response.LeaveLength, SocketFlags.None);
                                     socket.Send(response.ToBytes());

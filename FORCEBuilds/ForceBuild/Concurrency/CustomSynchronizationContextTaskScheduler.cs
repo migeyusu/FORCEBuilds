@@ -13,6 +13,11 @@ namespace FORCEBuild.Concurrency
             _mSynchronizationContext = mSynchronizationContext;
         }
 
+        protected override bool TryDequeue(Task task)
+        {
+            return base.TryDequeue(task);
+        }
+
         protected override void QueueTask(Task task) =>
             this._mSynchronizationContext.Post((state =>
             {

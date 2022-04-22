@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Net.Base;
-using FORCEBuild.Net.Remote;
+using FORCEBuild.Net.MessageBus;
 
 namespace FORCEBuild.Persistence.DistributedStorage.Cache
 {
@@ -70,7 +70,7 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
                 client = new TcpClient();
                 client.Connect(MESIEndPoint);
                 while (work) {
-                    var broadcast = client.Client.GetStruct<OperationBroadcast>();
+                    var broadcast = client.Client.ReadStruct<OperationBroadcast>();
                     if (broadcast.IsCorect) {
                         LocalDatas.TryGetValue(broadcast.OperationKey, out CacheCell value);
 
@@ -114,7 +114,7 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
         {
             CacheCell cell;
             if (!LocalDatas.ContainsKey(data.SyncKey)) {
-                cell = new CacheCell() {PreStatus = MESIStatus.Invalid};
+                cell = new CacheCell(TaskScheduler.Current) {PreStatus = MESIStatus.Invalid};
                 LocalDatas.TryAdd(data.SyncKey,cell);
             }
             //cell.Post(new Operation() {

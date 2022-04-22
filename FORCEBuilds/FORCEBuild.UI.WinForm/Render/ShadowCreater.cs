@@ -4,9 +4,9 @@ using System.Windows.Forms;
 
 namespace FORCEBuild.UI.WinForm.Render
 {
-    public class ShadowCreater
+    public class ShadowCreator
     {
-        public ShadowCreater(Control ctl, int width, ShadowPositon sp)
+        public ShadowCreator(Control ctl, int width, ShadowPositon sp)
         {
             switch (sp)
             {

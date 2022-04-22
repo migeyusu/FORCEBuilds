@@ -5,7 +5,7 @@ namespace FORCEBuild.Net.RPC
 {
     public class CallProducePipe: MessagePipe<IMessage,IMessage>
     {
-        public Actuator Actuator { get; set; }
+        public ServiceHandler Handler { get; set; }
 
         protected override IMessage InternalProcess(IMessage message)
         {
@@ -14,7 +14,7 @@ namespace FORCEBuild.Net.RPC
             {
                 try
                 {
-                    var execute = Actuator.Execute(callRequest);
+                    var execute = Handler.Handle(callRequest);
                     return new CallResponse
                     {
                         IsProcessSucceed = true,
@@ -36,7 +36,7 @@ namespace FORCEBuild.Net.RPC
         public override void Dispose()
         {
             base.Dispose();
-            Actuator?.Dispose();
+            Handler?.Dispose();
         }
     }
     

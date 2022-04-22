@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace FORCEBuild.Net.Base
 {
-    public interface INetListenr
+    public interface INetListener
     {
         event Action<UdpReceiveResult> OnReceive;
         event Action OnEndListen;
@@ -18,7 +18,7 @@ namespace FORCEBuild.Net.Base
         void Send(IPEndPoint remote, byte[] bytes);
     }
 
-    public interface INetCommunication : INetSender, INetListenr
+    public interface INetCommunication : INetSender, INetListener
     {
 
     }

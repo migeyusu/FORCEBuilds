@@ -3,6 +3,11 @@ using System.Reflection;
 
 namespace FORCEBuild.Net.Base
 {
+    /// <summary>
+    /// 消息处理管道，可以自定义配置基于消息的处理管道
+    /// </summary>
+    /// <typeparam name="TInput"></typeparam>
+    /// <typeparam name="TOutput"></typeparam>
     public class MessagePipe<TInput,TOutput>:IDisposable
     {
         private readonly Func<TInput, TOutput> _stageFunc;

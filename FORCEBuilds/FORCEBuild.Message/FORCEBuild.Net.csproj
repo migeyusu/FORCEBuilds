@@ -9,8 +9,13 @@
     <RepositoryUrl>https://github.com/migeyusu/FORCEBuilds</RepositoryUrl>
     <RepositoryType>.Net</RepositoryType>
     <PackageIcon>socialism_186.png</PackageIcon>
-    <PackageTags></PackageTags>
-    <PackageReleaseNotes>MessageBus,MessagePipe,RPC</PackageReleaseNotes>
+    <PackageTags>MessageBus,MessagePipe,RPC,IPC</PackageTags>
+    <PackageReleaseNotes>Verson increased to 3.4,  remove unused code. add namedpipe extension</PackageReleaseNotes>
+    <AssemblyVersion>3.4.0.0</AssemblyVersion>
+    <PackageVersion>3.4.0.0</PackageVersion>
+    <Title>FORCEBuild.Net</Title>
+    <Authors>Karl.Zhu</Authors>
+    <PackageProjectUrl>https://github.com/migeyusu/FORCEBuilds</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">
@@ -21,8 +26,18 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Remove="DistributedService\**" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.23" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DistributedService\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="DistributedService\**" />
   </ItemGroup>
 </Project>

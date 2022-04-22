@@ -155,7 +155,7 @@ namespace FORCEBuild.Net.DistributedService
 
         private void Produce(Socket socket)
         {
-            var requestHead = socket.GetStruct<RequestHead>();//GetRequestHead(socket);
+            var requestHead = socket.ReadStruct<RequestHead>();//GetRequestHead(socket);
             if (!requestHead.IsCorrect)
             {
                 SendResponse(false, new Exception("接收的数据发生损坏！"), socket);

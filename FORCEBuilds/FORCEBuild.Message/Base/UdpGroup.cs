@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FORCEBuild.Net.Base
 {
-    public class UdpGroup:INetListenr,INetSender
+    public class UdpGroup:INetListener,INetSender
     {
         UdpClient _listener;
         readonly UdpClient _sender;
