@@ -11,23 +11,21 @@ namespace FORCEBuild.Net.RPC
     /// <summary>
     /// 代理服务工厂
     /// </summary>
-    public class ProxyServiceFactory:IServiceFactory
+    public class ProxyServiceFactory : IServiceFactory
     {
-        public bool CanCreate => _messageRequester == null || !_messageRequester.CanRequest;
-
         private readonly IMessageClient _messageRequester;
 
         private readonly ProxyGenerator _proxyGenerator = new ProxyGenerator();
-        
+
         public ProxyServiceFactory(IMessageClient requester)
         {
-            _messageRequester = requester;
+            _messageRequester = requester ?? throw new ArgumentNullException(nameof(requester));
         }
 
         /// <summary>
         /// 创建接口对象
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">限定为接口</typeparam>
         /// <returns></returns>
         /// <exception cref="NullReferenceException">RemoteChannel==null.</exception>
         /// <exception cref="ArgumentException">RemoteInterface==null.</exception>
@@ -51,15 +49,15 @@ namespace FORCEBuild.Net.RPC
             field.SetValue(serviceInvoker, new Object());
 
 #endif
-            return (T) serviceInvoker;
+            return (T)serviceInvoker;
         }
-        
+
         /// <summary>
         /// 调用请求使用同一个终结点;好处是远程服务切换后，已创建的接口对象可以继续使用
         /// </summary>
         /// <param name="request">请求</param>
         /// <returns></returns>
-        private  object Intercept_RemoteProceed(CallRequest request)
+        private object Intercept_RemoteProceed(CallRequest request)
         {
             if (!(_messageRequester.GetResponse(request) is CallResponse response))
                 throw new Exception($"Failed to proxy method {request.Method.Name}!");

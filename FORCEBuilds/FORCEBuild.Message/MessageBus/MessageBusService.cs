@@ -25,7 +25,7 @@ namespace FORCEBuild.Net.MessageBus
     /// </summary>
     public class MessageBusService : ITcpMessageCentralizedService
     {
-        private readonly ConcurrentDictionary<string, IMessageMail<IMessage>> _concurrentDictionary 
+        private readonly ConcurrentDictionary<string, IMessageMail<IMessage>> _concurrentDictionary
             = new ConcurrentDictionary<string, IMessageMail<IMessage>>();
 
         /// <summary>
@@ -36,7 +36,8 @@ namespace FORCEBuild.Net.MessageBus
         /// 否：需要注册本服务接口【ITcpMessageCentralizedService】到外部RPC</param>
         public MessageBusService(IMessageProcessRoutine routine, bool deployIndependently = true)
         {
-            MessagePipe<IMessage, IMessage> usePipe = new ConsumerProducePipe {
+            MessagePipe<IMessage, IMessage> usePipe = new ConsumerProducePipe
+            {
                 MessageMails = this._concurrentDictionary
             };
             if (deployIndependently)
@@ -45,18 +46,19 @@ namespace FORCEBuild.Net.MessageBus
                 container.Register(Component.For<ITcpMessageCentralizedService>()
                     .Instance(this));
                 var serviceHandler = new ServiceHandler(container);
-                var callProducePipe = new CallProducePipe {
-                    Handler = serviceHandler
-                };
+                var callProducePipe = new CallProducePipe(serviceHandler);
                 usePipe = usePipe.Append(callProducePipe);
             }
+
             routine.AddPipe(usePipe);
         }
 
         public void SendMessage<T>(T x, string topic) where T : IMessage
         {
-            foreach (var mail in _concurrentDictionary.Values) {
-                if (mail.IsMatch(topic)) {
+            foreach (var mail in _concurrentDictionary.Values)
+            {
+                if (mail.IsMatch(topic))
+                {
                     mail.Post(x);
                 }
             }
@@ -65,11 +67,13 @@ namespace FORCEBuild.Net.MessageBus
         public void RegisterOrUpdateMail(MessageRouteStrategy strategy,
             ConsumerStrategy consumerStrategy, string name)
         {
-            _concurrentDictionary.AddOrUpdate(name, s => new DefaultMessageMail {
+            _concurrentDictionary.AddOrUpdate(name, s => new DefaultMessageMail
+                {
                     Name = name,
                     MailStrategy = strategy
                 },
-                (s, mail) => {
+                (s, mail) =>
+                {
                     mail.MailStrategy = strategy;
                     return mail;
                 });
@@ -84,6 +88,5 @@ namespace FORCEBuild.Net.MessageBus
         {
             _concurrentDictionary.TryRemove(name, out IMessageMail<IMessage> mail);
         }
-
     }
 }

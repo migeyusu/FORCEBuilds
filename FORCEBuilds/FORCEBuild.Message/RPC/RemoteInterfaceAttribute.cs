@@ -6,13 +6,10 @@ namespace FORCEBuild.Net.RPC
     /// 标记该接口可被远程调用
     /// </summary>
     [AttributeUsage(AttributeTargets.Interface)]
-    public class RemoteInterfaceAttribute:Attribute
+    public class RemoteInterfaceAttribute : Attribute
     {
-        public string Implement { get; set; }
-
-        public RemoteInterfaceAttribute(string implementname="")
+        public RemoteInterfaceAttribute()
         {
-            Implement = implementname;
         }
     }
 }

@@ -9,6 +9,10 @@
         Loaded="MainWindow_OnLoaded">
     <Grid>
         <ListBox x:Name="ListBox"></ListBox>
-        <Button Click="ButtonBase_OnClick"></Button>
+        <Button Click="ButtonBase_OnClick"
+                Content="测试"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Padding="20" />
     </Grid>
 </Window>

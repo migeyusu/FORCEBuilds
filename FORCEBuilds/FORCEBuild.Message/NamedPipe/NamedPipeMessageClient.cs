@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Pipes;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -12,9 +13,11 @@ namespace FORCEBuild.Net.NamedPipe
     {
         public IFormatter Formatter { get; set; }
 
+        private TimeSpan _timeOut;
+
         public IMessage GetResponse(IMessage message)
         {
-            Task<IMessage> task = Task.Run(( async () =>await this.GetResponseAsync(message,CancellationToken.None)));
+            Task<IMessage> task = Task.Run((async () => await this.GetResponseAsync(message, CancellationToken.None)));
             return task.Result;
         }
 
@@ -24,9 +27,13 @@ namespace FORCEBuild.Net.NamedPipe
         /// 
         /// </summary>
         /// <param name="pipeName"></param>
-        public NamedPipeMessageClient(string pipeName)
+        /// <param name="timeOut"></param>
+        /// <param name="formatter"></param>
+        public NamedPipeMessageClient(string pipeName, TimeSpan timeOut, IFormatter formatter)
         {
             this.PipeName = pipeName;
+            this.Formatter = formatter;
+            this._timeOut = timeOut;
         }
 
         public string PipeName { get; set; }
@@ -39,10 +46,11 @@ namespace FORCEBuild.Net.NamedPipe
         {
             using (var clientStream = new NamedPipeClientStream(PipeName))
             {
-                await clientStream.ConnectAsync(token);
-                using (var readWriter = new NamedPipeMessageFormatterReadWriter(Formatter,clientStream))
+                var timeout = (int)_timeOut.TotalMilliseconds;
+                await clientStream.ConnectAsync(timeout, token);
+                using (var readWriter = new NamedPipeMessageFormatterReadWriter(Formatter, clientStream))
                 {
-                    await readWriter.WriteMessageAsync(message,token);
+                    await readWriter.WriteMessageAsync(message, token);
                     var readMessageAsync = await readWriter.ReadMessageAsync(token);
                     return readMessageAsync;
                 }

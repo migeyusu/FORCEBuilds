@@ -3,9 +3,14 @@ using FORCEBuild.Net.Base;
 
 namespace FORCEBuild.Net.RPC
 {
-    public class CallProducePipe: MessagePipe<IMessage,IMessage>
+    public class CallProducePipe : MessagePipe<IMessage, IMessage>
     {
-        public ServiceHandler Handler { get; set; }
+        public CallProducePipe(ServiceHandler handler)
+        {
+            Handler = handler;
+        }
+
+        public ServiceHandler Handler { get; }
 
         protected override IMessage InternalProcess(IMessage message)
         {
@@ -30,6 +35,7 @@ namespace FORCEBuild.Net.RPC
                     };
                 }
             }
+
             return message;
         }
 
@@ -39,5 +45,4 @@ namespace FORCEBuild.Net.RPC
             Handler?.Dispose();
         }
     }
-    
 }

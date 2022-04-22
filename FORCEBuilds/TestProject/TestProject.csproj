@@ -4,9 +4,13 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <StartupObject>TestProject.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Castle.Windsor.Extensions.DependencyInjection" Version="5.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.0" />
@@ -15,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FORCEBuild.Message\FORCEBuild.Net.csproj" />
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj" />
   </ItemGroup>
 

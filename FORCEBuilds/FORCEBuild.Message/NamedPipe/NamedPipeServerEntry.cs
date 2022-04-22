@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 using FORCEBuild.Net.Abstraction;
 using FORCEBuild.Net.Base;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.NamedPipe
 {
     public class NamedPipeServerEntry : IDisposable
     {
+        public ILogger Logger { get; set; }
+
         private readonly string _pipeName;
+
         public Guid Id { get; }
 
         private bool _connected = false;
@@ -27,19 +31,16 @@ namespace FORCEBuild.Net.NamedPipe
 
         public event EventHandler CancelConnected;
 
-        private readonly IServiceProvider _provider;
-
         private readonly IFormatter _formatter;
 
         private readonly IMessageProcessRoutine _routine;
 
         private readonly int _maxCount;
 
-        public NamedPipeServerEntry(string pipeName, IServiceProvider provider, IFormatter formatter,
+        public NamedPipeServerEntry(string pipeName, IFormatter formatter,
             IMessageProcessRoutine routine, int maxCount)
         {
             _pipeName = pipeName;
-            _provider = provider;
             _formatter = formatter;
             this._routine = routine;
             this._maxCount = maxCount;
@@ -62,6 +63,7 @@ namespace FORCEBuild.Net.NamedPipe
                 {
                     try
                     {
+                        Logger?.LogInformation($"Entry {Id} started.");
                         await namedPipeServerStream.WaitForConnectionAsync(token);
                     }
                     catch (OperationCanceledException)
@@ -85,10 +87,6 @@ namespace FORCEBuild.Net.NamedPipe
                             var processedMessage = this._routine.ProducePipe.Process(message);
                             await messageReadWriter.WriteMessageAsync(processedMessage, token);
                         }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        OnCancelConnected();
                     }
                     catch (Exception exception)
                     {

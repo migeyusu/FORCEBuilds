@@ -8,23 +8,11 @@ namespace FORCEBuild.Net.Base
     /// </summary>
     /// <typeparam name="TInput"></typeparam>
     /// <typeparam name="TOutput"></typeparam>
-    public class MessagePipe<TInput,TOutput>:IDisposable
+    public abstract class MessagePipe<TInput, TOutput> : IDisposable
     {
-        private readonly Func<TInput, TOutput> _stageFunc;
-
-        public MessagePipe(Func<TInput, TOutput> stageFunc)
-        {
-            _stageFunc = stageFunc;
-        }
-
-        public MessagePipe():this(null)
-        {   
-            
-        }
-
         public MessagePipe<TInput, TNextOutput> Append<TNextOutput>(Func<TOutput, TNextOutput> func)
         {
-            return new Flange<TNextOutput>(this,new MessagePipe<TOutput, TNextOutput>(func));
+            return new Flange<TNextOutput>(this, new FuncPipe<TOutput, TNextOutput>(func));
         }
 
         public MessagePipe<TInput, TNextOutput> Append<TNextOutput>(MessagePipe<TOutput, TNextOutput> pipe)
@@ -37,18 +25,13 @@ namespace FORCEBuild.Net.Base
             return InternalProcess(input);
         }
 
-        protected virtual TOutput InternalProcess(TInput input)
+        protected abstract TOutput InternalProcess(TInput input);
+
+        public virtual void Dispose()
         {
-            if (_stageFunc==null) {
-                throw new Exception($"需要重写方法{MethodBase.GetCurrentMethod().Name}或实现委托{_stageFunc}");
-            }
-            return this._stageFunc.Invoke(input);
         }
 
-
-        public virtual void Dispose() { }
-
-        private sealed class Flange<TNextOutput>:MessagePipe<TInput,TNextOutput>
+        private sealed class Flange<TNextOutput> : MessagePipe<TInput, TNextOutput>
         {
             private readonly MessagePipe<TInput, TOutput> _preMessagePipe;
 
@@ -59,7 +42,7 @@ namespace FORCEBuild.Net.Base
                 this._preMessagePipe = preMessagePipe;
                 _lastMessagePipe = thisStageFunc;
             }
-            
+
             protected override TNextOutput InternalProcess(TInput input)
             {
                 return _lastMessagePipe.InternalProcess(_preMessagePipe.InternalProcess(input));

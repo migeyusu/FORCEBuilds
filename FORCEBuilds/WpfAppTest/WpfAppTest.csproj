@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FORCEBuild.Message\FORCEBuild.Net.csproj" />
     <ProjectReference Include="..\ForceBuild\FORCEBuild.csproj" />
+    <ProjectReference Include="..\TestProject\TestProject.csproj" />
   </ItemGroup>
 
 </Project>

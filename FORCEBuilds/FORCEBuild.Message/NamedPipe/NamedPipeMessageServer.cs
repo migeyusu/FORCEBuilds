@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Runtime.Serialization;
 using FORCEBuild.Net.Abstraction;
+using FORCEBuild.Net.Base;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.NamedPipe
 {
@@ -12,13 +14,17 @@ namespace FORCEBuild.Net.NamedPipe
         int MaxConnections { get; set; }
     }
 
-    public class NamedPipeMessageServer : INamedPipeMessageServer
+    public class NamedPipeMessageServer : INamedPipeMessageServer, IMessageProcessRoutine
     {
+        public ILogger<NamedPipeMessageServer> Logger { get; set; }
+
         public IFormatter Formatter { get; set; }
 
-        public IMessageProcessRoutine Routine { get; set; }
+        public IMessageProcessRoutine Routine => this;
 
-        public string PipeName { get; set; } = nameof(NamedPipeMessageServer);
+        public MessagePipe<IMessage, IMessage> ProducePipe { get; set; }
+
+        public string PipeName { get; set; }
 
         public int MaxConnections
         {
@@ -35,13 +41,12 @@ namespace FORCEBuild.Net.NamedPipe
         }
 
         public Guid ServiceGuid { get; } = Guid.NewGuid();
+
         public bool IsRunning { get; private set; }
 
         private bool _disposed = false;
 
         private volatile bool _isListening;
-
-        private readonly IServiceProvider _provider;
 
         private readonly ConcurrentDictionary<Guid, NamedPipeServerEntry> _subscribers =
             new ConcurrentDictionary<Guid, NamedPipeServerEntry>();
@@ -51,9 +56,23 @@ namespace FORCEBuild.Net.NamedPipe
 
         private int _maxConnections = 10;
 
-        public NamedPipeMessageServer(IServiceProvider provider)
+        public NamedPipeMessageServer(string pipeName, IFormatter formatter, MessagePipe<IMessage, IMessage> pipe,
+            int maxConnections) : this(pipeName, formatter, maxConnections)
         {
-            this._provider = provider;
+            this.ProducePipe = pipe;
+        }
+
+        public NamedPipeMessageServer(string pipeName, IFormatter formatter, int maxConnections)
+        {
+            PipeName = pipeName;
+            Formatter = formatter;
+            if (maxConnections < 2)
+            {
+                throw new ArgumentNullException(nameof(maxConnections), "Can't less than 2.");
+            }
+
+            this.MaxConnections = maxConnections;
+            // this.ProducePipe = new EmptyPipe<IMessage, IMessage>();
         }
 
         public void Start()
@@ -89,30 +108,49 @@ namespace FORCEBuild.Net.NamedPipe
             }
 
             var namedPipeServerEntry =
-                new NamedPipeServerEntry(PipeName, _provider, Formatter, Routine, this._maxConnections);
+                new NamedPipeServerEntry(PipeName, Formatter, Routine, this._maxConnections);
             namedPipeServerEntry.Connected += NamedPipeServerEntryOnConnected;
             namedPipeServerEntry.Disconnected += NamedPipeServerEntryOnDisconnected;
             namedPipeServerEntry.CancelConnected += NamedPipeServerEntryOnCancelConnected;
-            _listeners.TryAdd(namedPipeServerEntry.Id, namedPipeServerEntry);
+            var id = namedPipeServerEntry.Id;
+            _listeners.TryAdd(id, namedPipeServerEntry);
+            Logger?.LogInformation(
+                $"New entry {id} created, current listeners count {_listeners.Count}.");
             namedPipeServerEntry.Start();
         }
 
         private void NamedPipeServerEntryOnCancelConnected(object sender, EventArgs e)
         {
-            _subscribers.TryRemove(((NamedPipeServerEntry)sender).Id, out var value);
+            var id = ((NamedPipeServerEntry)sender).Id;
+            _listeners.TryRemove(id, out var value);
+            Logger.LogWarning($"Entry {id} cancel connected. Current subscribers count {_subscribers.Count}.");
         }
 
         private void NamedPipeServerEntryOnDisconnected(object sender, Exception arg2)
         {
-            _subscribers.TryRemove(((NamedPipeServerEntry)sender).Id, out var value);
+            var id = ((NamedPipeServerEntry)sender).Id;
+            _subscribers.TryRemove(id, out var value);
+            if (arg2 != null)
+            {
+                Logger?.LogError(arg2, $"Entry {id} disconnected with exception {arg2}.");
+            }
+            else
+            {
+                Logger.LogWarning($"Entry {id} disconnected");
+            }
+
+            Logger?.LogInformation($"Current subscribers count {_subscribers.Count}.");
         }
 
         private void NamedPipeServerEntryOnConnected(object sender, EventArgs eventArgs)
         {
             var connectedEntry = sender as NamedPipeServerEntry;
-            _listeners.TryRemove(connectedEntry.Id, out var entry);
+            var entryId = connectedEntry.Id;
+            _listeners.TryRemove(entryId, out var entry);
+            _subscribers.TryAdd(entryId, connectedEntry);
+            Logger?.LogInformation(
+                $"Entry {entryId} connected, current listeners count {_listeners.Count}, current subscribers count {_subscribers.Count}.");
             CreateNewEntry();
-            _subscribers.TryAdd(connectedEntry.Id, connectedEntry);
         }
 
 

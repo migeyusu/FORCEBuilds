@@ -1,4 +1,7 @@
-﻿using Castle.Windsor;
+﻿using System;
+using System.Security.Cryptography;
+using System.Text;
+using Castle.Windsor;
 using FORCEBuild.Net.Abstraction;
 using FORCEBuild.Net.Base;
 
@@ -8,10 +11,7 @@ namespace FORCEBuild.Net.RPC
     {
         public static void AddServiceHandler(this IMessageProcessRoutine routine, IWindsorContainer container)
         {
-            var callProducePipeline = new CallProducePipe
-            {
-                Handler = new ServiceHandler(container)
-            };
+            var callProducePipeline = new CallProducePipe(new ServiceHandler(container));
             if (routine.ProducePipe == null)
             {
                 routine.ProducePipe = callProducePipeline;
@@ -21,8 +21,8 @@ namespace FORCEBuild.Net.RPC
                 routine.ProducePipe.Append(callProducePipeline);
             }
         }
-        
-        public static void AddPipe(this IMessageProcessRoutine routine,MessagePipe<IMessage,IMessage> pipe)
+
+        public static void AddPipe(this IMessageProcessRoutine routine, MessagePipe<IMessage, IMessage> pipe)
         {
             if (routine.ProducePipe == null)
             {
@@ -33,5 +33,16 @@ namespace FORCEBuild.Net.RPC
                 routine.ProducePipe.Append(pipe);
             }
         }
+
+/*need for compute hash of type?*/
+        /*static SHA1 _sha1 = SHA1.Create();
+
+        public static int GetTypeHash(Type type)
+        {
+            Encoding.ASCII.
+            _sha1.ComputeHash()
+            type.FullName
+            
+        }*/
     }
 }

@@ -9,10 +9,11 @@ namespace FORCEBuild.Net.Abstraction
     public interface IMessageServer : IDisposable
     {
         IFormatter Formatter { get; set; }
+
         /// <summary>
         /// 服务路由
         /// </summary>
-        IMessageProcessRoutine Routine { get; set; }
+        IMessageProcessRoutine Routine { get; }
 
         /// <summary>
         /// 服务标识,随生命周期更新
