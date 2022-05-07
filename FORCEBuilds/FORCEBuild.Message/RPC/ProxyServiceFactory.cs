@@ -25,18 +25,21 @@ namespace FORCEBuild.Net.RPC
         /// <summary>
         /// 创建接口对象
         /// </summary>
+        /// <param name="checkAttribute">是否检查接口标记</param>
         /// <typeparam name="T">限定为接口</typeparam>
         /// <returns></returns>
         /// <exception cref="NullReferenceException">RemoteChannel==null.</exception>
         /// <exception cref="ArgumentException">RemoteInterface==null.</exception>
-        public T CreateService<T>()
+        public T CreateService<T>(bool checkAttribute = true)
         {
-            if (_messageRequester == null)
-                throw new NullReferenceException($"{_messageRequester}不能为空！");
             var type = typeof(T);
-            var remoteInterface = type.GetCustomAttribute<RemoteInterfaceAttribute>();
-            if (remoteInterface == null)
-                throw new ArgumentException($"接口{nameof(T)}没有标记为远程接口");
+            if (checkAttribute)
+            {
+                var remoteInterface = type.GetCustomAttribute<RemoteInterfaceAttribute>();
+                if (remoteInterface == null)
+                    throw new ArgumentException($"接口{nameof(T)}没有标记为远程接口");
+            }
+
             var serviceInvoker =
                 _proxyGenerator.CreateInterfaceProxyWithoutTarget(type,
                     new CallInterceptor(Intercept_RemoteProceed, type));

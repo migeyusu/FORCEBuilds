@@ -17,14 +17,12 @@ namespace TestProject
         static void Main(string[] args)
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging((builder => builder.AddConsole()));
+            serviceCollection.AddLogging((builder => builder.AddConsole()))
+                .AddTransient<ITestRPC, TestRPC>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var logger = serviceProvider.GetService<ILogger<NamedPipeMessageServer>>();
-            var windsorContainer = new WindsorContainer();
-            windsorContainer.Register(Component.For<ITestRPC>()
-                .ImplementedBy<TestRPC>());
             var namedPipeMessageServer = new NamedPipeMessageServer("testPi", new BinaryFormatter(),
-                new CallProducePipe(new ServiceHandler(windsorContainer)), 3) { Logger = logger };
+                new CallProducePipe(new ServiceHandler(serviceProvider)), 3) { Logger = logger };
             namedPipeMessageServer.Start();
             Console.WriteLine("Start");
             Console.ReadLine();

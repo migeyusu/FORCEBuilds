@@ -5,6 +5,6 @@
     /// </summary>
     public interface IServiceFactory
     {
-        T CreateService<T>();
+        T CreateService<T>(bool checkAttribute = true);
     }
 }

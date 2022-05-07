@@ -42,7 +42,6 @@ namespace FORCEBuild.Net.RPC
         public override void Dispose()
         {
             base.Dispose();
-            Handler?.Dispose();
         }
     }
 }

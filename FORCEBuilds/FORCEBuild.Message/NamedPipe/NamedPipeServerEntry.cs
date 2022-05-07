@@ -15,21 +15,21 @@ namespace FORCEBuild.Net.NamedPipe
     {
         public ILogger Logger { get; set; }
 
-        private readonly string _pipeName;
-
         public Guid Id { get; }
-
-        private bool _connected = false;
-
-        private bool _disposed = false;
-
-        private readonly CancellationTokenSource _waitTokenSource;
 
         public event EventHandler Connected;
 
         public event EventHandler<Exception> Disconnected;
 
         public event EventHandler CancelConnected;
+
+        private readonly string _pipeName;
+
+        private bool _connected = false;
+
+        private bool _disposed = false;
+
+        private readonly CancellationTokenSource _waitTokenSource;
 
         private readonly IFormatter _formatter;
 
@@ -81,7 +81,7 @@ namespace FORCEBuild.Net.NamedPipe
                         _connected = true;
                         OnConnected();
                         using (var messageReadWriter =
-                               new NamedPipeMessageFormatterReadWriter(_formatter, namedPipeServerStream, false))
+                               new NamedPipeMessageFormatterAccessor(_formatter, namedPipeServerStream, false))
                         {
                             var message = await messageReadWriter.ReadMessageAsync(token);
                             var processedMessage = this._routine.ProducePipe.Process(message);

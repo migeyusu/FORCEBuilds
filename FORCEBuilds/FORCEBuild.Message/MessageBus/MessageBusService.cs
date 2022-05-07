@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using System.ComponentModel.Design;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using FORCEBuild.Net.Abstraction;
 using FORCEBuild.Net.Base;
 using FORCEBuild.Net.MessageBus.Buffer;
 using FORCEBuild.Net.RPC;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FORCEBuild.Net.MessageBus
 {
@@ -42,10 +44,9 @@ namespace FORCEBuild.Net.MessageBus
             };
             if (deployIndependently)
             {
-                IWindsorContainer container = new WindsorContainer();
-                container.Register(Component.For<ITcpMessageCentralizedService>()
-                    .Instance(this));
-                var serviceHandler = new ServiceHandler(container);
+                var container = new ServiceCollection();
+                container.AddSingleton<ITcpMessageCentralizedService>(this);
+                var serviceHandler = new ServiceHandler(container.BuildServiceProvider());
                 var callProducePipe = new CallProducePipe(serviceHandler);
                 usePipe = usePipe.Append(callProducePipe);
             }

@@ -6,11 +6,11 @@ using FORCEBuild.Net.Base;
 
 namespace FORCEBuild.Net.NamedPipe
 {
-    public class NamedPipeMessageFormatterReadWriter : NamedPipeMessageReadWriter
+    public class NamedPipeMessageFormatterAccessor : NamedPipeStreamAccessor
     {
         private readonly IFormatter _formatter;
 
-        public NamedPipeMessageFormatterReadWriter(IFormatter formatter, Stream stream, bool isDisposeInternal = true) :
+        public NamedPipeMessageFormatterAccessor(IFormatter formatter, Stream stream, bool isDisposeInternal = true) :
             base(stream, isDisposeInternal)
         {
             _formatter = formatter;
@@ -25,12 +25,30 @@ namespace FORCEBuild.Net.NamedPipe
             }
         }
 
+        public IMessage ReadMessage()
+        {
+            var readAsync = Read();
+            using (var memoryStream = new MemoryStream(readAsync))
+            {
+                return _formatter.Deserialize(memoryStream) as IMessage;
+            }
+        }
+
         public async Task WriteMessageAsync(IMessage message, CancellationToken token)
         {
             using (var memoryStream = new MemoryStream())
             {
-                _formatter.Serialize(memoryStream,message);
+                _formatter.Serialize(memoryStream, message);
                 await WriteAsync(memoryStream.ToArray(), token);
+            }
+        }
+
+        public void WriteMessage(IMessage message)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                _formatter.Serialize(memoryStream, message);
+                Write(memoryStream.ToArray());
             }
         }
     }

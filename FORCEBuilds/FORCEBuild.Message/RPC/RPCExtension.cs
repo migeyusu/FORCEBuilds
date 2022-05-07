@@ -9,7 +9,7 @@ namespace FORCEBuild.Net.RPC
 {
     public static class RPCExtension
     {
-        public static void AddServiceHandler(this IMessageProcessRoutine routine, IWindsorContainer container)
+        public static void AddServiceHandler(this IMessageProcessRoutine routine, IServiceProvider container)
         {
             var callProducePipeline = new CallProducePipe(new ServiceHandler(container));
             if (routine.ProducePipe == null)

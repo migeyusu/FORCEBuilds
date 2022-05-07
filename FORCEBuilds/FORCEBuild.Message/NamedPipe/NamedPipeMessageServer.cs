@@ -7,13 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.NamedPipe
 {
-    public interface INamedPipeMessageServer : IMessageServer
-    {
-        string PipeName { get; set; }
-
-        int MaxConnections { get; set; }
-    }
-
     public class NamedPipeMessageServer : INamedPipeMessageServer, IMessageProcessRoutine
     {
         public ILogger<NamedPipeMessageServer> Logger { get; set; }

@@ -49,7 +49,7 @@ namespace FORCEBuild.Net.TCPChannel
             var memoryStream = new MemoryStream();
             Formatter.Serialize(memoryStream, x);
             var dataBytes = memoryStream.ToArray();
-            var headBytes = new StreamMessageHeader(dataBytes.Length).ToBytes();
+            var headBytes = new StreamMessageHeader(dataBytes.Length).GetBytes();
             for (var i = 0; i < TryTimes; i++)
             {
                 using (var connection = _socketPool.Open(RemoteChannel)) {
@@ -82,6 +82,16 @@ namespace FORCEBuild.Net.TCPChannel
         }
 
         public Task<IMessage> GetResponseAsync(IMessage message, CancellationToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TK GetResponse<T, TK>(T message) where T : IMessage where TK : IMessage
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TK> GetResponseAsync<T, TK>(T message, CancellationToken token) where T : IMessage where TK : IMessage
         {
             throw new NotImplementedException();
         }

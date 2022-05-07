@@ -25,7 +25,7 @@ namespace FORCEBuild.Plugin
         /// </summary>
         public IWindsorContainer MergedContainer { get; set; }
 
-        private IWindsorContainer _internalContainer;
+        private readonly IWindsorContainer _internalContainer;
 
         /// <summary>
         /// 是否允许扩展的dll替换原有的assembly

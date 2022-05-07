@@ -15,13 +15,9 @@ namespace FORCEBuild.Net.NamedPipe
 
         private TimeSpan _timeOut;
 
-        public IMessage GetResponse(IMessage message)
-        {
-            Task<IMessage> task = Task.Run((async () => await this.GetResponseAsync(message, CancellationToken.None)));
-            return task.Result;
-        }
-
         public bool CanRequest { get; } = true;
+
+        public string PipeName { get; set; }
 
         /// <summary>
         /// 
@@ -36,23 +32,40 @@ namespace FORCEBuild.Net.NamedPipe
             this._timeOut = timeOut;
         }
 
-        public string PipeName { get; set; }
+        public TK GetResponse<T, TK>(T message)
+            where T : IMessage
+            where TK : IMessage
+        {
+            using (var clientStream = new NamedPipeClientStream(PipeName))
+            {
+                var timeout = (int)_timeOut.TotalMilliseconds;
+                clientStream.Connect(timeout);
+                using (var readWriter = new NamedPipeMessageFormatterAccessor(Formatter, clientStream))
+                {
+                    readWriter.WriteMessage(message);
+                    var readMessage = readWriter.ReadMessage();
+                    return (TK)readMessage;
+                }
+            }
+        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public async Task<IMessage> GetResponseAsync(IMessage message, CancellationToken token)
+        public async Task<TK> GetResponseAsync<T, TK>(T message, CancellationToken token)
+            where T : IMessage
+            where TK : IMessage
         {
             using (var clientStream = new NamedPipeClientStream(PipeName))
             {
                 var timeout = (int)_timeOut.TotalMilliseconds;
                 await clientStream.ConnectAsync(timeout, token);
-                using (var readWriter = new NamedPipeMessageFormatterReadWriter(Formatter, clientStream))
+                using (var readWriter = new NamedPipeMessageFormatterAccessor(Formatter, clientStream))
                 {
                     await readWriter.WriteMessageAsync(message, token);
                     var readMessageAsync = await readWriter.ReadMessageAsync(token);
-                    return readMessageAsync;
+                    return (TK)readMessageAsync;
                 }
             }
         }

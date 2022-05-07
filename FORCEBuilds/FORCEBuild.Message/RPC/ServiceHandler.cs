@@ -10,14 +10,14 @@ namespace FORCEBuild.Net.RPC
     /// <summary>
     /// 服务调用处理
     /// </summary>
-    public class ServiceHandler : IDisposable
+    public class ServiceHandler
     {
         /// <summary>
         /// 服务容器
         /// </summary>
-        private readonly IWindsorContainer _container;
+        private readonly IServiceProvider _container;
 
-        public ServiceHandler(IWindsorContainer container)
+        public ServiceHandler(IServiceProvider container)
         {
             this._container = container;
         }
@@ -34,7 +34,7 @@ namespace FORCEBuild.Net.RPC
         /// <exception cref="Exception"></exception>
         public object Handle(CallRequest request)
         {
-            var resolve = _container.Resolve(request.InterfaceType);
+            var resolve = _container.GetService(request.InterfaceType);
             if (resolve == null)
             {
                 throw new Exception($"服务容器没有注册接口{request.InterfaceType}对应的类");
@@ -50,11 +50,6 @@ namespace FORCEBuild.Net.RPC
             }
 
             return result;
-        }
-
-        public void Dispose()
-        {
-            _container?.Dispose();
         }
     }
 }
