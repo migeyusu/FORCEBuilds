@@ -10,13 +10,13 @@
 		<RepositoryType>.Net</RepositoryType>
 		<PackageIcon>socialism_186.png</PackageIcon>
 		<PackageTags>MessageBus,MessagePipe,RPC,IPC</PackageTags>
-		<PackageReleaseNotes>Add sync method to NamedPipeMessageClient</PackageReleaseNotes>
-		<AssemblyVersion>3.4.3.0</AssemblyVersion>
-		<PackageVersion>3.4.3.0</PackageVersion>
+		<PackageReleaseNotes>Fixed rpc error.</PackageReleaseNotes>
+		<AssemblyVersion>3.4.3.1</AssemblyVersion>
+		<PackageVersion>3.4.3.1</PackageVersion>
 		<Title>FORCEBuild.Net</Title>
 		<Authors>Karl.Zhu</Authors>
 		<PackageProjectUrl>https://github.com/migeyusu/FORCEBuilds</PackageProjectUrl>
-		<Version>3.4.3.0</Version>
+		<Version>3.4.3.1</Version>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\ForceBuild\FORCEBuild.csproj">

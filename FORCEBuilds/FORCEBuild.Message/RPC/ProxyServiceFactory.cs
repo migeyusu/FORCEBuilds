@@ -62,11 +62,12 @@ namespace FORCEBuild.Net.RPC
         /// <returns></returns>
         private object Intercept_RemoteProceed(CallRequest request)
         {
-            if (!(_messageRequester.GetResponse(request) is CallResponse response))
+            var callResponse = _messageRequester.GetResponse<CallRequest, CallResponse>(request);
+            if (callResponse == null)
                 throw new Exception($"Failed to proxy method {request.Method.Name}!");
-            if (!response.IsProcessSucceed)
-                throw (Exception)response.Transfer;
-            return response.Transfer;
+            if (!callResponse.IsProcessSucceed)
+                throw (Exception)callResponse.Transfer;
+            return callResponse.Transfer;
         }
     }
 }

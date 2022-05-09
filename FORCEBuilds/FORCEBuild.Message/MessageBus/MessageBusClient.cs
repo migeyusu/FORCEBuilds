@@ -76,7 +76,7 @@ namespace FORCEBuild.Net.MessageBus
                                 {
                                     MailName = mail.MailName,
                                 };
-                                var response = _messageRequester.GetResponse(request) as MessageTransferResponse;
+                                var response = _messageRequester.GetResponse<MessageTransferRequest, MessageTransferResponse>(request);
                                 if (response?.Messages != null)
                                 {
                                     foreach (var responseMessage in response.Messages)

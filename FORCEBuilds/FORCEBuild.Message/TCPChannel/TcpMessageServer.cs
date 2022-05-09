@@ -18,59 +18,72 @@ namespace FORCEBuild.Net.TCPChannel
     /// <summary>
     /// 基于TCP的消息通道
     /// </summary>
-    public class TcpMessageServer: ITcpBasedMessageServer
+    public class TcpMessageServer : ITcpBasedMessageServer
     {
         public IPEndPoint ServiceEndPoint { get; set; }
 
         public IFormatter Formatter { get; set; }
 
         public ILog Log { get; set; }
-        
+
         public IMessageProcessRoutine Routine { get; set; }
 
         public Guid ServiceGuid { get; set; }
 
         public bool IsRunning { get; private set; }
-        
-            
-        private bool _work = true;  
+
+
+        private bool _work = true;
 
         public TcpMessageServer()
         {
             Formatter = new BinaryFormatter();
         }
 
-        public void Start() 
+        public void Start()
         {
-            if (IsRunning) {
+            if (IsRunning)
+            {
                 return;
             }
-            if (ServiceEndPoint == null) {
+
+            if (ServiceEndPoint == null)
+            {
                 throw new Exception($"null reference to {ServiceEndPoint}");
             }
+
             IsRunning = true;
             _work = true;
             var listener = new TcpListener(ServiceEndPoint);
-            try {
+            try
+            {
                 listener.Start();
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 listener.Stop();
                 throw;
             }
-            Task.Run(() => {
-                try {
-                    while (_work) {
-                        if (listener.Pending()) {
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    while (_work)
+                    {
+                        if (listener.Pending())
+                        {
                             var acceptSocket = listener.AcceptSocket();
                             Task.Run(() => Produce(acceptSocket));
                         }
-                        else {
+                        else
+                        {
                             Thread.Sleep(50);
                         }
                     }
                 }
-                finally {
+                finally
+                {
                     listener.Stop();
                     IsRunning = false;
                 }
@@ -79,57 +92,67 @@ namespace FORCEBuild.Net.TCPChannel
 
         public void Stop()
         {
-            if (IsRunning) {
+            if (IsRunning)
+            {
                 _work = false;
             }
         }
 
         private void Produce(Socket socket)
         {
-            try {
-                while (socket.Connected && _work) {
-                    if (socket.Available > 0) {
+            try
+            {
+                while (socket.Connected && _work)
+                {
+                    if (socket.Available > 0)
+                    {
                         var requestHead = socket.ReadStruct<StreamMessageHeader>();
                         // DebugExtension.WriteLine($"receive request, leave len{requestHead.LeaveLength}");
-                        if (!requestHead.Verify()) {
-                          //  DebugExtension.WriteLine($"receive error,clear buffering........");
+                        if (!requestHead.Verify())
+                        {
+                            //  DebugExtension.WriteLine($"receive error,clear buffering........");
                             //清空缓冲区
-                            while (socket.Available > 0) {
+                            while (socket.Available > 0)
+                            {
                                 socket.Receive(new byte[socket.Available]);
                             }
-                            SendResponse(new NullMessage {ErrorCode = NetErrorCode.ErrorHead}, socket);
-                           // DebugExtension.WriteLine($"send error yet");
+
+                            SendResponse(new NullMessage { ErrorCode = NetErrorCode.ErrorHead }, socket);
+                            // DebugExtension.WriteLine($"send error yet");
                         }
-                        else {
+                        else
+                        {
                             var desalinize =
                                 Formatter.Deserialize(socket.GetSpecificLenStream(requestHead.Length));
                             var message = Routine.ProducePipe.Process(desalinize as IMessage);
                             SendResponse(message, socket);
                         }
                     }
-                    else {
+                    else
+                    {
                         Thread.Sleep(50);
                     }
                 }
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 Log?.Write(exception);
             }
-            finally {
-               // DebugExtension.WriteLine("socket exit");
+            finally
+            {
+                // DebugExtension.WriteLine("socket exit");
                 socket.Close();
                 socket.Dispose();
             }
-            
         }
-        
+
         private void SendResponse(object dto, Socket socket)
         {
             var memoryStream = new MemoryStream();
             Formatter.Serialize(memoryStream, dto);
             var dataBytes = memoryStream.ToArray();
             var response = new StreamMessageHeader(dataBytes.Length);
-            socket.Send(response.ToBytes());
+            socket.Send(response.GetBytes());
             socket.Send(dataBytes);
         }
 
@@ -137,6 +160,5 @@ namespace FORCEBuild.Net.TCPChannel
         {
             _work = false;
         }
-        
-    }   
+    }
 }

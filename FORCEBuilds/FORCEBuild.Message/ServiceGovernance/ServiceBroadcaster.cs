@@ -64,7 +64,7 @@ namespace FORCEBuild.Net.ServiceGovernance
                         {
                             var info = new ServiceDescriptionDto(ServiceProvider.ServiceEndPoint,
                                 ServiceProvider.ServiceGuid, Filter);
-                            var datas = info.ToBytes();
+                            var datas = info.GetBytes();
                             udp.Send(datas, datas.Length, target);
                             //Debug.WriteLine($"broadcast sended");
                         }

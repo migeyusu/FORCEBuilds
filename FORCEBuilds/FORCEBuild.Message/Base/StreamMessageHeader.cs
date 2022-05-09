@@ -24,7 +24,7 @@ namespace FORCEBuild.Net.Base
         /// </summary>
         public const string HeaderID = "RQHD";
 
-        public const int HeaderSize = 12;
+        public const int HeaderSize = 8;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
         public byte[] Header;
