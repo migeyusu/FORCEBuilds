@@ -17,6 +17,11 @@ namespace FORCEBuild.Net.NamedPipe
 
         public MessagePipe<IMessage, IMessage> ProducePipe { get; set; }
 
+        /// <summary>
+        /// 是否长连接
+        /// </summary>
+        public bool IsLongConnection { get; set; } = true;
+
         public string PipeName { get; set; }
 
         public int MaxConnections
@@ -35,7 +40,7 @@ namespace FORCEBuild.Net.NamedPipe
 
         public Guid ServiceGuid { get; } = Guid.NewGuid();
 
-        public bool IsRunning { get; private set; }
+        public bool IsRunning => _isListening;
 
         private bool _disposed = false;
 
@@ -101,7 +106,7 @@ namespace FORCEBuild.Net.NamedPipe
             }
 
             var namedPipeServerEntry =
-                new NamedPipeServerEntry(PipeName, Formatter, Routine, this._maxConnections);
+                new NamedPipeServerEntry(PipeName, Formatter, Routine, this._maxConnections, IsLongConnection);
             namedPipeServerEntry.Connected += NamedPipeServerEntryOnConnected;
             namedPipeServerEntry.Disconnected += NamedPipeServerEntryOnDisconnected;
             namedPipeServerEntry.CancelConnected += NamedPipeServerEntryOnCancelConnected;

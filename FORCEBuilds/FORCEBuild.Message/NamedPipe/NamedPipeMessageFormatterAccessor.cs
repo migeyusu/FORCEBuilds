@@ -10,8 +10,8 @@ namespace FORCEBuild.Net.NamedPipe
     {
         private readonly IFormatter _formatter;
 
-        public NamedPipeMessageFormatterAccessor(IFormatter formatter, Stream stream, bool isDisposeInternal = true) :
-            base(stream, isDisposeInternal)
+        public NamedPipeMessageFormatterAccessor(IFormatter formatter, Stream stream) :
+            base(stream)
         {
             _formatter = formatter;
         }

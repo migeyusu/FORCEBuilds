@@ -9,16 +9,13 @@ using FORCEBuild.Serialization;
 
 namespace FORCEBuild.Net.NamedPipe
 {
-    public abstract class NamedPipeStreamAccessor : IDisposable
+    public abstract class NamedPipeStreamAccessor
     {
         private readonly Stream _stream;
 
-        private readonly bool _isDisposeInternal;
-
-        public NamedPipeStreamAccessor(Stream stream, bool isDisposeInternal = true)
+        protected NamedPipeStreamAccessor(Stream stream)
         {
             this._stream = stream;
-            this._isDisposeInternal = isDisposeInternal;
         }
 
         public virtual async Task<byte[]> ReadAsync(CancellationToken token)
@@ -107,15 +104,6 @@ namespace FORCEBuild.Net.NamedPipe
             _stream.Write(arrayBytes, 0, headSize);
             _stream.Write(content, 0, contentLength);
             _stream.Flush();
-        }
-
-
-        public void Dispose()
-        {
-            if (_isDisposeInternal)
-            {
-                _stream?.Dispose();
-            }
         }
     }
 }

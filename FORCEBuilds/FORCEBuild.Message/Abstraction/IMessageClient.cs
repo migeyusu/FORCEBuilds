@@ -15,15 +15,16 @@ namespace FORCEBuild.Net.Abstraction
         /// </summary>
         IFormatter Formatter { get; set; }
 
+        /// <summary>
+        /// 检查是否已连接
+        /// </summary>
+        bool CanRequest { get; }
+
         TK GetResponse<T, TK>(T message) where T : IMessage
             where TK : IMessage;
 
         Task<TK> GetResponseAsync<T, TK>(T message, CancellationToken token) where T : IMessage
             where TK : IMessage;
 
-        /// <summary>
-        /// 检查是否已连接
-        /// </summary>
-        bool CanRequest { get; }
     }
 }

@@ -25,27 +25,36 @@ namespace FORCEBuild.Net.NamedPipe
 
         private readonly string _pipeName;
 
-        private bool _connected = false;
+        private volatile bool _connected = false;
 
         private bool _disposed = false;
 
-        private readonly CancellationTokenSource _waitTokenSource;
+        private CancellationTokenSource _waitTokenSource;
 
         private readonly IFormatter _formatter;
 
         private readonly IMessageProcessRoutine _routine;
 
         private readonly int _maxCount;
+        private readonly bool _isLongConnection;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pipeName"></param>
+        /// <param name="formatter"></param>
+        /// <param name="routine"></param>
+        /// <param name="maxCount"></param>
+        /// <param name="isLongConnection">是否启用长连接</param>
         public NamedPipeServerEntry(string pipeName, IFormatter formatter,
-            IMessageProcessRoutine routine, int maxCount)
+            IMessageProcessRoutine routine, int maxCount, bool isLongConnection = true)
         {
             _pipeName = pipeName;
             _formatter = formatter;
             this._routine = routine;
             this._maxCount = maxCount;
+            this._isLongConnection = isLongConnection;
             Id = Guid.NewGuid();
-            _waitTokenSource = new CancellationTokenSource();
         }
 
         public Task Start()
@@ -55,6 +64,7 @@ namespace FORCEBuild.Net.NamedPipe
                 return Task.CompletedTask;
             }
 
+            _waitTokenSource = new CancellationTokenSource();
             var token = _waitTokenSource.Token;
             return Task.Run((async () =>
             {
@@ -80,13 +90,15 @@ namespace FORCEBuild.Net.NamedPipe
                     {
                         _connected = true;
                         OnConnected();
-                        using (var messageReadWriter =
-                               new NamedPipeMessageFormatterAccessor(_formatter, namedPipeServerStream, false))
+                        var messageReadWriter =
+                            new NamedPipeMessageFormatterAccessor(_formatter, namedPipeServerStream);
+                        do
                         {
                             var message = await messageReadWriter.ReadMessageAsync(token);
                             var processedMessage = this._routine.ProducePipe.Process(message);
                             await messageReadWriter.WriteMessageAsync(processedMessage, token);
-                        }
+                        } while (_isLongConnection && namedPipeServerStream.IsConnected &&
+                                 !token.IsCancellationRequested);
                     }
                     catch (Exception exception)
                     {

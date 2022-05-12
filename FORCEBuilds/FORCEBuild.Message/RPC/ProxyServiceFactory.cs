@@ -23,7 +23,7 @@ namespace FORCEBuild.Net.RPC
         }
 
         /// <summary>
-        /// 创建接口对象
+        /// 创建接口代理
         /// </summary>
         /// <param name="checkAttribute">是否检查接口标记</param>
         /// <typeparam name="T">限定为接口</typeparam>
@@ -56,7 +56,7 @@ namespace FORCEBuild.Net.RPC
         }
 
         /// <summary>
-        /// 调用请求使用同一个终结点;好处是远程服务切换后，已创建的接口对象可以继续使用
+        /// 调用请求使用同一个终结点;优点是远程服务切换后已创建的接口对象可以继续使用
         /// </summary>
         /// <param name="request">请求</param>
         /// <returns></returns>
@@ -69,6 +69,7 @@ namespace FORCEBuild.Net.RPC
                 throw (Exception)callResponse.Transfer;
             return callResponse.Transfer;
         }
+
     }
 }
 
@@ -104,4 +105,4 @@ namespace FORCEBuild.Net.RPC
               }
           }
           改进方式为人为填充__target为new object
-           */
+*/
