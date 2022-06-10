@@ -106,7 +106,8 @@ namespace FORCEBuild.Net.NamedPipe
             }
 
             var namedPipeServerEntry =
-                new NamedPipeServerEntry(PipeName, Formatter, Routine, this._maxConnections, IsLongConnection);
+                new NamedPipeServerEntry(PipeName, Formatter, Routine, this._maxConnections, IsLongConnection)
+                    { Logger = this.Logger };
             namedPipeServerEntry.Connected += NamedPipeServerEntryOnConnected;
             namedPipeServerEntry.Disconnected += NamedPipeServerEntryOnDisconnected;
             namedPipeServerEntry.CancelConnected += NamedPipeServerEntryOnCancelConnected;
@@ -121,7 +122,7 @@ namespace FORCEBuild.Net.NamedPipe
         {
             var id = ((NamedPipeServerEntry)sender).Id;
             _listeners.TryRemove(id, out var value);
-            Logger.LogWarning($"Entry {id} cancel connected. Current subscribers count {_subscribers.Count}.");
+            Logger?.LogWarning($"Entry {id} cancel connected. Current subscribers count {_subscribers.Count}.");
         }
 
         private void NamedPipeServerEntryOnDisconnected(object sender, Exception arg2)
@@ -134,7 +135,7 @@ namespace FORCEBuild.Net.NamedPipe
             }
             else
             {
-                Logger.LogWarning($"Entry {id} disconnected");
+                Logger?.LogWarning($"Entry {id} disconnected");
             }
 
             Logger?.LogInformation($"Current subscribers count {_subscribers.Count}.");

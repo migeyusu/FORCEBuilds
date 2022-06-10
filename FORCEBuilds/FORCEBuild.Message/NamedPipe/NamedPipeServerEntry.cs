@@ -73,7 +73,7 @@ namespace FORCEBuild.Net.NamedPipe
                 {
                     try
                     {
-                        Logger?.LogInformation($"Entry {Id} started.");
+                        Logger?.LogInformation($"Entry {Id} start to wait for connect.");
                         await namedPipeServerStream.WaitForConnectionAsync(token);
                     }
                     catch (OperationCanceledException)
