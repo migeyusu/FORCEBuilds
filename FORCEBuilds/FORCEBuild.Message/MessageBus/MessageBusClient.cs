@@ -7,6 +7,7 @@ using FORCEBuild.Net.Abstraction;
 using FORCEBuild.Net.Base;
 using FORCEBuild.Net.MessageBus.DataTransferObject;
 using FORCEBuild.Net.RPC;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.MessageBus
 {
@@ -16,7 +17,7 @@ namespace FORCEBuild.Net.MessageBus
     public class MessageBusClient : IDisposable
     {
         public bool Working { get; set; }
-        public ILog Log { get; set; }
+        public ILogger<MessageBusClient> Log { get; set; }
 
         private readonly ProxyServiceFactory _serviceFactory;
 
@@ -76,7 +77,9 @@ namespace FORCEBuild.Net.MessageBus
                                 {
                                     MailName = mail.MailName,
                                 };
-                                var response = _messageRequester.GetResponse<MessageTransferRequest, MessageTransferResponse>(request);
+                                var response =
+                                    _messageRequester.GetResponse<MessageTransferRequest, MessageTransferResponse>(
+                                        request);
                                 if (response?.Messages != null)
                                 {
                                     foreach (var responseMessage in response.Messages)
@@ -90,7 +93,7 @@ namespace FORCEBuild.Net.MessageBus
                 }
                 catch (Exception e)
                 {
-                    Log?.Write(e);
+                    Log?.LogError(e, "Disconnected.");
                 }
                 finally
                 {

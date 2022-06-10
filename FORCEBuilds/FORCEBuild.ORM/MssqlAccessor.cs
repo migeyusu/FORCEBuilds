@@ -3,6 +3,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Persistence
 {
@@ -17,14 +18,17 @@ namespace FORCEBuild.Persistence
             var command = connection.CreateCommand();
             var type = baseCommand.GetType().Name;
             string sqlSentence;
-            switch (type) {
+            switch (type)
+            {
                 case "InsertCommand":
-                    var insertCommand = (InsertCommand) baseCommand;
-                    if (insertCommand.InsertPairs.Count == 0) {
+                    var insertCommand = (InsertCommand)baseCommand;
+                    if (insertCommand.InsertPairs.Count == 0)
+                    {
                         sqlSentence = "INSERT INTO " + insertCommand.TableName;
                         command.CommandText = sqlSentence;
                     }
-                    else {
+                    else
+                    {
                         sqlSentence = "INSERT INTO " + insertCommand.TableName + " (";
                         sqlSentence = insertCommand.InsertPairs
                             .Aggregate(sqlSentence, (current, column) => current + column.Column + ",");
@@ -41,7 +45,7 @@ namespace FORCEBuild.Persistence
 
                     break;
                 case "UpdateCommand":
-                    var updateCommand = (UpdateCommand) baseCommand;
+                    var updateCommand = (UpdateCommand)baseCommand;
                     sqlSentence = "UPDATE " + updateCommand.TableName + " SET ";
                     sqlSentence = updateCommand.UpdatePairs
                         .Aggregate(sqlSentence,
@@ -50,7 +54,8 @@ namespace FORCEBuild.Persistence
                     sqlSentence += " WHERE ";
                     //暂时只需要针对有主键表的更新
                     var len = updateCommand.ConditionPairs.Count - 1;
-                    for (var index = 0; index < len; index++) {
+                    for (var index = 0; index < len; index++)
+                    {
                         var conditionPair = updateCommand.ConditionPairs[index];
                         sqlSentence += conditionPair.Column + " = @2" + conditionPair.Column + " AND ";
                     }
@@ -65,16 +70,18 @@ namespace FORCEBuild.Persistence
                     break;
                 case "DeleteCommand":
                     //只删除单个值匹配情况
-                    var deleteCommand = (DeleteCommand) baseCommand;
+                    var deleteCommand = (DeleteCommand)baseCommand;
                     sqlSentence = "DELETE FROM " + deleteCommand.TableName;
-                    if (deleteCommand.ConditionPairs.Count == 0) {
+                    if (deleteCommand.ConditionPairs.Count == 0)
+                    {
                         command.CommandText = sqlSentence;
                         break;
                     }
 
                     sqlSentence += " WHERE ";
                     len = deleteCommand.ConditionPairs.Count - 1;
-                    for (var i = 0; i < len; ++i) {
+                    for (var i = 0; i < len; ++i)
+                    {
                         var pair = deleteCommand.ConditionPairs[i];
                         sqlSentence += pair.Column + " = @" + pair.Column + " AND ";
                     }
@@ -86,22 +93,25 @@ namespace FORCEBuild.Persistence
                         command.Parameters.AddWithValue("@" + conditionPair.Column, conditionPair.Value);
                     break;
                 default:
-                    var selectCommand = (SelectCommand) baseCommand;
+                    var selectCommand = (SelectCommand)baseCommand;
                     sqlSentence = "SELECT * FROM " + baseCommand.TableName;
-                    if (selectCommand.ConditionPairs == null) {
+                    if (selectCommand.ConditionPairs == null)
+                    {
                         command.CommandText = sqlSentence;
                         break;
                     }
 
                     ;
-                    if (selectCommand.ConditionPairs.Count == 0) {
+                    if (selectCommand.ConditionPairs.Count == 0)
+                    {
                         command.CommandText = sqlSentence;
                         break;
                     }
 
                     sqlSentence += " WHERE ";
                     len = selectCommand.ConditionPairs.Count;
-                    for (var i = 0; i < len - 1; ++i) {
+                    for (var i = 0; i < len - 1; ++i)
+                    {
                         var pair = selectCommand.ConditionPairs[i];
                         sqlSentence += pair.Column + " = @" + pair.Column + " AND ";
                     }
@@ -109,7 +119,8 @@ namespace FORCEBuild.Persistence
                     sqlSentence += selectCommand.ConditionPairs[len - 1].Column + " = @" +
                                    selectCommand.ConditionPairs[len - 1].Column;
                     command.CommandText = sqlSentence;
-                    foreach (var conditionPair in selectCommand.ConditionPairs) {
+                    foreach (var conditionPair in selectCommand.ConditionPairs)
+                    {
                         //command.Parameters.AddWithValue(, conditionPair.Value);
                         command.Parameters.Add(new SqlParameter("@" + conditionPair.Column, conditionPair.Value));
                     }
@@ -117,7 +128,7 @@ namespace FORCEBuild.Persistence
                     break;
             }
 #if output
-            Log.Write(sqlSentence);
+            Log?.LogInformation(sqlSentence);
 #endif
             return command;
         }
@@ -152,9 +163,12 @@ namespace FORCEBuild.Persistence
             return table;
         }
 
-        private SqlConnection GetConnection {
-            get {
-                if (connectionstring == null) {
+        private SqlConnection GetConnection
+        {
+            get
+            {
+                if (connectionstring == null)
+                {
                     connectionstring = ConnectionStringBuilder.ConnectionString;
                 }
 
@@ -170,7 +184,8 @@ namespace FORCEBuild.Persistence
         {
             base.Close();
             if (_connection == null) return;
-            if (_connection.State != ConnectionState.Closed) {
+            if (_connection.State != ConnectionState.Closed)
+            {
                 _connection.Close();
                 _connection.Dispose();
             }

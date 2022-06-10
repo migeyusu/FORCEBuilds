@@ -1,4 +1,4 @@
-namespace NGInstaller.Core.CrossCutting
+namespace FORCEBuild.Crosscutting.Log
 {
     public class TextLoggerProviderOptions
     {

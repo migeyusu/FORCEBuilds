@@ -10,6 +10,7 @@ using FORCEBuild.Core;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Helper;
 using FORCEBuild.Persistence.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Persistence
 {
@@ -55,19 +56,20 @@ namespace FORCEBuild.Persistence
     /// <summary>
     /// 连接数据库并执行sql，实现类将对应不同的数据库
     /// </summary>
-    internal abstract class Accessor:IFactoryProxyPreparation
+    internal abstract class Accessor : IFactoryProxyPreparation
     {
         /// <summary>
         /// 对应数据库中的id列名，用于跟踪对象
         /// </summary>
         public const string IdColumnName = "guid";
 
-        public OrmConfig Config {
-            set {
+        public OrmConfig Config
+        {
+            set
+            {
                 IsLinked = value.IsLinked;
                 ClassDefines = value.ClassDefines;
                 ConnectionStringBuilder = value.ConnectionStringBuilder;
-                Log = value.Logger;
             }
         }
 
@@ -76,7 +78,7 @@ namespace FORCEBuild.Persistence
         /// </summary>
         public bool IsLinked { get; set; }
 
-        public ILog Log { get; set; }
+        public ILogger<Accessor> Log { get; set; }
 
         public DbConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
@@ -103,11 +105,11 @@ namespace FORCEBuild.Persistence
         public ProxyFactory ProxyFactory { private get; set; }
 
         protected abstract void ExecuteSql(DataBaseCommand ac);
-        
+
         public abstract IDbTransaction BeginTransaction();
-        
+
         protected abstract DataTable Read(SelectCommand ac);
-        
+
         protected abstract DataTable Read(string sql);
 
         public virtual void Insert(IOrmModel model)
@@ -123,16 +125,19 @@ namespace FORCEBuild.Persistence
             #region 多对一
 
             //首先写入外键类型对应的已存在对象外键
-            foreach (var manytoOne in classModel.ManyToOne.Values) {
+            foreach (var manytoOne in classModel.ManyToOne.Values)
+            {
                 var value = manytoOne.PropertyInfo.GetValue(model);
                 if (value != null) //对象为空不插入，相应的，数据库需要允许外键为空
                 {
                     var iOrmModel = value as IOrmModel;
-                    if (iOrmModel.OrmInterceptor.ID.IsEmpty()) {
+                    if (iOrmModel.OrmInterceptor.ID.IsEmpty())
+                    {
                         Insert(iOrmModel);
                     }
 
-                    cmd.InsertPairs.Add(new ColumnValuePair {
+                    cmd.InsertPairs.Add(new ColumnValuePair
+                    {
                         Column = manytoOne.Column,
                         Value = iOrmModel.OrmInterceptor.ID
                     });
@@ -143,13 +148,16 @@ namespace FORCEBuild.Persistence
 
             #region 一对一外键
 
-            foreach (var foreignOne in classModel.ForeignOne.Values) {
+            foreach (var foreignOne in classModel.ForeignOne.Values)
+            {
                 var value = foreignOne.PropertyInfo.GetValue(model);
-                if (value != null) {
+                if (value != null)
+                {
                     var iOrmModel = value as IOrmModel;
                     if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                         Insert(iOrmModel);
-                    cmd.InsertPairs.Add(new ColumnValuePair {
+                    cmd.InsertPairs.Add(new ColumnValuePair
+                    {
                         Column = foreignOne.Column,
                         Value = iOrmModel.OrmInterceptor.ID
                     });
@@ -164,13 +172,16 @@ namespace FORCEBuild.Persistence
 
             #region 属性
 
-            foreach (var pe in classModel.Property) {
+            foreach (var pe in classModel.Property)
+            {
                 var value = pe.Value.PropertyInfo.GetValue(model);
                 var notify = interceptor.NotifyProperties[pe.Key];
-                if (notify.IsChanged) {
+                if (notify.IsChanged)
+                {
                     //如果是default属性则不插入，对于valuetype的default，
                     //在查询时，对于dbnull类型不操作
-                    cmd.InsertPairs.Add(new ColumnValuePair {
+                    cmd.InsertPairs.Add(new ColumnValuePair
+                    {
                         Column = pe.Value.Column,
                         Value = value
                     });
@@ -182,37 +193,41 @@ namespace FORCEBuild.Persistence
             #region 完成写入
 
             var primaryKey = Guid.NewGuid();
-            cmd.InsertPairs.Add(new ColumnValuePair {
+            cmd.InsertPairs.Add(new ColumnValuePair
+            {
                 Column = IdColumnName,
                 Value = primaryKey
             });
             cmd.TableName = classModel.Table;
             ExecuteSql(cmd);
-            if (IsLinked) {
+            if (IsLinked)
+            {
                 classModel.IdPropertyInfo.SetValue(model, primaryKey);
             }
 
             interceptor.ID = primaryKey;
-            
+
             ObjectCache[type].Add(primaryKey, model);
 
             #endregion
 
             #region 多对多
 
-            foreach (var manyToMany in classModel.ManyToMany.Values) {
+            foreach (var manyToMany in classModel.ManyToMany.Values)
+            {
                 var value = manyToMany.PropertyInfo.GetValue(model);
                 if (value == null)
                     continue;
                 if (manyToMany.IsNeedUpdate)
-                    InsertAllManyToMany(manyToMany, (IEnumerable) value, primaryKey);
+                    InsertAllManyToMany(manyToMany, (IEnumerable)value, primaryKey);
             }
 
             #endregion
 
             #region 一对一主键
 
-            foreach (var oneToOne in classModel.OneToOne.Values) {
+            foreach (var oneToOne in classModel.OneToOne.Values)
+            {
                 var value = oneToOne.PropertyInfo.GetValue(model);
                 if (value == null)
                     continue;
@@ -224,15 +239,17 @@ namespace FORCEBuild.Persistence
 
             #region 一对多
 
-            foreach (var oneToMany in classModel.OneToMany.Values) {
-                var value = (IEnumerable) oneToMany.PropertyInfo.GetValue(model);
+            foreach (var oneToMany in classModel.OneToMany.Values)
+            {
+                var value = (IEnumerable)oneToMany.PropertyInfo.GetValue(model);
                 if (oneToMany.IsNeedUpdate)
                     InsertAllOneToMany(oneToMany, value, primaryKey);
             }
 
             #endregion
 
-            foreach (var notifyProperty in interceptor.NotifyProperties.Values) {
+            foreach (var notifyProperty in interceptor.NotifyProperties.Values)
+            {
                 notifyProperty.IsChanged = false;
                 notifyProperty.OperatersList.Clear();
             }
@@ -242,7 +259,7 @@ namespace FORCEBuild.Persistence
         private object DeSerialize(DataRow record, Type type)
         {
             var mainClassDefine = ClassDefines[type];
-            var mainId = (Guid) record[IdColumnName];
+            var mainId = (Guid)record[IdColumnName];
 
             if (ObjectCache[type].ContainsKey(mainId))
                 return ObjectCache[type][mainId];
@@ -252,19 +269,23 @@ namespace FORCEBuild.Persistence
             interceptor.IsRecordable = false;
             if (IsLinked)
                 mainClassDefine.IdPropertyInfo.SetValue(instance, mainId);
-            foreach (var propertyElement in mainClassDefine.Property.Values) {
+            foreach (var propertyElement in mainClassDefine.Property.Values)
+            {
                 if (record[propertyElement.Column] is DBNull)
                     continue;
                 var targetType = propertyElement.PropertyInfo.PropertyType;
                 var data = record[propertyElement.Column];
                 object value = null;
-                if (propertyElement.IsEnum) {
+                if (propertyElement.IsEnum)
+                {
                     value = Enum.Parse(targetType, data.ToString());
                 }
-                else if (propertyElement.IsNullable) {
+                else if (propertyElement.IsNullable)
+                {
                     value = Convert.ChangeType(data, propertyElement.NullableBaseType);
                 }
-                else {
+                else
+                {
                     value = Convert.ChangeType(data, propertyElement.PropertyInfo.PropertyType);
                 }
 
@@ -276,12 +297,13 @@ namespace FORCEBuild.Persistence
 
             #region 一对一外键
 
-            foreach (var foreignOne in mainClassDefine.ForeignOne.Values) {
+            foreach (var foreignOne in mainClassDefine.ForeignOne.Values)
+            {
                 var cellValue = record[foreignOne.Column];
                 //mssql和datatable读上来的int类型为空则为空字符串
                 if (cellValue is DBNull)
                     continue;
-                var propertyValue = Get((Guid) cellValue, foreignOne.ReferClass.ClassType);
+                var propertyValue = Get((Guid)cellValue, foreignOne.ReferClass.ClassType);
                 foreignOne.PropertyInfo.SetValue(instance, propertyValue);
             }
 
@@ -289,11 +311,12 @@ namespace FORCEBuild.Persistence
 
             #region 多对一
 
-            foreach (var manytoOne in mainClassDefine.ManyToOne.Values) {
+            foreach (var manytoOne in mainClassDefine.ManyToOne.Values)
+            {
                 var cellValue = record[manytoOne.Column];
                 if (cellValue is DBNull)
                     continue;
-                var foreignkey = (Guid) cellValue;
+                var foreignkey = (Guid)cellValue;
                 var referClassClassType = manytoOne.ReferClass.ClassType;
                 var value = Get(foreignkey, referClassClassType);
                 manytoOne.PropertyInfo.SetValue(instance, value);
@@ -303,10 +326,12 @@ namespace FORCEBuild.Persistence
 
             #region 一对一主键
 
-            foreach (var onetoOne in mainClassDefine.OneToOne.Values) {
+            foreach (var onetoOne in mainClassDefine.OneToOne.Values)
+            {
                 var classDefine = onetoOne.ReferClass;
-                var selectCommand = new SelectCommand {TableName = classDefine.Table};
-                selectCommand.ConditionPairs.Add(new ColumnValuePair {
+                var selectCommand = new SelectCommand { TableName = classDefine.Table };
+                selectCommand.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = onetoOne.Column,
                     Value = mainId
                 });
@@ -314,7 +339,7 @@ namespace FORCEBuild.Persistence
                 if (dataTable.Rows.Count == 0)
                     continue;
                 var dataline = dataTable.Rows[0];
-                var primaryKey = (Guid) dataline[IdColumnName];
+                var primaryKey = (Guid)dataline[IdColumnName];
                 onetoOne.PropertyInfo.SetValue(instance,
                     ObjectCache[classDefine.ClassType].ContainsKey(primaryKey)
                         ? ObjectCache[classDefine.ClassType][primaryKey]
@@ -325,10 +350,12 @@ namespace FORCEBuild.Persistence
 
             #region 一对多
 
-            foreach (var onetoMany in mainClassDefine.OneToMany.Values) {
+            foreach (var onetoMany in mainClassDefine.OneToMany.Values)
+            {
                 var referClassClassType = onetoMany.ReferClass.ClassType;
-                var selectCommand = new SelectCommand {TableName = onetoMany.ReferClass.Table};
-                selectCommand.ConditionPairs.Add(new ColumnValuePair {
+                var selectCommand = new SelectCommand { TableName = onetoMany.ReferClass.Table };
+                selectCommand.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = onetoMany.ReferColumn,
                     Value = mainId
                 });
@@ -346,7 +373,8 @@ namespace FORCEBuild.Persistence
                  * 三是根据字典确定方法{类似hibernate，对指定的集合有对应的实现}
                 */
                 var list = new ArrayList(dataTable.Rows.Count);
-                foreach (DataRow dataline in dataTable.Rows) {
+                foreach (DataRow dataline in dataTable.Rows)
+                {
                     var childobj = DeSerialize(dataline, referClassClassType);
                     list.Add(childobj);
                 }
@@ -361,10 +389,12 @@ namespace FORCEBuild.Persistence
 
             #region 多对多
 
-            foreach (var manytoMany in mainClassDefine.ManyToMany.Values) {
+            foreach (var manytoMany in mainClassDefine.ManyToMany.Values)
+            {
                 var referClassClassType = manytoMany.ReferClass.ClassType;
-                var selectCommand = new SelectCommand {TableName = manytoMany.Table};
-                selectCommand.ConditionPairs.Add(new ColumnValuePair {
+                var selectCommand = new SelectCommand { TableName = manytoMany.Table };
+                selectCommand.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = manytoMany.Column,
                     Value = mainId
                 });
@@ -372,8 +402,9 @@ namespace FORCEBuild.Persistence
                 if (dataTable.Rows.Count == 0)
                     continue;
                 var list = new ArrayList(dataTable.Rows.Count);
-                foreach (DataRow row in dataTable.Rows) {
-                    var foreignKey = (Guid) row[manytoMany.ReferColumn];
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    var foreignKey = (Guid)row[manytoMany.ReferColumn];
                     var childobj = Get(foreignKey, referClassClassType);
                     list.Add(childobj);
                 }
@@ -387,20 +418,22 @@ namespace FORCEBuild.Persistence
             //允许记录更改
             interceptor.IsRecordable = true;
             //允许发射更改
-            ((IOrmModel) instance).OrmInterceptor.ID = mainId;
+            ((IOrmModel)instance).OrmInterceptor.ID = mainId;
             return instance;
         }
 
         public void GeneratePreparation(PreProxyEventArgs args)
         {
-            if (!ClassDefines.ContainsKey(args.ToProxyType)) {
+            if (!ClassDefines.ContainsKey(args.ToProxyType))
+            {
                 throw new ArgumentException("未定义的类，无法创建实例");
             }
 
             var define = ClassDefines[args.ToProxyType];
             var list = define.AllProperties.ToConcurrencyDictionary(property => property.Key,
-                property => new NotifyProperty {PropertyElement = property.Value});
-            var interceptor = new OrmInterceptor {
+                property => new NotifyProperty { PropertyElement = property.Value });
+            var interceptor = new OrmInterceptor
+            {
                 NotifyProperties = list,
                 IsRecordable = true
             };
@@ -414,8 +447,9 @@ namespace FORCEBuild.Persistence
             if (ObjectCache[type].ContainsKey(ormid))
                 return ObjectCache[type][ormid];
             var classModel = ClassDefines[type];
-            var selectCommand = new SelectCommand {TableName = classModel.Table};
-            selectCommand.ConditionPairs.Add(new ColumnValuePair {
+            var selectCommand = new SelectCommand { TableName = classModel.Table };
+            selectCommand.ConditionPairs.Add(new ColumnValuePair
+            {
                 Column = IdColumnName,
                 Value = ormid
             });
@@ -438,18 +472,22 @@ namespace FORCEBuild.Persistence
                 return;
             var notifyCell = model.OrmInterceptor; //IForceBuildFactory.GetInterceptor<OrmInterceptor>(model);
             var classmodel = model.ClassDefine;
-            var command = new UpdateCommand {TableName = classmodel.Table};
+            var command = new UpdateCommand { TableName = classmodel.Table };
             //分离interceptor
-            foreach (var property in notifyCell.NotifyProperties.Values) {
-                if (property.IsChanged) {
+            foreach (var property in notifyCell.NotifyProperties.Values)
+            {
+                if (property.IsChanged)
+                {
                     var element = property.PropertyElement;
                     var value = property.PropertyElement.PropertyInfo.GetValue(model);
                     property.IsChanged = false;
 
                     #region 值属性
 
-                    if (element.RelationType == RelationType.Value) {
-                        command.UpdatePairs.Add(new ColumnValuePair {
+                    if (element.RelationType == RelationType.Value)
+                    {
+                        command.UpdatePairs.Add(new ColumnValuePair
+                        {
                             Column = element.Column,
                             Value = value
                         });
@@ -459,18 +497,23 @@ namespace FORCEBuild.Persistence
 
                     #region 一对一外键,只更新自身
 
-                    else if (element.RelationType == RelationType.ForeignOne) {
-                        if (value != null) {
+                    else if (element.RelationType == RelationType.ForeignOne)
+                    {
+                        if (value != null)
+                        {
                             var iOrmCell = value as IOrmModel;
                             if (iOrmCell.OrmInterceptor.ID.IsEmpty())
                                 Insert(iOrmCell);
-                            command.UpdatePairs.Add(new ColumnValuePair {
+                            command.UpdatePairs.Add(new ColumnValuePair
+                            {
                                 Column = element.Column,
                                 Value = iOrmCell.OrmInterceptor.ID
                             });
                         }
-                        else {
-                            command.UpdatePairs.Add(new ColumnValuePair {
+                        else
+                        {
+                            command.UpdatePairs.Add(new ColumnValuePair
+                            {
                                 Column = element.Column,
                                 Value = DBNull.Value
                             });
@@ -481,18 +524,23 @@ namespace FORCEBuild.Persistence
 
                     #region 多对一 ，只更新自身
 
-                    else if (element.RelationType == RelationType.ManyToOne) {
-                        if (value != null) {
+                    else if (element.RelationType == RelationType.ManyToOne)
+                    {
+                        if (value != null)
+                        {
                             var iOrmModel = value as IOrmModel;
                             if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                                 Insert(iOrmModel);
-                            command.UpdatePairs.Add(new ColumnValuePair {
+                            command.UpdatePairs.Add(new ColumnValuePair
+                            {
                                 Column = element.Column,
                                 Value = iOrmModel.OrmInterceptor.ID
                             });
                         }
-                        else {
-                            command.UpdatePairs.Add(new ColumnValuePair {
+                        else
+                        {
+                            command.UpdatePairs.Add(new ColumnValuePair
+                            {
                                 Column = element.Column,
                                 Value = DBNull.Value
                             });
@@ -508,13 +556,16 @@ namespace FORCEBuild.Persistence
                         var onetoOne = element as OnetoOne;
                         var referDefine = onetoOne.ReferClass;
                         //先将原先一对一值置为空，然后更新关系，因为一对一主键可能是以外键形式约束
-                        if (onetoOne.IsNeedUpdate) {
-                            var beforeUpdate = new UpdateCommand {TableName = referDefine.Table};
-                            beforeUpdate.ConditionPairs.Add(new ColumnValuePair {
+                        if (onetoOne.IsNeedUpdate)
+                        {
+                            var beforeUpdate = new UpdateCommand { TableName = referDefine.Table };
+                            beforeUpdate.ConditionPairs.Add(new ColumnValuePair
+                            {
                                 Column = onetoOne.Column,
                                 Value = primaryKey
                             });
-                            beforeUpdate.UpdatePairs.Add(new ColumnValuePair {
+                            beforeUpdate.UpdatePairs.Add(new ColumnValuePair
+                            {
                                 Column = onetoOne.Column,
                                 Value = DBNull.Value
                             });
@@ -528,12 +579,14 @@ namespace FORCEBuild.Persistence
 
                     #region 一对多 集合重新赋值
 
-                    else if (element.RelationType == RelationType.OneToMany) {
+                    else if (element.RelationType == RelationType.OneToMany)
+                    {
                         var onetoMany = element as OnetoMany;
-                        if (onetoMany.IsNeedUpdate) {
+                        if (onetoMany.IsNeedUpdate)
+                        {
                             DeleteAllOneToMany(onetoMany, primaryKey);
                             if (value != null)
-                                InsertAllOneToMany(onetoMany, (IEnumerable) value, primaryKey);
+                                InsertAllOneToMany(onetoMany, (IEnumerable)value, primaryKey);
                         }
 
                         property.OperatersList.Clear();
@@ -543,12 +596,14 @@ namespace FORCEBuild.Persistence
 
                     #region 多对多 集合重新赋值
 
-                    else {
+                    else
+                    {
                         var manytoMany = element as ManytoMany;
-                        if (manytoMany.IsNeedUpdate) {
+                        if (manytoMany.IsNeedUpdate)
+                        {
                             DeleteAllManyToMany(manytoMany, primaryKey);
                             if (value != null)
-                                InsertAllManyToMany(manytoMany, (IEnumerable) value, primaryKey);
+                                InsertAllManyToMany(manytoMany, (IEnumerable)value, primaryKey);
                         }
 
                         property.OperatersList.Clear();
@@ -556,44 +611,55 @@ namespace FORCEBuild.Persistence
 
                     #endregion
                 }
-                else {
-                    if (property.OperatersList.Count != 0) {
+                else
+                {
+                    if (property.OperatersList.Count != 0)
+                    {
                         var value = property.PropertyElement.PropertyInfo.GetValue(model);
                         var element = property.PropertyElement;
                         //有operate说明val不为null
 
                         #region 多对多
 
-                        if (element.RelationType == RelationType.ManyToMany) {
+                        if (element.RelationType == RelationType.ManyToMany)
+                        {
                             var manytoMany = element as ManytoMany;
-                            if (manytoMany.IsNeedUpdate) {
+                            if (manytoMany.IsNeedUpdate)
+                            {
                                 //检查是否有reset标志
                                 if (property.OperatersList.Any(eventArgse =>
-                                    eventArgse.Action == NotifyCollectionChangedAction.Reset)) {
+                                        eventArgse.Action == NotifyCollectionChangedAction.Reset))
+                                {
                                     DeleteAllManyToMany(manytoMany, primaryKey);
-                                    InsertAllManyToMany(manytoMany, (IEnumerable) value, primaryKey);
+                                    InsertAllManyToMany(manytoMany, (IEnumerable)value, primaryKey);
                                 }
-                                else {
+                                else
+                                {
                                     //   var referclassDefine = ((ManytoMany) element).ReferClass;
                                     //根据event做原子操作
-                                    foreach (var argse in property.OperatersList) {
-                                        switch (argse.Action) {
+                                    foreach (var argse in property.OperatersList)
+                                    {
+                                        switch (argse.Action)
+                                        {
                                             case NotifyCollectionChangedAction.Add:
                                                 InsertAllManyToMany(manytoMany, argse.NewItems, primaryKey);
                                                 break;
                                             case NotifyCollectionChangedAction.Remove:
-                                                foreach (var oldItem in argse.OldItems) {
-                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ID;
+                                                foreach (var oldItem in argse.OldItems)
+                                                {
+                                                    var id = ((IOrmModel)oldItem).OrmInterceptor.ID;
                                                     if (id.IsEmpty())
                                                         continue;
                                                     //舊對象不存在不需要更新
                                                     var deleteCommand =
-                                                        new DeleteCommand {TableName = manytoMany.Table};
-                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                        new DeleteCommand { TableName = manytoMany.Table };
+                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = manytoMany.Column,
                                                         Value = primaryKey
                                                     });
-                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = manytoMany.ReferColumn,
                                                         Value = id
                                                     });
@@ -602,17 +668,20 @@ namespace FORCEBuild.Persistence
 
                                                 break;
                                             case NotifyCollectionChangedAction.Replace:
-                                                foreach (var oldItem in argse.OldItems) {
-                                                    var id = ((IOrmModel) oldItem).OrmInterceptor.ID;
+                                                foreach (var oldItem in argse.OldItems)
+                                                {
+                                                    var id = ((IOrmModel)oldItem).OrmInterceptor.ID;
                                                     if (id.IsEmpty())
                                                         continue;
                                                     var deleteCommand =
-                                                        new DeleteCommand {TableName = manytoMany.Table};
-                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                        new DeleteCommand { TableName = manytoMany.Table };
+                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = manytoMany.Column,
                                                         Value = primaryKey
                                                     });
-                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = manytoMany.ReferColumn,
                                                         Value = id.IsEmpty()
                                                     });
@@ -631,33 +700,43 @@ namespace FORCEBuild.Persistence
 
                         #region 一对多
 
-                        else {
+                        else
+                        {
                             var onetoMany = element as OnetoMany;
-                            if (onetoMany.IsNeedUpdate) {
+                            if (onetoMany.IsNeedUpdate)
+                            {
                                 //检查reset
                                 if (property.OperatersList.Any(eventArgse =>
-                                    eventArgse.Action == NotifyCollectionChangedAction.Reset)) {
+                                        eventArgse.Action == NotifyCollectionChangedAction.Reset))
+                                {
                                     DeleteAllOneToMany(onetoMany, primaryKey);
-                                    InsertAllOneToMany(onetoMany, (IEnumerable) value, primaryKey);
+                                    InsertAllOneToMany(onetoMany, (IEnumerable)value, primaryKey);
                                 }
-                                else {
-                                    foreach (var argse in property.OperatersList) {
-                                        switch (argse.Action) {
+                                else
+                                {
+                                    foreach (var argse in property.OperatersList)
+                                    {
+                                        switch (argse.Action)
+                                        {
                                             case NotifyCollectionChangedAction.Add:
                                                 InsertAllOneToMany(onetoMany, argse.NewItems, primaryKey);
                                                 break;
                                             case NotifyCollectionChangedAction.Remove:
-                                                foreach (var oldItem in argse.OldItems) {
-                                                    var updateCommand = new UpdateCommand {
+                                                foreach (var oldItem in argse.OldItems)
+                                                {
+                                                    var updateCommand = new UpdateCommand
+                                                    {
                                                         TableName = onetoMany.ReferClass.Table,
                                                     };
-                                                    updateCommand.UpdatePairs.Add(new ColumnValuePair {
+                                                    updateCommand.UpdatePairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = onetoMany.ReferColumn,
                                                         Value = DBNull.Value
                                                     });
-                                                    updateCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                    updateCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = onetoMany.ReferColumn,
-                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ID
+                                                        Value = ((IOrmModel)oldItem).OrmInterceptor.ID
                                                     });
                                                     ExecuteSql(updateCommand);
                                                 }
@@ -665,17 +744,21 @@ namespace FORCEBuild.Persistence
                                                 break;
                                             case NotifyCollectionChangedAction.Replace:
                                                 InsertAllOneToMany(onetoMany, argse.NewItems, primaryKey);
-                                                foreach (var oldItem in argse.OldItems) {
-                                                    var updateCommand = new UpdateCommand {
+                                                foreach (var oldItem in argse.OldItems)
+                                                {
+                                                    var updateCommand = new UpdateCommand
+                                                    {
                                                         TableName = onetoMany.ReferClass.Table,
                                                     };
-                                                    updateCommand.UpdatePairs.Add(new ColumnValuePair {
+                                                    updateCommand.UpdatePairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = onetoMany.ReferColumn,
                                                         Value = DBNull.Value
                                                     });
-                                                    updateCommand.ConditionPairs.Add(new ColumnValuePair {
+                                                    updateCommand.ConditionPairs.Add(new ColumnValuePair
+                                                    {
                                                         Column = onetoMany.ReferColumn,
-                                                        Value = ((IOrmModel) oldItem).OrmInterceptor.ID
+                                                        Value = ((IOrmModel)oldItem).OrmInterceptor.ID
                                                     });
                                                     ExecuteSql(updateCommand);
                                                 }
@@ -694,8 +777,10 @@ namespace FORCEBuild.Persistence
                 }
             }
 
-            if (command.UpdatePairs.Count > 0) {
-                command.ConditionPairs.Add(new ColumnValuePair {
+            if (command.UpdatePairs.Count > 0)
+            {
+                command.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = IdColumnName,
                     Value = primaryKey
                 });
@@ -708,12 +793,14 @@ namespace FORCEBuild.Persistence
             var iOrmModel = oc as IOrmModel;
             if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                 Insert(iOrmModel);
-            var updateCommand = new UpdateCommand {TableName = oneToOne.ReferClass.Table};
-            updateCommand.ConditionPairs.Add(new ColumnValuePair {
+            var updateCommand = new UpdateCommand { TableName = oneToOne.ReferClass.Table };
+            updateCommand.ConditionPairs.Add(new ColumnValuePair
+            {
                 Column = IdColumnName,
                 Value = iOrmModel.OrmInterceptor.ID
             });
-            updateCommand.UpdatePairs.Add(new ColumnValuePair {
+            updateCommand.UpdatePairs.Add(new ColumnValuePair
+            {
                 Column = oneToOne.Column,
                 Value = pk
             });
@@ -722,12 +809,14 @@ namespace FORCEBuild.Persistence
 
         private void DeleteAllOneToMany(OnetoMany onetoMany, Guid pk)
         {
-            var updateCommand = new UpdateCommand {TableName = onetoMany.ReferClass.Table,};
-            updateCommand.UpdatePairs.Add(new ColumnValuePair {
+            var updateCommand = new UpdateCommand { TableName = onetoMany.ReferClass.Table, };
+            updateCommand.UpdatePairs.Add(new ColumnValuePair
+            {
                 Column = onetoMany.ReferColumn,
                 Value = DBNull.Value
             });
-            updateCommand.ConditionPairs.Add(new ColumnValuePair {
+            updateCommand.ConditionPairs.Add(new ColumnValuePair
+            {
                 Column = onetoMany.ReferColumn,
                 Value = pk
             });
@@ -736,16 +825,19 @@ namespace FORCEBuild.Persistence
 
         private void InsertAllOneToMany(OnetoMany onetoMany, IEnumerable preCollection, Guid pk)
         {
-            foreach (var item in preCollection) {
+            foreach (var item in preCollection)
+            {
                 var iOrmModel = item as IOrmModel;
-                var updateCommand = new UpdateCommand {TableName = onetoMany.ReferClass.Table};
+                var updateCommand = new UpdateCommand { TableName = onetoMany.ReferClass.Table };
                 if (iOrmModel.OrmInterceptor.ID.IsEmpty())
                     Insert(iOrmModel);
-                updateCommand.ConditionPairs.Add(new ColumnValuePair {
+                updateCommand.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = IdColumnName,
                     Value = iOrmModel.OrmInterceptor.ID
                 });
-                updateCommand.UpdatePairs.Add(new ColumnValuePair {
+                updateCommand.UpdatePairs.Add(new ColumnValuePair
+                {
                     Column = onetoMany.ReferColumn,
                     Value = pk
                 });
@@ -755,8 +847,9 @@ namespace FORCEBuild.Persistence
 
         private void DeleteAllManyToMany(ManytoMany manytoMany, Guid pk)
         {
-            var deleteCommand = new DeleteCommand {TableName = manytoMany.Table};
-            deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+            var deleteCommand = new DeleteCommand { TableName = manytoMany.Table };
+            deleteCommand.ConditionPairs.Add(new ColumnValuePair
+            {
                 Column = manytoMany.Column,
                 Value = pk
             });
@@ -765,16 +858,19 @@ namespace FORCEBuild.Persistence
 
         private void InsertAllManyToMany(ManytoMany manytoMany, IEnumerable collection, Guid pk)
         {
-            foreach (var item in collection) {
-                var ormid = ((IOrmModel) item).OrmInterceptor.ID;
+            foreach (var item in collection)
+            {
+                var ormid = ((IOrmModel)item).OrmInterceptor.ID;
                 if (ormid.IsEmpty())
                     Insert(item as IOrmModel);
-                var insertCommand = new InsertCommand {TableName = manytoMany.Table,};
-                insertCommand.InsertPairs.Add(new ColumnValuePair {
+                var insertCommand = new InsertCommand { TableName = manytoMany.Table, };
+                insertCommand.InsertPairs.Add(new ColumnValuePair
+                {
                     Column = manytoMany.Column,
                     Value = pk
                 });
-                insertCommand.InsertPairs.Add(new ColumnValuePair {
+                insertCommand.InsertPairs.Add(new ColumnValuePair
+                {
                     Column = manytoMany.ReferColumn,
                     Value = ormid
                 });
@@ -787,9 +883,11 @@ namespace FORCEBuild.Persistence
             var classDefine = model.ClassDefine;
             var ormid = model.OrmInterceptor.ID;
             var objects = ObjectCache[classDefine.ClassType];
-            if (objects.TryGetValue(ormid, out object value) && value == model) {
-                var deleteCommand = new DeleteCommand {TableName = classDefine.Table};
-                deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+            if (objects.TryGetValue(ormid, out object value) && value == model)
+            {
+                var deleteCommand = new DeleteCommand { TableName = classDefine.Table };
+                deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = IdColumnName,
                     Value = ormid
                 });
@@ -801,10 +899,12 @@ namespace FORCEBuild.Persistence
         public virtual void Delete(Guid id, Type type)
         {
             var objects = ObjectCache[type];
-            if (objects.TryGetValue(id, out object value)) {
+            if (objects.TryGetValue(id, out object value))
+            {
                 var classDefine = ClassDefines[type];
-                var command = new DeleteCommand() {TableName = classDefine.Table};
-                command.ConditionPairs.Add(new ColumnValuePair() {
+                var command = new DeleteCommand() { TableName = classDefine.Table };
+                command.ConditionPairs.Add(new ColumnValuePair()
+                {
                     Column = IdColumnName,
                     Value = id
                 });
@@ -817,51 +917,56 @@ namespace FORCEBuild.Persistence
             var dataTable = Read(sql);
             return dataTable.Rows.Count == 0
                 ? null
-                : dataTable.Rows.Cast<DataRow>().Select(dr => (T) DeSerialize(dr, typeof(T))).ToArray();
+                : dataTable.Rows.Cast<DataRow>().Select(dr => (T)DeSerialize(dr, typeof(T))).ToArray();
         }
 
         public virtual void ClearTable(Type type)
         {
             var classModel = ClassDefines[type];
-            var command = new DeleteCommand {TableName = classModel.Table};
+            var command = new DeleteCommand { TableName = classModel.Table };
             ExecuteSql(command);
         }
 
         public virtual T[] LoadAll<T>()
         {
-            var dt = Read(new SelectCommand {TableName = ClassDefines[typeof(T)].Table});
-            return dt.Rows.Cast<DataRow>().Select(x => (T) DeSerialize(x, typeof(T))).ToArray();
+            var dt = Read(new SelectCommand { TableName = ClassDefines[typeof(T)].Table });
+            return dt.Rows.Cast<DataRow>().Select(x => (T)DeSerialize(x, typeof(T))).ToArray();
         }
 
         public virtual T[] GetByProperty<T>(string[] attributes, object[] parameters)
         {
             var dc = ClassDefines[typeof(T)];
-            var sc = new SelectCommand {TableName = dc.Table};
-            for (var i = 0; i < attributes.Length; i++) {
-                sc.ConditionPairs.Add(new ColumnValuePair {
+            var sc = new SelectCommand { TableName = dc.Table };
+            for (var i = 0; i < attributes.Length; i++)
+            {
+                sc.ConditionPairs.Add(new ColumnValuePair
+                {
                     Column = attributes[i],
                     Value = parameters[i]
                 });
             }
 
             var dt = Read(sc);
-            return (from DataRow x in dt.Rows select DeSerialize(x, typeof(T)) into obj select (T) obj).ToArray();
+            return (from DataRow x in dt.Rows select DeSerialize(x, typeof(T)) into obj select (T)obj).ToArray();
         }
 
         public virtual void Delete(IOrmModel model, string property)
         {
             var deleteCommand = new DeleteCommand();
             var select = model.ClassDefine.AllProperties.Keys.FirstOrDefault(key => key == property);
-            if (select == null) {
+            if (select == null)
+            {
                 throw new ArgumentException("要删除的属性不存在");
             }
 
             var propertyElement = model.ClassDefine.AllProperties[select];
-            switch (propertyElement.RelationType) {
+            switch (propertyElement.RelationType)
+            {
                 case RelationType.OneToMany:
                     var oneToMany = propertyElement as OnetoMany;
                     deleteCommand.TableName = oneToMany.ReferClass.Table;
-                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                    {
                         Column = oneToMany.ReferColumn,
                         Value = model.OrmInterceptor.ID
                     });
@@ -869,7 +974,8 @@ namespace FORCEBuild.Persistence
                 case RelationType.ManyToMany:
                     var manyToMany = propertyElement as ManytoMany;
                     deleteCommand.TableName = manyToMany.Table;
-                    deleteCommand.ConditionPairs.Add(new ColumnValuePair {
+                    deleteCommand.ConditionPairs.Add(new ColumnValuePair
+                    {
                         Column = manyToMany.Column,
                         Value = model.OrmInterceptor.ID
                     });
@@ -882,6 +988,8 @@ namespace FORCEBuild.Persistence
             ExecuteSql(deleteCommand);
         }
 
-        public virtual void Close() { }
+        public virtual void Close()
+        {
+        }
     }
 }

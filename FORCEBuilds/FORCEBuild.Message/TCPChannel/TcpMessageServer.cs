@@ -11,6 +11,7 @@ using FORCEBuild.Net.Abstraction;
 using FORCEBuild.Net.Base;
 using FORCEBuild.Net.MessageBus;
 using FORCEBuild.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.TCPChannel
 {
@@ -24,7 +25,7 @@ namespace FORCEBuild.Net.TCPChannel
 
         public IFormatter Formatter { get; set; }
 
-        public ILog Log { get; set; }
+        public ILogger<TcpMessageServer> Log { get; set; }
 
         public IMessageProcessRoutine Routine { get; set; }
 
@@ -136,7 +137,7 @@ namespace FORCEBuild.Net.TCPChannel
             }
             catch (Exception exception)
             {
-                Log?.Write(exception);
+                Log?.LogError(exception, "Socket disconnected.");
             }
             finally
             {

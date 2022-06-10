@@ -1,9 +1,8 @@
 using System;
 using Microsoft.Extensions.Logging;
-using Utility;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace NGInstaller.Core.CrossCutting
+namespace FORCEBuild.Crosscutting.Log
 {
     /// <summary>
     /// separate by minutes
@@ -34,7 +33,7 @@ namespace NGInstaller.Core.CrossCutting
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

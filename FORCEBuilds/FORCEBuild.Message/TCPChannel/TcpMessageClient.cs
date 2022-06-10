@@ -12,10 +12,11 @@ using FORCEBuild.Net.Base;
 using FORCEBuild.Net.MessageBus;
 using FORCEBuild.Net.MessageBus.DataTransferObject;
 using FORCEBuild.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Net.TCPChannel
 {
-    public class TcpMessageClient:ITcpBasedMessageClient
+    public class TcpMessageClient : ITcpBasedMessageClient
     {
         public IFormatter Formatter { get; set; }
 
@@ -34,17 +35,21 @@ namespace FORCEBuild.Net.TCPChannel
             this._socketPool = socketPool;
             this.RemoteChannel = endPoint;
             Formatter = new BinaryFormatter();
-        } 
-         
+        }
+
         /// <exception cref="Exception">消息不能为空</exception>
         public IMessage GetResponse(IMessage x)
         {
-            if (!CanRequest) {
+            if (!CanRequest)
+            {
                 throw new Exception("服务不可用");
             }
-            if (x == null) {
+
+            if (x == null)
+            {
                 throw new Exception("消息不能为空");
             }
+
             IMessage message = null;
             var memoryStream = new MemoryStream();
             Formatter.Serialize(memoryStream, x);
@@ -52,8 +57,9 @@ namespace FORCEBuild.Net.TCPChannel
             var headBytes = new StreamMessageHeader(dataBytes.Length).GetBytes();
             for (var i = 0; i < TryTimes; i++)
             {
-                using (var connection = _socketPool.Open(RemoteChannel)) {
-                    var socket = connection.Socket; 
+                using (var connection = _socketPool.Open(RemoteChannel))
+                {
+                    var socket = connection.Socket;
                     socket.Send(headBytes);
                     socket.Send(dataBytes);
                     //DebugExtension.WriteLine("send request yet");
@@ -67,17 +73,22 @@ namespace FORCEBuild.Net.TCPChannel
                             break;
                         //   DebugExtension.WriteLine($"get null-message,ERROR-CODE:{((NullMessage) message).ErrorCode}");
                     }
+
                     //DebugExtension.WriteLine("error,clear buffering........");
                     //清空缓冲区，准备下次重试
                     while (socket.Available > 0)
                         socket.Receive(new byte[socket.Available]);
                 }
             }
+
             var nullMessage = message as NullMessage;
-            if (nullMessage != null) {
-                Log.Write($"Response Error,Error Code:{nullMessage.ErrorCode}");
-                throw new MessageTransferException {NetErrorCode = nullMessage.ErrorCode};
+            if (nullMessage != null)
+            {
+                var messageTransferException = new MessageTransferException { NetErrorCode = nullMessage.ErrorCode };
+                Log?.LogError(messageTransferException, $"Response Error,Error Code:{nullMessage.ErrorCode}");
+                throw messageTransferException;
             }
+
             return message;
         }
 
@@ -91,7 +102,8 @@ namespace FORCEBuild.Net.TCPChannel
             throw new NotImplementedException();
         }
 
-        public Task<TK> GetResponseAsync<T, TK>(T message, CancellationToken token) where T : IMessage where TK : IMessage
+        public Task<TK> GetResponseAsync<T, TK>(T message, CancellationToken token)
+            where T : IMessage where TK : IMessage
         {
             throw new NotImplementedException();
         }
@@ -100,6 +112,6 @@ namespace FORCEBuild.Net.TCPChannel
 
         public IPEndPoint RemoteChannel { get; set; }
 
-        public ILog Log { get; set; }
+        public ILogger<TcpMessageClient> Log { get; set; }
     }
 }

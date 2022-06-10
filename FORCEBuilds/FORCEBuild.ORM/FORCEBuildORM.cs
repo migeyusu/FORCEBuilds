@@ -168,12 +168,6 @@ namespace FORCEBuild.Persistence
                 throw new ArgumentNullException("AccessorType is null!");
             }
 
-            if (register.Logger == null)
-            {
-                throw new NullReferenceException("Log is null!");
-            }
-
-
             if (register.Function.HasFlag(DecoratorFunction.PropertyChangedNotify))
             {
                 //todo:?

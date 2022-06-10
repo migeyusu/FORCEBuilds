@@ -3,9 +3,8 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
 using FORCEBuild.Concurrency;
-using Utility;
 
-namespace NGInstaller.Core.CrossCutting
+namespace FORCEBuild.Crosscutting.Log
 {
     /// <summary>
     /// 按时间划分的文件写入[Thread-Safety]
@@ -38,8 +37,13 @@ namespace NGInstaller.Core.CrossCutting
                         try
                         {
                             var preFileName = $"{DateTime.Now:yyyy-MM-dd}.txt";
+#if NETFRAMEWORK
+                            var filePath = Path.Combine(folderPath, preFileName);
+                            filePath = Path.GetFullPath(filePath);
+#else
                             var filePath = Path.GetFullPath(preFileName, folderPath);
-                            await using (var streamWriter = new StreamWriter(filePath, true))
+#endif
+                            using (var streamWriter = new StreamWriter(filePath, true))
                             {
                                 while (_collection.TryDequeue(out var s))
                                 {

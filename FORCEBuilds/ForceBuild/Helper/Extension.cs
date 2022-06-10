@@ -247,5 +247,27 @@ namespace FORCEBuild.Helper
             if (badCharsRegex.IsMatch(testName))
                 throw new ArgumentException($"文件路径不能包含{badChars}等字符");
         }
+
+        private static string _appRoot;
+
+        public static string GetApplicationRoot()
+        {
+            if (_appRoot == null)
+            {
+#if DEBUG
+                var entryAssembly = Assembly.GetExecutingAssembly();
+#else
+                var entryAssembly = Assembly.GetEntryAssembly();
+                if (entryAssembly == null)
+                {
+                    entryAssembly = Assembly.GetExecutingAssembly();
+                }
+#endif
+                var location = entryAssembly.Location;
+                _appRoot = Path.GetDirectoryName(location);
+            }
+
+            return _appRoot;
+        }
     }
 }

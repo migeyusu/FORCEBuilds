@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Reflection;
 using FORCEBuild.Core;
 using FORCEBuild.Crosscutting.Log;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Persistence.Configuration
 {
@@ -27,8 +28,6 @@ namespace FORCEBuild.Persistence.Configuration
         /// super-layer class propertyname
         /// </summary>
         public string LinkedIdName { get; set; }
-
-        public ILog Logger { get; set; }
 
         public AccessorType AccessorType { get; set; }
 

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using FORCEBuild.Crosscutting.Log;
 using FORCEBuild.Net.Base;
 using FORCEBuild.Net.MessageBus;
+using Microsoft.Extensions.Logging;
 
 namespace FORCEBuild.Persistence.DistributedStorage.Cache
 {
-
     public class L1Cache //:IStoreage
     {
         public const string Tag = "CMD1";
@@ -18,7 +18,7 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
 
         public IPEndPoint MESIEndPoint { get; set; }
 
-        public ILog Log { get; set; }
+        public ILogger<L1Cache> Log { get; set; }
 
         private MessageBusClient messageBusClient;
 
@@ -46,9 +46,11 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
             work = true;
             //检查消息总线
             MESIEndPoint = null; //messageBusClient.KnowledgeTopic(L2Cache.MESI) as IPEndPoint;
-            if (MESIEndPoint == null) {
+            if (MESIEndPoint == null)
+            {
                 throw new NullReferenceException("一级缓存指令终结点为空");
             }
+
             Task.Run(() => { MESIListen(); });
         }
 
@@ -66,26 +68,32 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
         {
             working = true;
             TcpClient client = null;
-            try {
+            try
+            {
                 client = new TcpClient();
                 client.Connect(MESIEndPoint);
-                while (work) {
+                while (work)
+                {
                     var broadcast = client.Client.ReadStruct<OperationBroadcast>();
-                    if (broadcast.IsCorect) {
+                    if (broadcast.IsCorect)
+                    {
                         LocalDatas.TryGetValue(broadcast.OperationKey, out CacheCell value);
 
                         //remote read/write不影响invalid
-                        value?.Post(new Operation() {
+                        value?.Post(new Operation()
+                        {
                             OperationKey = broadcast.OperationKey,
                             OperationType = broadcast.Operation
                         });
                     }
                 }
             }
-            catch (Exception e) {
-                Log.Write(e);
+            catch (Exception e)
+            {
+                Log?.LogError(e, "Listen failed.");
             }
-            finally {
+            finally
+            {
                 client?.Close();
                 working = false;
             }
@@ -107,35 +115,33 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
         //{
 
 
-
         //}
 
         public void Save(IDistributedData data)
         {
             CacheCell cell;
-            if (!LocalDatas.ContainsKey(data.SyncKey)) {
-                cell = new CacheCell(TaskScheduler.Current) {PreStatus = MESIStatus.Invalid};
-                LocalDatas.TryAdd(data.SyncKey,cell);
+            if (!LocalDatas.ContainsKey(data.SyncKey))
+            {
+                cell = new CacheCell(TaskScheduler.Current) { PreStatus = MESIStatus.Invalid };
+                LocalDatas.TryAdd(data.SyncKey, cell);
             }
             //cell.Post(new Operation() {
-                
+
             //});
         }
 
         public void Delete(IDistributedData data)
         {
-
         }
 
         public void Update(IDistributedData data)
         {
-
         }
 
         public T Get<T>(int key)
         {
-            if (working) {
-
+            if (working)
+            {
             }
 
             return default(T);
@@ -143,11 +149,7 @@ namespace FORCEBuild.Persistence.DistributedStorage.Cache
 
         public dynamic Get(int ormid, string property)
         {
-
-
             return null;
         }
-
-        
     }
 }

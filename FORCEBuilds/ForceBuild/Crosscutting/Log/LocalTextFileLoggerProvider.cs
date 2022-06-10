@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FORCEBuild.Helper;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace NGInstaller.Core.CrossCutting
+namespace FORCEBuild.Crosscutting.Log
 {
+    [ProviderAlias("LocalTextFile")]
     public class LocalTextFileLoggerProvider : ILoggerProvider
     {
         private readonly TimeSeparationTextWriter _textWriter;
@@ -21,8 +23,14 @@ namespace NGInstaller.Core.CrossCutting
                 logPath = ".";
             }
 
-            var rootPath = Toolkit.GetApplicationRoot();
+            var rootPath = Extension.GetApplicationRoot();
+
+#if NETFRAMEWORK
+            var logFolderPath = Path.Combine(rootPath, logPath);
+            logFolderPath = Path.GetFullPath(logFolderPath);
+#else
             var logFolderPath = Path.GetFullPath(logPath, rootPath);
+#endif
             _textWriter = new TimeSeparationTextWriter(logFolderPath);
         }
 
